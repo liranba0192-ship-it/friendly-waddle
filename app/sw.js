@@ -1,5 +1,5 @@
 // Service Worker — מאפשר שימוש אופליין בקליפת האפליקציה.
-const CACHE = "morning-briefing-v1";
+const CACHE = "morning-briefing-v2";
 const SHELL = [
   ".",
   "index.html",
@@ -7,6 +7,13 @@ const SHELL = [
   "app.js",
   "manifest.webmanifest",
   "vendor/marked.min.js",
+  "js/store.js",
+  "js/briefing.js",
+  "js/workout.js",
+  "js/food.js",
+  "js/weight.js",
+  "js/more.js",
+  "data/foods.json",
   "icons/icon-192.png",
   "icons/icon-512.png",
   "icons/apple-touch-icon.png",
@@ -18,15 +25,16 @@ self.addEventListener("install", (e) => {
 
 self.addEventListener("activate", (e) => {
   e.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
-    ).then(() => self.clients.claim())
+    caches.keys()
+      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+      .then(() => self.clients.claim())
   );
 });
 
 self.addEventListener("fetch", (e) => {
+  if (e.request.method !== "GET") return;
   const url = new URL(e.request.url);
-  // תוכן התדריכים: תמיד נסה רשת קודם (כדי לקבל את החדש), נפילה למטמון.
+  // תוכן התדריכים: רשת קודם (לקבל את החדש), נפילה למטמון.
   if (url.pathname.includes("/briefings/")) {
     e.respondWith(
       fetch(e.request)
@@ -39,6 +47,6 @@ self.addEventListener("fetch", (e) => {
     );
     return;
   }
-  // קליפת האפליקציה: מטמון קודם.
+  // קליפת האפליקציה: מטמון קודם, נפילה לרשת.
   e.respondWith(caches.match(e.request).then((r) => r || fetch(e.request)));
 });

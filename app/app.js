@@ -1,137 +1,70 @@
 "use strict";
+window.App = window.App || {};
 
-// --- אלמנטים ---
-const els = {
-  listView: document.getElementById("listView"),
-  articleView: document.getElementById("articleView"),
-  list: document.getElementById("briefingList"),
-  listStatus: document.getElementById("listStatus"),
-  backBtn: document.getElementById("backBtn"),
-  refreshBtn: document.getElementById("refreshBtn"),
-  installHint: document.getElementById("installHint"),
-};
+(function () {
+  const TABS = [
+    { id: "briefing", label: "בוקר", icon: "🌅", mod: () => App.briefing },
+    { id: "workout", label: "אימון", icon: "💪", mod: () => App.workout },
+    { id: "food", label: "אוכל", icon: "🥗", mod: () => App.food },
+    { id: "weight", label: "שקילה", icon: "⚖️", mod: () => App.weight },
+    { id: "more", label: "עוד", icon: "⚙️", mod: () => App.more },
+  ];
+  const mounted = {};
+  let active = null;
 
-const HE_DAYS = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];
-
-function formatDate(iso) {
-  // iso = YYYY-MM-DD
-  const [y, m, d] = iso.split("-").map(Number);
-  const dt = new Date(Date.UTC(y, m - 1, d));
-  const dayName = HE_DAYS[dt.getUTCDay()];
-  return { dayName, pretty: `${d}.${m}.${y}` };
-}
-
-function todayISO() {
-  const n = new Date();
-  const p = (x) => String(x).padStart(2, "0");
-  return `${n.getFullYear()}-${p(n.getMonth() + 1)}-${p(n.getDate())}`;
-}
-
-// --- טעינת אינדקס התדריכים ---
-async function loadIndex() {
-  els.listStatus.hidden = false;
-  els.listStatus.textContent = "טוען תדריכים…";
-  els.list.innerHTML = "";
-  try {
-    const res = await fetch(`../briefings/index.json?ts=${Date.now()}`, { cache: "no-cache" });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    const items = (data.briefings || []).slice().sort((a, b) => b.date.localeCompare(a.date));
-    renderList(items);
-  } catch (err) {
-    els.listStatus.hidden = false;
-    els.listStatus.innerHTML =
-      "עדיין אין תדריכים 📭<br><small>התדריך הראשון ייווצר בהרצת הבוקר הבאה של השגרה.</small>";
+  // --- theme ---
+  App.setTheme = function (theme) {
+    localStorage.setItem("mb.theme", theme);
+    applyTheme();
+  };
+  function applyTheme() {
+    const t = localStorage.getItem("mb.theme") || "auto";
+    document.documentElement.setAttribute("data-theme", t);
   }
-}
 
-function renderList(items) {
-  if (!items.length) {
-    els.listStatus.hidden = false;
-    els.listStatus.innerHTML =
-      "עדיין אין תדריכים 📭<br><small>התדריך הראשון ייווצר בהרצת הבוקר הבאה של השגרה.</small>";
-    return;
+  function titleFor(id) {
+    const t = TABS.find((x) => x.id === id);
+    return `${t.icon} ${t.id === "briefing" ? "הרחבת ידע בוקר" : t.label}`;
   }
-  els.listStatus.hidden = true;
-  const today = todayISO();
-  const frag = document.createDocumentFragment();
-  for (const item of items) {
-    const { dayName, pretty } = formatDate(item.date);
-    const li = document.createElement("li");
-    const card = document.createElement("a");
-    card.className = "briefing-card" + (item.date === today ? " today" : "");
-    card.href = `#${item.date}`;
-    card.innerHTML = `
-      <div class="date-row">
-        <span>${pretty}${item.date === today ? " · היום" : ""}</span>
-        <span class="day-badge">יום ${dayName}</span>
-      </div>
-      <h2>${escapeHtml(item.title || "תדריך יומי")}</h2>`;
-    card.addEventListener("click", (e) => {
-      e.preventDefault();
-      openBriefing(item);
-    });
-    li.appendChild(card);
-    frag.appendChild(li);
+
+  async function switchTab(id) {
+    active = id;
+    document.getElementById("appTitle").textContent = titleFor(id);
+    for (const t of TABS) {
+      const view = document.getElementById("view-" + t.id);
+      const btn = document.getElementById("tab-" + t.id);
+      const isActive = t.id === id;
+      view.hidden = !isActive;
+      btn.classList.toggle("active", isActive);
+    }
+    const tab = TABS.find((t) => t.id === id);
+    const mod = tab.mod();
+    const view = document.getElementById("view-" + id);
+    if (!mounted[id]) { await mod.mount(view); mounted[id] = true; }
+    else if (mod.show) await mod.show();
+    window.scrollTo(0, 0);
+    location.hash = id;
   }
-  els.list.appendChild(frag);
-}
 
-// --- פתיחת תדריך בודד ---
-async function openBriefing(item) {
-  els.articleView.hidden = false;
-  els.listView.hidden = true;
-  els.backBtn.hidden = false;
-  els.articleView.innerHTML = `<p class="status">טוען…</p>`;
-  window.scrollTo(0, 0);
-  location.hash = item.date;
-  try {
-    const res = await fetch(`../briefings/${item.file}?ts=${Date.now()}`, { cache: "no-cache" });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const md = await res.text();
-    els.articleView.innerHTML = window.marked.parse(md);
-    // קישורים חיצוניים נפתחים בטאב חדש
-    els.articleView.querySelectorAll("a[href^='http']").forEach((a) => {
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-    });
-  } catch (err) {
-    els.articleView.innerHTML = `<p class="status">לא ניתן לטעון את התדריך 😕</p>`;
+  function buildTabbar() {
+    const nav = document.getElementById("tabbar");
+    nav.innerHTML = TABS.map((t) =>
+      `<button id="tab-${t.id}" class="tab"><span class="tab-icon">${t.icon}</span><span class="tab-label">${t.label}</span></button>`
+    ).join("");
+    TABS.forEach((t) =>
+      document.getElementById("tab-" + t.id).addEventListener("click", () => switchTab(t.id))
+    );
   }
-}
 
-function showList() {
-  els.articleView.hidden = true;
-  els.listView.hidden = false;
-  els.backBtn.hidden = true;
-  if (location.hash) history.replaceState(null, "", location.pathname);
-}
+  function init() {
+    applyTheme();
+    buildTabbar();
+    const start = (location.hash || "").replace("#", "");
+    switchTab(TABS.some((t) => t.id === start) ? start : "briefing");
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+    }
+  }
 
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, (c) =>
-    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])
-  );
-}
-
-// --- אירועים ---
-els.backBtn.addEventListener("click", showList);
-els.refreshBtn.addEventListener("click", () => {
-  showList();
-  loadIndex();
-});
-
-// רמז התקנה ל-iOS (Safari, כשלא רץ כאפליקציה מותקנת)
-(function installHint() {
-  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  const standalone = window.navigator.standalone || window.matchMedia("(display-mode: standalone)").matches;
-  if (isIOS && !standalone) els.installHint.hidden = false;
+  document.addEventListener("DOMContentLoaded", init);
 })();
-
-// service worker (אופליין)
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("sw.js").catch(() => {});
-  });
-}
-
-loadIndex();
