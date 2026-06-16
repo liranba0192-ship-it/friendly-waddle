@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>הרחבת ידע בוקר 🌅</title>
+  <meta name="description" content="תדריך ידע יומי בעברית — תוספים, אימונים ותזונה, מבוסס ראיות." />
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#0f172a" />
+
+  <!-- iOS "add to home screen" -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="ידע בוקר" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <link rel="icon" href="icons/icon-192.png" />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <button id="backBtn" class="back-btn" hidden aria-label="חזרה">‹ רשימה</button>
+    <h1 class="app-title">🌅 הרחבת ידע בוקר</h1>
+    <button id="refreshBtn" class="icon-btn" aria-label="רענון">↻</button>
+  </header>
+
+  <main id="main" class="content">
+    <!-- list view -->
+    <section id="listView">
+      <p id="listStatus" class="status">טוען תדריכים…</p>
+      <ul id="briefingList" class="briefing-list"></ul>
+    </section>
+
+    <!-- article view -->
+    <article id="articleView" class="article" hidden></article>
+  </main>
+
+  <footer class="app-footer">
+    <span id="installHint" class="install-hint" hidden>
+      💡 הוסף למסך הבית: שתף ⎙ ← «הוסף למסך הבית»
+    </span>
+  </footer>
+
+  <!-- marked (markdown → HTML), נטען מקומית מ-vendor כדי לעבוד אופליין -->
+  <script src="vendor/marked.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
