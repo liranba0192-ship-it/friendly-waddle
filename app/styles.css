@@ -411,3 +411,17 @@ body { background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, 
 .split-chip:active { transform: scale(.95); }
 .split-chip.sel { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; border-color: transparent; }
 .rest-tip { display:inline-block; margin-top:8px; font-size:13.5px; color: var(--text); font-weight:500; }
+.motiv-line { margin-top:12px; text-align:center; font-weight:700; font-size:14px; color:var(--accent-2);
+  background: color-mix(in srgb, var(--accent) 10%, transparent); border-radius:12px; padding:10px; }
+/* כרטיס תדריך משופר */
+.briefing-card .brf-tags { margin-top:8px; display:flex; gap:6px; flex-wrap:wrap; }
+.brf-tag { font-size:11px; background:var(--surface-2); color:var(--muted); border-radius:999px; padding:2px 9px; }
+.brf-new { background: var(--amber); color:#1f2937; font-weight:700; }
+.brf-read { color: var(--accent); }
+.brf-streak { text-align:center; font-weight:800; font-size:15px; color:var(--accent-2);
+  background: color-mix(in srgb, var(--accent) 12%, transparent); border:1px solid color-mix(in srgb,var(--accent) 25%, transparent);
+  border-radius:14px; padding:10px; margin-bottom:12px; }
+/* גרף שקילה משופר */
+.ch-grid { stroke: var(--border); stroke-width: 1; }
+.ch-dot-last { fill: var(--accent-2); }
+.ch-last-txt { fill: var(--text); font-size: 12px; font-weight: 800; }
