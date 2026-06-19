@@ -20,6 +20,7 @@ App.workout = (function () {
       cells.push(`<button class="day-cell${iso === cur ? " sel" : ""}" data-day="${iso}">
         <span class="day-name">${iso === today ? "היום" : "יום " + U.dayName(iso)}</span>
         <span class="day-num">${+dd}</span>
+        ${isRest(iso) ? '<span class="day-rest">🛌</span>' : ""}
       </button>`);
     }
     return `<div class="date-strip">${cells.join("")}</div>`;
@@ -181,13 +182,18 @@ App.workout = (function () {
       : `<p class="status">לא תועד אימון ביום זה. בחר תרגיל למטה כדי לתעד.</p>`;
     const isToday = curDate() === U.todayISO();
     const dayTitle = isToday ? "האימון של היום" : `אימון מ-${U.prettyDate(curDate())} (יום ${U.dayName(curDate())})`;
+    const rest = isRest(curDate());
+    const dayBody = rest
+      ? `<div class="rest-banner">🛌 יום מנוחה — תן לשרירים להתאושש 💪</div>`
+      : doneHtml;
 
     root.innerHTML = `
       ${weekSummary()}
       ${dateStrip()}
       <div class="card-block">
         <h3>${dayTitle}</h3>
-        ${doneHtml}
+        ${dayBody}
+        <button id="wk-rest" class="btn-secondary full">${rest ? "↩️ בטל יום מנוחה" : "🛌 סמן כיום מנוחה"}</button>
       </div>
       <div class="row-btns">
         <button id="wk-history" class="btn-secondary">📋 היסטוריה</button>
@@ -199,6 +205,7 @@ App.workout = (function () {
     root.querySelectorAll("[data-day]").forEach((b) =>
       b.addEventListener("click", () => { selDate = b.dataset.day; render(); })
     );
+    root.querySelector("#wk-rest").addEventListener("click", () => { toggleRest(curDate()); render(); });
     root.querySelectorAll("[data-del]").forEach((b) =>
       b.addEventListener("click", () => {
         const d = raw(); d.logs = (d.logs || []).filter((l) => l.id !== b.dataset.del); save(d); render();
@@ -213,6 +220,17 @@ App.workout = (function () {
 
   function logsForDate(date) {
     return logs().filter((l) => l.date === date);
+  }
+
+  // ימי מנוחה
+  function restDays() { return raw().restDays || []; }
+  function isRest(date) { return restDays().includes(date); }
+  function toggleRest(date) {
+    const d = raw();
+    d.restDays = d.restDays || [];
+    const i = d.restDays.indexOf(date);
+    if (i >= 0) d.restDays.splice(i, 1); else d.restDays.push(date);
+    save(d);
   }
 
   function addExercise() {
