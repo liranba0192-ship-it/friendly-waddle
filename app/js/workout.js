@@ -45,6 +45,21 @@ App.workout = (function () {
     const d = raw(); d.split = d.split || {}; d.split[date] = key; save(d);
   }
 
+  // מטרת אימון → עצימות (טווח חזרות + מנוחה)
+  const GOALS = [
+    { key: "cut", label: "🔥 חיטוב", repMin: 12, repMax: 15, rest: "45–60 שׄ", tip: "חזרות גבוהות ומנוחות קצרות — שמירה על שריר בזמן גירעון" },
+    { key: "mass", label: "💪 מסה", repMin: 8, repMax: 12, rest: "90–120 שׄ", tip: "עומס מתון-כבד ונפח גבוה — מקסום היפרטרופיה (בניית שריר)" },
+    { key: "neutral", label: "⚖️ ניטרלי", repMin: 8, repMax: 12, rest: "60–90 שׄ", tip: "איזון כוח ונפח לכושר כללי" },
+  ];
+  function trainGoal() {
+    const stored = raw().trainGoal;
+    if (stored) return stored;
+    const dir = App.nutrition.profile().goalDir; // ברירת מחדל לפי מטרת התזונה
+    return dir === "lose" ? "cut" : dir === "gain" ? "mass" : "neutral";
+  }
+  function goalDef() { return GOALS.find((g) => g.key === trainGoal()) || GOALS[2]; }
+  function setTrainGoal(key) { const d = raw(); d.trainGoal = key; save(d); }
+
   // ---------- storage (+ מיגרציה מהפורמט הישן) ----------
   function raw() { return S.get("workout", { customExercises: [], logs: [] }); }
   function save(d) { S.set("workout", d); }
@@ -85,21 +100,22 @@ App.workout = (function () {
     return logs().filter((l) => l.exerciseName === name).sort((a, b) => b.date.localeCompare(a.date));
   }
 
-  // ---------- progressive overload ----------
+  // ---------- progressive overload (לפי מטרת האימון) ----------
   function suggestion(name) {
+    const G = goalDef();
     const past = logsForName(name);
-    if (!past.length) return { text: "אימון ראשון — בחר משקל שמאפשר 8–12 חזרות בטכניקה טובה." };
+    if (!past.length) return { text: `אימון ראשון (${G.label}) — בחר משקל שמאפשר ${G.repMin}–${G.repMax} חזרות בטכניקה טובה.` };
     const last = past[0];
     const top = last.sets.reduce((m, s) => (s.reps >= m.reps ? s : m), last.sets[0]);
-    if (top.reps >= TARGET_REPS) {
+    if (top.reps >= G.repMax) {
       return {
-        text: `כל הכבוד! ${top.reps} חזרות ב-${top.weight} ק"ג. הפעם נסה <b>${U.round(top.weight + STEP_KG)} ק"ג</b> ל-${MIN_REPS} חזרות.`,
-        weight: U.round(top.weight + STEP_KG), reps: MIN_REPS,
+        text: `כל הכבוד! ${top.reps} חזרות ב-${top.weight} ק"ג. הפעם נסה <b>${U.round(top.weight + STEP_KG)} ק"ג</b> ל-${G.repMin} חזרות.`,
+        weight: U.round(top.weight + STEP_KG), reps: G.repMin,
       };
     }
     return {
-      text: `שמור על <b>${top.weight} ק"ג</b> והוסף חזרה (יעד ${top.reps + 1}, עד ${TARGET_REPS}). אז תעלה משקל.`,
-      weight: top.weight, reps: Math.min(top.reps + 1, TARGET_REPS),
+      text: `שמור על <b>${top.weight} ק"ג</b> והוסף חזרה (יעד ${top.reps + 1}, עד ${G.repMax}). אז תעלה משקל.`,
+      weight: top.weight, reps: Math.min(top.reps + 1, G.repMax),
     };
   }
 
@@ -230,6 +246,11 @@ App.workout = (function () {
         <button id="wk-history" class="btn-secondary">📋 היסטוריה</button>
         <button id="wk-add" class="btn-secondary">➕ הוסף תרגיל</button>
       </div>
+      <p class="section-hint" style="margin-bottom:6px">מטרת אימון (קובעת עצימות):</p>
+      <div class="split-chips">
+        ${GOALS.map((g) => `<button class="split-chip${g.key === trainGoal() ? " sel" : ""}" data-goal="${g.key}">${g.label}</button>`).join("")}
+      </div>
+      <div class="goal-tip">🎯 ${goalDef().repMin}–${goalDef().repMax} חזרות · מנוחה ${goalDef().rest} — ${goalDef().tip}</div>
       <p class="section-hint" style="margin-bottom:6px">חלוקת אימון להיום:</p>
       <div class="split-chips">
         ${SPLITS.map((s) => `<button class="split-chip${s.key === curSplit ? " sel" : ""}" data-split="${s.key}">${s.label}</button>`).join("")}
@@ -244,6 +265,9 @@ App.workout = (function () {
     if (walkBtn) walkBtn.addEventListener("click", () => { toggleWalk(curDate()); render(); });
     root.querySelectorAll("[data-split]").forEach((b) =>
       b.addEventListener("click", () => { setSplit(curDate(), b.dataset.split); render(); })
+    );
+    root.querySelectorAll("[data-goal]").forEach((b) =>
+      b.addEventListener("click", () => { setTrainGoal(b.dataset.goal); render(); })
     );
     root.querySelectorAll("[data-del]").forEach((b) =>
       b.addEventListener("click", () => {
@@ -309,6 +333,7 @@ App.workout = (function () {
         <button id="wk-video" class="btn-secondary">▶️ צפה בהדגמה</button>
         <button id="wk-img" class="btn-secondary">🖼️ תמונות</button>
       </div>
+      <div class="goal-tip">${goalDef().label} · יעד ${goalDef().repMin}–${goalDef().repMax} חזרות · מנוחה ${goalDef().rest}</div>
       <div class="suggest-box">💡 ${sug.text}</div>
       ${prev ? `<div class="card-block prev-card">
         <h3>💪 האימון הקודם · ${U.prettyDate(prev.date)} (יום ${U.dayName(prev.date)})</h3>
