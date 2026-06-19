@@ -105,6 +105,24 @@ App.workout = (function () {
   }
 
   // ---------- home (grouped) ----------
+  function weekSummary() {
+    const all = logs();
+    const base = new Date(); const p2 = (x) => String(x).padStart(2, "0");
+    const weekAgo = new Date(base); weekAgo.setDate(base.getDate() - 6);
+    const wIso = `${weekAgo.getFullYear()}-${p2(weekAgo.getMonth() + 1)}-${p2(weekAgo.getDate())}`;
+    const recent = all.filter((l) => l.date >= wIso);
+    const days = new Set(recent.map((l) => l.date)).size;
+    const sets = recent.reduce((a, l) => a + l.sets.length, 0);
+    const last = all.slice().sort((a, b) => b.date.localeCompare(a.date))[0];
+    const lastTxt = last ? (last.date === U.todayISO() ? "היום" : U.prettyDate(last.date)) : "—";
+    const mini = (label, val) => `<div class="stat-card mini"><div class="stat-label">${label}</div><div class="stat-value">${val}</div></div>`;
+    return `<div class="dash-summary">
+      ${mini("אימונים השבוע", days)}
+      ${mini("סטים השבוע", sets)}
+      ${mini("אימון אחרון", lastTxt)}
+    </div>`;
+  }
+
   function renderHome() {
     const latest = {};
     for (const l of logs()) {
@@ -135,6 +153,7 @@ App.workout = (function () {
     }).join("");
 
     root.innerHTML = `
+      ${weekSummary()}
       <div class="row-btns">
         <button id="wk-history" class="btn-secondary">📋 היסטוריה</button>
         <button id="wk-add" class="btn-secondary">➕ הוסף תרגיל</button>
