@@ -1,5 +1,5 @@
 // Service Worker — מאפשר שימוש אופליין בקליפת האפליקציה.
-const CACHE = "morning-briefing-v3";
+const CACHE = "morning-briefing-v4";
 const SHELL = [
   ".",
   "index.html",
@@ -8,6 +8,7 @@ const SHELL = [
   "manifest.webmanifest",
   "vendor/marked.min.js",
   "js/store.js",
+  "js/nutrition.js",
   "js/briefing.js",
   "js/workout.js",
   "js/food.js",

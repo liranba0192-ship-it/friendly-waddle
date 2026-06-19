@@ -216,3 +216,40 @@ input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: -1
 .file-label { display: block; text-align: center; }
 
 [hidden] { display: none !important; }
+
+/* ============ אפקטים ואנימציות ============ */
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes pop { 0% { transform: scale(.7); } 60% { transform: scale(1.18); } 100% { transform: scale(1); } }
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+@keyframes slideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+
+/* כניסת תוכן בעת מעבר טאב */
+.view.enter { animation: fadeInUp .3s ease both; }
+
+/* ניתור עדין של אייקון הטאב הפעיל */
+.tab .tab-icon { transition: transform .15s ease; }
+.tab.active .tab-icon { animation: pop .42s ease; }
+
+/* פס התקדמות חלק יותר + ברק עדין */
+.bar-fill {
+  transition: width .6s cubic-bezier(.34,1.2,.4,1);
+  background-image: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent));
+  background-size: 200% 100%;
+}
+
+/* תיבת ההצעה/תוצאה נכנסת בעדינות */
+.suggest-box, .add-row, #fd-add:not([hidden]) { animation: slideDown .25s ease both; }
+
+/* לחיצות — משוב מיידי */
+.btn-primary:active, .btn-secondary:active, .food-item:active, .stat-card:active { transform: scale(.97); }
+.btn-primary, .btn-secondary { transition: transform .1s ease, filter .15s ease, box-shadow .15s ease; }
+.btn-primary { box-shadow: 0 4px 14px color-mix(in srgb, var(--accent) 30%, transparent); }
+.btn-primary:active { box-shadow: 0 2px 8px color-mix(in srgb, var(--accent) 25%, transparent); }
+
+/* כותרת — ברק עדין שעובר על הרקע */
+.app-header { background-size: 200% 100%; animation: shimmer 12s linear infinite; }
+
+/* כיבוד העדפת תנועה מופחתת */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
