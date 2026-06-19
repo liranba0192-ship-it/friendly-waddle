@@ -2,7 +2,7 @@
 window.App = window.App || {};
 
 App.briefing = (function () {
-  const U = App.util;
+  const U = App.util, S = App.store;
   let root, listEl, statusEl, freshEl, articleEl, backBtn, inArticle = false, loadSeq = 0;
 
   function daysAgo(iso) {
@@ -11,6 +11,18 @@ App.briefing = (function () {
     const n = new Date();
     const today = Date.UTC(n.getFullYear(), n.getMonth(), n.getDate());
     return Math.round((today - then) / 86400000);
+  }
+  function dayDiff(a, b) { return daysAgo(a) - daysAgo(b); } // כמה ימים b אחרי a
+  function readSet() { return S.get("briefing.read", []); }
+  function isRead(date) { return readSet().includes(date); }
+  function markRead(date) { const r = readSet(); if (!r.includes(date)) { r.push(date); S.set("briefing.read", r); } }
+  function streakOf(items) { // רצף ימים רצופים מהחדש לאחור
+    if (!items.length) return 0;
+    let s = 1;
+    for (let i = 1; i < items.length; i++) {
+      if (dayDiff(items[i].date, items[i - 1].date) === 1) s++; else break;
+    }
+    return s;
   }
 
   function html() {
@@ -82,16 +94,31 @@ App.briefing = (function () {
 
     const today = U.todayISO();
     const frag = document.createDocumentFragment();
+
+    // רצף למידה
+    const st = streakOf(items);
+    if (st >= 2) {
+      const li = document.createElement("li");
+      li.innerHTML = `<div class="brf-streak">🔥 רצף למידה: ${st} ימים ברצף!</div>`;
+      frag.appendChild(li);
+    }
+
     for (const item of items) {
       const li = document.createElement("li");
       const card = document.createElement("button");
       card.className = "briefing-card" + (item.date === today ? " today" : "");
+      const tags = (item.title || "").split("·").map((t) => t.trim()).filter(Boolean).slice(0, 3)
+        .map((t) => `<span class="brf-tag">${U.esc(t)}</span>`).join("");
+      const badge = isRead(item.date)
+        ? `<span class="brf-tag brf-read">✓ נקרא</span>`
+        : `<span class="brf-tag brf-new">🆕 חדש</span>`;
       card.innerHTML = `
         <div class="date-row">
-          <span>${U.prettyDate(item.date)}${item.date === today ? " · היום" : ""}</span>
-          <span class="day-badge">יום ${U.dayName(item.date)}</span>
+          <span>${U.prettyDate(item.date)}${item.date === today ? " · היום" : ""} · ⏱️ ~7 דק'</span>
+          ${badge}
         </div>
-        <h2>${U.esc(item.title || "תדריך יומי")}</h2>`;
+        <h2>${U.esc(item.title || "תדריך יומי")}</h2>
+        <div class="brf-tags">${tags}<span class="brf-tag">יום ${U.dayName(item.date)}</span></div>`;
       card.addEventListener("click", () => open(item));
       li.appendChild(card);
       frag.appendChild(li);
@@ -101,6 +128,7 @@ App.briefing = (function () {
 
   async function open(item) {
     inArticle = true;
+    markRead(item.date);
     root.querySelector("#brf-list").hidden = true;
     articleEl.hidden = false;
     backBtn.hidden = false;
@@ -126,6 +154,7 @@ App.briefing = (function () {
     articleEl.hidden = true;
     backBtn.hidden = true;
     window.scrollTo(0, 0);
+    load(); // רענון כדי שתג "נקרא" יתעדכן
   }
 
   return { mount, show };
