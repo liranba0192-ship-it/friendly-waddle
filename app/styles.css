@@ -307,3 +307,15 @@ body { background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, 
 
 /* קצת יותר אוויר בין כרטיסים */
 .card-block { margin: 16px 0; }
+
+/* חיווי טריות התדריך */
+.briefing-fresh {
+  text-align: center; font-size: 13px; font-weight: 600;
+  padding: 8px 12px; margin-bottom: 12px; border-radius: 12px;
+  color: var(--accent-2); background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+}
+.briefing-fresh.stale {
+  color: #b45309; background: color-mix(in srgb, var(--amber) 16%, transparent);
+  border-color: color-mix(in srgb, var(--amber) 40%, transparent);
+}

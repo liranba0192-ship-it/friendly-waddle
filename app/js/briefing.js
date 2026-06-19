@@ -3,11 +3,20 @@ window.App = window.App || {};
 
 App.briefing = (function () {
   const U = App.util;
-  let root, listEl, statusEl, articleEl, backBtn, inArticle = false, loadSeq = 0;
+  let root, listEl, statusEl, freshEl, articleEl, backBtn, inArticle = false, loadSeq = 0;
+
+  function daysAgo(iso) {
+    const [y, m, d] = iso.split("-").map(Number);
+    const then = Date.UTC(y, m - 1, d);
+    const n = new Date();
+    const today = Date.UTC(n.getFullYear(), n.getMonth(), n.getDate());
+    return Math.round((today - then) / 86400000);
+  }
 
   function html() {
     return `
       <div id="brf-list">
+        <div id="brf-fresh" class="briefing-fresh" hidden></div>
         <p id="brf-status" class="status">טוען תדריכים…</p>
         <ul id="brf-items" class="briefing-list"></ul>
       </div>
@@ -21,6 +30,7 @@ App.briefing = (function () {
     root.innerHTML = html();
     listEl = root.querySelector("#brf-items");
     statusEl = root.querySelector("#brf-status");
+    freshEl = root.querySelector("#brf-fresh");
     articleEl = root.querySelector("#brf-article");
     backBtn = root.querySelector("#brf-back");
     backBtn.addEventListener("click", showList);
@@ -50,6 +60,7 @@ App.briefing = (function () {
 
   function empty() {
     listEl.innerHTML = "";
+    if (freshEl) freshEl.hidden = true;
     statusEl.hidden = false;
     statusEl.innerHTML = "עדיין אין תדריכים 📭<br><small>התדריך הראשון ייווצר בהרצת הבוקר הבאה.</small>";
   }
@@ -58,6 +69,17 @@ App.briefing = (function () {
     listEl.innerHTML = "";             // ניקוי סינכרוני ממש לפני ההוספה (מונע כפילויות)
     if (!items.length) return empty();
     statusEl.hidden = true;
+
+    // חיווי טריות — מתי נוצר התדריך האחרון
+    const d = daysAgo(items[0].date);
+    let txt, stale = false;
+    if (d <= 0) txt = "✅ התדריך מעודכן להיום";
+    else if (d === 1) txt = "🕒 התדריך האחרון: אתמול";
+    else { txt = `⚠️ התדריך האחרון לפני ${d} ימים — ייתכן שהשגרה לא רצה`; stale = true; }
+    freshEl.hidden = false;
+    freshEl.className = "briefing-fresh" + (stale ? " stale" : "");
+    freshEl.textContent = txt;
+
     const today = U.todayISO();
     const frag = document.createDocumentFragment();
     for (const item of items) {
