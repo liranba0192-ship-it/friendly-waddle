@@ -104,6 +104,20 @@ h3 { font-size: 16px; margin: 0 0 10px; }
 .article th { background: var(--surface-2); }
 .article hr { border: none; border-top: 1px solid var(--border); margin: 1.5em 0; }
 
+/* ---------- workout groups ---------- */
+.row-btns { display: flex; gap: 10px; margin-bottom: 8px; }
+.row-btns .btn-secondary { flex: 1; margin: 0; }
+.muscle-group { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 6px 14px; margin: 12px 0; }
+.muscle-group > summary {
+  cursor: pointer; font-weight: 700; font-size: 16px; padding: 10px 4px; list-style: none;
+  display: flex; align-items: center; gap: 8px;
+}
+.muscle-group > summary::-webkit-details-marker { display: none; }
+.muscle-group > summary::before { content: "▾"; color: var(--muted); font-size: 12px; transition: transform .15s; }
+.muscle-group:not([open]) > summary::before { transform: rotate(-90deg); }
+.mg-count { background: var(--surface-2); color: var(--muted); border-radius: 999px; padding: 1px 9px; font-size: 12px; font-weight: 600; }
+.muscle-group .list-cards { padding: 4px 0 12px; }
+
 /* ---------- list cards (workout) ---------- */
 .list-cards { display: grid; gap: 10px; }
 .list-card {
