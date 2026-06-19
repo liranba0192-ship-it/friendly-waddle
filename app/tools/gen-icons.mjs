@@ -84,42 +84,41 @@ function draw(size, { maskable = false } = {}) {
           set(cx + x, cy + y, color[0], color[1], color[2], color[3] ?? 255);
   };
 
-  // background: rounded square (full bleed for maskable)
+  // background: teal gradient (rounded; full bleed for maskable)
   const margin = maskable ? 0 : Math.round(size * 0.04);
-  const bgRad = maskable ? Math.round(size * 0.0) : Math.round(size * 0.22);
-  fillRoundRect(margin, margin, size - margin * 2, size - margin * 2, bgRad, [15, 23, 42, 255]); // slate-900
-
-  // sun
-  const sunCx = Math.round(size * 0.34);
-  const sunCy = Math.round(size * 0.34);
-  const sunR = Math.round(size * 0.11);
-  fillCircle(sunCx, sunCy, sunR, [251, 191, 36, 255]); // amber-400
-  // rays
-  const rayLen = Math.round(size * 0.06);
-  const rayW = Math.max(2, Math.round(size * 0.018));
-  for (let a = 0; a < 8; a++) {
-    const ang = (a * Math.PI) / 4;
-    for (let t = sunR + rayW; t < sunR + rayW + rayLen; t++) {
-      for (let w = -rayW; w <= rayW; w++) {
-        const x = Math.round(sunCx + Math.cos(ang) * t - Math.sin(ang) * w * 0.0 + Math.cos(ang + Math.PI / 2) * w);
-        const y = Math.round(sunCy + Math.sin(ang) * t + Math.sin(ang + Math.PI / 2) * w);
-        set(x, y, 251, 191, 36, 255);
-      }
+  const bgRad = maskable ? 0 : Math.round(size * 0.22);
+  const top = [45, 212, 191];   // #2dd4bf
+  const bot = [13, 148, 136];   // #0d9488
+  const innerX = margin, innerY = margin, innerW = size - margin * 2, innerH = size - margin * 2;
+  for (let y = 0; y < innerH; y++) {
+    const f = y / innerH;
+    const r = Math.round(top[0] + (bot[0] - top[0]) * f);
+    const g = Math.round(top[1] + (bot[1] - top[1]) * f);
+    const b = Math.round(top[2] + (bot[2] - top[2]) * f);
+    for (let x = 0; x < innerW; x++) {
+      // rounded corners mask
+      const cx = x < bgRad ? bgRad : x > innerW - bgRad ? innerW - bgRad : x;
+      const cy = y < bgRad ? bgRad : y > innerH - bgRad ? innerH - bgRad : y;
+      const dx = x - cx, dy = y - cy;
+      if (dx * dx + dy * dy <= bgRad * bgRad) set(innerX + x, innerY + y, r, g, b, 255);
     }
   }
 
-  // document lines (the "briefing")
-  const lineColor = [226, 232, 240, 255]; // slate-200
-  const accent = [56, 189, 248, 255];     // sky-400
-  const lx = Math.round(size * 0.26);
-  const lw = Math.round(size * 0.48);
-  let ly = Math.round(size * 0.56);
-  const lh = Math.max(3, Math.round(size * 0.045));
-  const gap = Math.round(size * 0.075);
-  fillRoundRect(lx, ly, Math.round(lw * 0.6), lh, lh / 2, accent); ly += gap;
-  fillRoundRect(lx, ly, lw, lh, lh / 2, lineColor); ly += gap;
-  fillRoundRect(lx, ly, lw, lh, lh / 2, lineColor); ly += gap;
-  fillRoundRect(lx, ly, Math.round(lw * 0.75), lh, lh / 2, lineColor);
+  // white dumbbell (משקולת) — horizontal bar + plates
+  const W = [255, 255, 255, 255];
+  const cy = Math.round(size * 0.5);
+  const barH = Math.round(size * 0.075);
+  // center bar
+  fillRoundRect(Math.round(size * 0.34), cy - Math.round(barH / 2), Math.round(size * 0.32), barH, Math.round(barH / 2), W);
+  // inner plates
+  const pW = Math.round(size * 0.07);
+  const ipH = Math.round(size * 0.24);
+  fillRoundRect(Math.round(size * 0.28), cy - Math.round(ipH / 2), pW, ipH, Math.round(pW / 3), W);
+  fillRoundRect(Math.round(size * 0.65), cy - Math.round(ipH / 2), pW, ipH, Math.round(pW / 3), W);
+  // outer plates
+  const opH = Math.round(size * 0.34);
+  fillRoundRect(Math.round(size * 0.19), cy - Math.round(opH / 2), pW, opH, Math.round(pW / 3), W);
+  fillRoundRect(Math.round(size * 0.74), cy - Math.round(opH / 2), pW, opH, Math.round(pW / 3), W);
 
   return encodePNG(size, size, buf);
 }

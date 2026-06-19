@@ -3,132 +3,189 @@ window.App = window.App || {};
 
 App.workout = (function () {
   const U = App.util, S = App.store;
-  let root, current = null; // exerciseId currently open
+  let root;
+  let groups = [];          // [{name, exercises:[name,...]}] מהמאגר
+  let loaded = false;
+  let view = { kind: "home" }; // home | exercise({name,group}) | history
 
-  const DEFAULT_EXERCISES = [
-    { id: "squat", name: "סקוואט", muscle: "רגליים" },
-    { id: "bench", name: "לחיצת חזה", muscle: "חזה" },
-    { id: "deadlift", name: "דדליפט", muscle: "גב/רגליים" },
-    { id: "ohp", name: "לחיצת כתפיים", muscle: "כתפיים" },
-    { id: "row", name: "חתירה", muscle: "גב" },
-    { id: "pullup", name: "מתח", muscle: "גב" },
-    { id: "curl", name: "כפיפת מרפק", muscle: "יד קדמית" },
-    { id: "legpress", name: "לחיצת רגליים", muscle: "רגליים" },
-  ];
-  const TARGET_REPS = 12;   // קצה עליון של טווח החזרות
-  const MIN_REPS = 8;       // קצה תחתון
-  const STEP_KG = 2.5;      // עלייה במשקל
+  const TARGET_REPS = 12, MIN_REPS = 8, STEP_KG = 2.5;
 
-  function data() {
-    return S.get("workout", { exercises: DEFAULT_EXERCISES.slice(), logs: [] });
-  }
+  // ---------- storage (+ מיגרציה מהפורמט הישן) ----------
+  function raw() { return S.get("workout", { customExercises: [], logs: [] }); }
   function save(d) { S.set("workout", d); }
 
-  function logsFor(d, exId) {
-    return d.logs.filter((l) => l.exerciseId === exId).sort((a, b) => b.date.localeCompare(a.date));
+  function migrate() {
+    const d = raw();
+    let changed = false;
+    // פורמט ישן: { exercises:[{id,name,muscle}], logs:[{exerciseId,...}] }
+    const OLD = {
+      squat: "סקוואט (מוט גב)", bench: "לחיצת חזה במוט (שטוח)", deadlift: "דדליפט",
+      ohp: "לחיצת כתפיים במוט (Overhead Press)", row: "חתירה במוט (Barbell Row)",
+      pullup: "מתח (Pull-up)", curl: "כפיפת מרפק במוט (Barbell Curl)", legpress: "לחיצת רגליים (Leg Press)",
+    };
+    if (!d.customExercises) { d.customExercises = []; changed = true; }
+    if (d.exercises) {
+      const oldIds = Object.keys(OLD);
+      for (const ex of d.exercises) {
+        if (!oldIds.includes(ex.id)) d.customExercises.push({ name: ex.name, group: ex.muscle || "מותאם אישית" });
+      }
+      // מפה id->name לתרגום הלוגים
+      const idName = {};
+      for (const ex of d.exercises) idName[ex.id] = ex.name;
+      for (const log of d.logs || []) {
+        if (!log.exerciseName) log.exerciseName = OLD[log.exerciseId] || idName[log.exerciseId] || log.exerciseId;
+      }
+      delete d.exercises;
+      changed = true;
+    }
+    // ודא שלכל לוג יש exerciseName
+    for (const log of d.logs || []) {
+      if (!log.exerciseName && log.exerciseId) { log.exerciseName = log.exerciseId; changed = true; }
+    }
+    if (changed) save(d);
   }
 
-  // הצעת Progressive Overload לפי האימון האחרון
-  function suggestion(d, exId) {
-    const past = logsFor(d, exId);
-    if (!past.length) return { text: "אימון ראשון — בחר משקל נוח שמאפשר 8–12 חזרות בטכניקה טובה." };
+  function logs() { return raw().logs || []; }
+  function logsForName(name) {
+    return logs().filter((l) => l.exerciseName === name).sort((a, b) => b.date.localeCompare(a.date));
+  }
+
+  // ---------- progressive overload ----------
+  function suggestion(name) {
+    const past = logsForName(name);
+    if (!past.length) return { text: "אימון ראשון — בחר משקל שמאפשר 8–12 חזרות בטכניקה טובה." };
     const last = past[0];
     const top = last.sets.reduce((m, s) => (s.reps >= m.reps ? s : m), last.sets[0]);
     if (top.reps >= TARGET_REPS) {
       return {
-        text: `כל הכבוד! הגעת ל-${top.reps} חזרות ב-${top.weight} ק"ג. הפעם העלה ל-<b>${U.round(top.weight + STEP_KG)} ק"ג</b> וכוון ל-${MIN_REPS} חזרות.`,
+        text: `כל הכבוד! ${top.reps} חזרות ב-${top.weight} ק"ג. הפעם נסה <b>${U.round(top.weight + STEP_KG)} ק"ג</b> ל-${MIN_REPS} חזרות.`,
         weight: U.round(top.weight + STEP_KG), reps: MIN_REPS,
       };
     }
     return {
-      text: `שמור על <b>${top.weight} ק"ג</b> ונסה להוסיף חזרה (יעד: ${top.reps + 1}, עד ${TARGET_REPS}). כשתגיע ל-${TARGET_REPS} — תעלה משקל.`,
+      text: `שמור על <b>${top.weight} ק"ג</b> והוסף חזרה (יעד ${top.reps + 1}, עד ${TARGET_REPS}). אז תעלה משקל.`,
       weight: top.weight, reps: Math.min(top.reps + 1, TARGET_REPS),
     };
   }
 
-  function mount(el) { root = el; render(); }
-  function show() { render(); }
+  // ---------- exercises data ----------
+  async function ensure() {
+    if (loaded) return;
+    migrate();
+    try {
+      const res = await fetch(`data/exercises.json?ts=${Date.now()}`, { cache: "force-cache" });
+      groups = (await res.json()).groups || [];
+    } catch { groups = []; }
+    loaded = true;
+  }
+
+  function allGroups() {
+    const g = groups.map((x) => ({ name: x.name, exercises: x.exercises.slice() }));
+    const custom = raw().customExercises || [];
+    if (custom.length) {
+      const map = {};
+      for (const c of custom) (map[c.group || "מותאם אישית"] ??= []).push(c.name);
+      for (const [gname, list] of Object.entries(map)) {
+        const existing = g.find((x) => x.name === gname);
+        if (existing) existing.exercises.push(...list);
+        else g.push({ name: gname, exercises: list });
+      }
+    }
+    return g;
+  }
+
+  // ---------- lifecycle ----------
+  async function mount(el) { root = el; await ensure(); render(); }
+  async function show() { await ensure(); render(); }
 
   function render() {
-    if (current) return renderExercise(current);
+    if (view.kind === "exercise") return renderExercise(view.name);
+    if (view.kind === "history") return renderHistory();
     renderHome();
   }
 
+  // ---------- home (grouped) ----------
   function renderHome() {
-    const d = data();
+    const latest = {};
+    for (const l of logs()) {
+      if (!latest[l.exerciseName] || l.date > latest[l.exerciseName].date) latest[l.exerciseName] = l;
+    }
     const today = U.todayISO();
-    const cards = d.exercises.map((ex) => {
-      const past = logsFor(d, ex.id);
-      const last = past[0];
-      const lastTxt = last
-        ? `אחרון: ${U.prettyDate(last.date)} · ${last.sets.map((s) => `${s.weight}×${s.reps}`).join(", ")}`
-        : "טרם תועד";
-      const didToday = last && last.date === today;
+
+    const sections = allGroups().map((g) => {
+      const items = g.exercises.map((name) => {
+        const last = latest[name];
+        const sub = last
+          ? `${last.date === today ? "היום ✅ · " : U.prettyDate(last.date) + " · "}${last.sets.map((s) => `${s.weight}×${s.reps}`).join(", ")}`
+          : "טרם תועד";
+        return `
+          <button class="list-card" data-ex="${U.esc(name)}">
+            <div class="lc-main">
+              <div class="lc-title">${U.esc(name)}</div>
+              <div class="lc-sub">${U.esc(sub)}</div>
+            </div>
+            <span class="lc-chevron">‹</span>
+          </button>`;
+      }).join("");
       return `
-        <button class="list-card" data-ex="${ex.id}">
-          <div class="lc-main">
-            <div class="lc-title">${U.esc(ex.name)} ${didToday ? "✅" : ""}</div>
-            <div class="lc-sub">${U.esc(ex.muscle || "")} · ${U.esc(lastTxt)}</div>
-          </div>
-          <span class="lc-chevron">‹</span>
-        </button>`;
+        <details class="muscle-group" open>
+          <summary>${U.esc(g.name)} <span class="mg-count">${g.exercises.length}</span></summary>
+          <div class="list-cards">${items}</div>
+        </details>`;
     }).join("");
 
     root.innerHTML = `
-      <p class="section-hint">💪 בחר תרגיל כדי לתעד סטים ולקבל הצעת התקדמות (Progressive Overload).</p>
-      <div class="list-cards">${cards}</div>
-      <button id="wk-add" class="btn-secondary full">➕ הוסף תרגיל</button>
+      <div class="row-btns">
+        <button id="wk-history" class="btn-secondary">📋 היסטוריה</button>
+        <button id="wk-add" class="btn-secondary">➕ הוסף תרגיל</button>
+      </div>
+      <p class="section-hint">בחר תרגיל לתיעוד סטים ולהצעת התקדמות. התרגילים מחולקים לפי קבוצת שריר.</p>
+      ${sections}
     `;
     root.querySelectorAll("[data-ex]").forEach((b) =>
-      b.addEventListener("click", () => { current = b.dataset.ex; render(); })
+      b.addEventListener("click", () => { view = { kind: "exercise", name: b.dataset.ex }; render(); })
     );
+    root.querySelector("#wk-history").addEventListener("click", () => { view = { kind: "history" }; render(); });
     root.querySelector("#wk-add").addEventListener("click", addExercise);
   }
 
   function addExercise() {
     const name = prompt("שם התרגיל:");
-    if (!name) return;
-    const muscle = prompt("קבוצת שריר (לא חובה):") || "";
-    const d = data();
-    d.exercises.push({ id: U.uid(), name: name.trim(), muscle: muscle.trim() });
+    if (!name || !name.trim()) return;
+    const group = prompt("קבוצת שריר (חזה / גב / רגליים / כתפיים / יד קדמית (ביצפס) / יד אחורית (טריצפס) / בטן וליבה / אירובי):") || "מותאם אישית";
+    const d = raw();
+    (d.customExercises ??= []).push({ name: name.trim(), group: group.trim() || "מותאם אישית" });
     save(d);
     render();
   }
 
-  function renderExercise(exId) {
-    const d = data();
-    const ex = d.exercises.find((e) => e.id === exId);
-    if (!ex) { current = null; return render(); }
-    const sug = suggestion(d, exId);
-    const past = logsFor(d, exId);
-
+  // ---------- single exercise ----------
+  function renderExercise(name) {
+    const sug = suggestion(name);
+    const past = logsForName(name);
     const history = past.map((l) => `
       <div class="log-row">
         <span class="log-date">${U.prettyDate(l.date)} · יום ${U.dayName(l.date)}</span>
         <span class="log-sets">${l.sets.map((s) => `${s.weight}×${s.reps}`).join(" · ")}</span>
         <button class="del-x" data-del="${l.id}" aria-label="מחק">✕</button>
-      </div>`).join("") || `<p class="status">אין היסטוריה עדיין.</p>`;
+      </div>`).join("") || `<p class="status">אין היסטוריה לתרגיל זה.</p>`;
 
     root.innerHTML = `
       <button id="wk-back" class="btn-secondary">‹ חזרה לתרגילים</button>
-      <h2 class="view-h2">${U.esc(ex.name)}</h2>
-
+      <h2 class="view-h2">${U.esc(name)}</h2>
       <div class="suggest-box">💡 ${sug.text}</div>
-
       <div class="card-block">
         <h3>תיעוד אימון היום</h3>
         <div id="wk-sets"></div>
         <button id="wk-addset" class="btn-secondary">➕ הוסף סט</button>
         <button id="wk-savesession" class="btn-primary full">שמור אימון</button>
       </div>
-
       <div class="card-block">
         <h3>היסטוריה</h3>
         ${history}
       </div>
     `;
 
-    // טופס סטים דינמי
     const setsEl = root.querySelector("#wk-sets");
     const draft = [];
     function addSetRow(weight = sug.weight || "", reps = sug.reps || "") {
@@ -140,8 +197,7 @@ App.workout = (function () {
         <span class="set-num">סט ${i + 1}</span>
         <input type="number" inputmode="decimal" step="0.5" placeholder='ק"ג' value="${weight}" data-i="${i}" data-f="weight" />
         <span>×</span>
-        <input type="number" inputmode="numeric" placeholder="חזרות" value="${reps}" data-i="${i}" data-f="reps" />
-      `;
+        <input type="number" inputmode="numeric" placeholder="חזרות" value="${reps}" data-i="${i}" data-f="reps" />`;
       setsEl.appendChild(row);
     }
     addSetRow();
@@ -151,24 +207,59 @@ App.workout = (function () {
     });
 
     root.querySelector("#wk-addset").addEventListener("click", () => addSetRow());
-    root.querySelector("#wk-back").addEventListener("click", () => { current = null; render(); });
+    root.querySelector("#wk-back").addEventListener("click", () => { view = { kind: "home" }; render(); });
     root.querySelector("#wk-savesession").addEventListener("click", () => {
       const sets = draft
         .map((s) => ({ weight: parseFloat(s.weight), reps: parseInt(s.reps, 10) }))
         .filter((s) => s.weight > 0 && s.reps > 0);
       if (!sets.length) { alert("הזן לפחות סט אחד עם משקל וחזרות."); return; }
-      const dd = data();
-      dd.logs.push({ id: U.uid(), exerciseId: exId, date: U.todayISO(), sets });
-      save(dd);
+      const d = raw();
+      (d.logs ??= []).push({ id: U.uid(), exerciseName: name, date: U.todayISO(), sets });
+      save(d);
       render();
     });
-
     root.querySelectorAll("[data-del]").forEach((b) =>
       b.addEventListener("click", () => {
         if (!confirm("למחוק את הרישום?")) return;
-        const dd = data();
-        dd.logs = dd.logs.filter((l) => l.id !== b.dataset.del);
-        save(dd);
+        const d = raw();
+        d.logs = (d.logs || []).filter((l) => l.id !== b.dataset.del);
+        save(d);
+        render();
+      })
+    );
+  }
+
+  // ---------- full history ----------
+  function renderHistory() {
+    const all = logs().slice().sort((a, b) => b.date.localeCompare(a.date));
+    // קיבוץ לפי תאריך
+    const byDate = {};
+    for (const l of all) (byDate[l.date] ??= []).push(l);
+    const dates = Object.keys(byDate).sort((a, b) => b.localeCompare(a));
+
+    const body = dates.length ? dates.map((date) => `
+      <div class="card-block">
+        <h3>${U.prettyDate(date)} · יום ${U.dayName(date)}</h3>
+        ${byDate[date].map((l) => `
+          <div class="log-row">
+            <span class="log-date">${U.esc(l.exerciseName)}</span>
+            <span class="log-sets">${l.sets.map((s) => `${s.weight}×${s.reps}`).join(" · ")}</span>
+            <button class="del-x" data-del="${l.id}" aria-label="מחק">✕</button>
+          </div>`).join("")}
+      </div>`).join("") : `<p class="status">עדיין אין אימונים מתועדים 🏋️</p>`;
+
+    root.innerHTML = `
+      <button id="wk-back" class="btn-secondary">‹ חזרה לתרגילים</button>
+      <h2 class="view-h2">📋 היסטוריית אימונים</h2>
+      ${body}
+    `;
+    root.querySelector("#wk-back").addEventListener("click", () => { view = { kind: "home" }; render(); });
+    root.querySelectorAll("[data-del]").forEach((b) =>
+      b.addEventListener("click", () => {
+        if (!confirm("למחוק את הרישום?")) return;
+        const d = raw();
+        d.logs = (d.logs || []).filter((l) => l.id !== b.dataset.del);
+        save(d);
         render();
       })
     );

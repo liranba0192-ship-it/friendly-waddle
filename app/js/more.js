@@ -55,7 +55,7 @@ App.more = (function () {
     root.querySelector("#bk-import").addEventListener("change", importBackup);
 
     const seg = root.querySelector("#theme-seg");
-    const cur = localStorage.getItem("mb.theme") || "auto";
+    const cur = localStorage.getItem("mb.theme") || "light";
     seg.querySelectorAll("button").forEach((b) => {
       if (b.dataset.theme === cur) b.classList.add("active");
       b.addEventListener("click", () => { App.setTheme(b.dataset.theme); render(); });
