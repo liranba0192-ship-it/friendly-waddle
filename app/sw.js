@@ -1,5 +1,6 @@
-// Service Worker — מאפשר שימוש אופליין בקליפת האפליקציה.
-const CACHE = "morning-briefing-v5";
+// Service Worker — "רשת קודם": תמיד מביא את הגרסה העדכנית כשיש אינטרנט,
+// ונופל למטמון רק במצב לא-מקוון. כך האפליקציה לא "נתקעת" על גרסה ישנה.
+const CACHE = "morning-briefing-v6";
 const SHELL = [
   ".",
   "index.html",
@@ -34,22 +35,18 @@ self.addEventListener("activate", (e) => {
   );
 });
 
+// רשת קודם לכל בקשת GET; שומר עותק טרי למטמון; נופל למטמון אם אין רשת.
 self.addEventListener("fetch", (e) => {
   if (e.request.method !== "GET") return;
-  const url = new URL(e.request.url);
-  // תוכן התדריכים: רשת קודם (לקבל את החדש), נפילה למטמון.
-  if (url.pathname.includes("/briefings/")) {
-    e.respondWith(
-      fetch(e.request)
-        .then((res) => {
+  e.respondWith(
+    fetch(e.request)
+      .then((res) => {
+        if (res && res.status === 200 && res.type === "basic") {
           const copy = res.clone();
           caches.open(CACHE).then((c) => c.put(e.request, copy));
-          return res;
-        })
-        .catch(() => caches.match(e.request))
-    );
-    return;
-  }
-  // קליפת האפליקציה: מטמון קודם, נפילה לרשת.
-  e.respondWith(caches.match(e.request).then((r) => r || fetch(e.request)));
+        }
+        return res;
+      })
+      .catch(() => caches.match(e.request).then((r) => r || caches.match("index.html")))
+  );
 });
