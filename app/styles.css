@@ -267,3 +267,43 @@ input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: -1
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* ============ ליטוש ויזואלי (v6) ============ */
+/* רקע עם נגיעת טורקיז עדינה בראש העמוד */
+body { background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, var(--bg)), var(--bg) 260px) no-repeat; background-attachment: fixed; }
+
+/* כפתור ראשי בגרדיינט */
+.btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); }
+
+/* טאב פעיל — גלולת רקע עדינה */
+.tab { border-radius: 14px; }
+.tab.active { background: color-mix(in srgb, var(--accent) 13%, transparent); }
+
+/* כותרות סעיף עם פס אקצנט */
+.card-block h3 { position: relative; padding-inline-start: 12px; }
+.card-block h3::before {
+  content: ""; position: absolute; inset-inline-start: 0; top: 1px; bottom: 1px;
+  width: 4px; border-radius: 3px; background: linear-gradient(var(--accent), var(--accent-2));
+}
+
+/* כרטיסי תדריך — פס אקצנט בצד וריווח */
+.briefing-card { position: relative; overflow: hidden; padding-inline-start: 22px; }
+.briefing-card::before {
+  content: ""; position: absolute; inset-inline-start: 0; top: 0; bottom: 0;
+  width: 5px; background: linear-gradient(var(--accent), var(--accent-2));
+}
+.briefing-card.today::before { background: linear-gradient(var(--amber), #d97706); }
+.briefing-card h2 { line-height: 1.4; }
+
+/* מספרי הסטטיסטיקה בולטים יותר */
+.stat-value { font-size: 22px; letter-spacing: -.3px; }
+
+/* מצב ריק/טעינה מעוצב */
+.status { font-size: 15px; line-height: 1.8; }
+.status small { opacity: .8; }
+
+/* כותרת מסך פנימית עם קו תחתון עדין */
+.view-h2 { padding-bottom: 8px; border-bottom: 2px solid color-mix(in srgb, var(--accent) 25%, transparent); display: inline-block; }
+
+/* קצת יותר אוויר בין כרטיסים */
+.card-block { margin: 16px 0; }

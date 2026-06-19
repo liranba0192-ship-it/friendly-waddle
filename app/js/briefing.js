@@ -3,7 +3,7 @@ window.App = window.App || {};
 
 App.briefing = (function () {
   const U = App.util;
-  let root, listEl, statusEl, articleEl, backBtn, inArticle = false;
+  let root, listEl, statusEl, articleEl, backBtn, inArticle = false, loadSeq = 0;
 
   function html() {
     return `
@@ -33,26 +33,29 @@ App.briefing = (function () {
   }
 
   async function load() {
+    const seq = ++loadSeq;             // מזהה ייחודי לטעינה הנוכחית
     statusEl.hidden = false;
     statusEl.textContent = "טוען תדריכים…";
-    listEl.innerHTML = "";
     try {
       const res = await fetch(`../briefings/index.json?ts=${Date.now()}`, { cache: "no-cache" });
       if (!res.ok) throw new Error();
       const data = await res.json();
+      if (seq !== loadSeq) return;     // טעינה חדשה יותר התחילה — בטל את הישנה
       const items = (data.briefings || []).slice().sort((a, b) => b.date.localeCompare(a.date));
       renderList(items);
     } catch {
-      empty();
+      if (seq === loadSeq) empty();
     }
   }
 
   function empty() {
+    listEl.innerHTML = "";
     statusEl.hidden = false;
     statusEl.innerHTML = "עדיין אין תדריכים 📭<br><small>התדריך הראשון ייווצר בהרצת הבוקר הבאה.</small>";
   }
 
   function renderList(items) {
+    listEl.innerHTML = "";             // ניקוי סינכרוני ממש לפני ההוספה (מונע כפילויות)
     if (!items.length) return empty();
     statusEl.hidden = true;
     const today = U.todayISO();
