@@ -7,6 +7,23 @@ App.workout = (function () {
   let groups = [];          // [{name, exercises:[name,...]}] מהמאגר
   let loaded = false;
   let view = { kind: "home" }; // home | exercise({name,group}) | history
+  let selDate = null;
+  const curDate = () => selDate || U.todayISO();
+
+  function dateStrip() {
+    const today = U.todayISO(), cur = curDate(), p2 = (x) => String(x).padStart(2, "0");
+    const base = new Date(), cells = [];
+    for (let i = 6; i >= 0; i--) {
+      const dt = new Date(base); dt.setDate(base.getDate() - i);
+      const iso = `${dt.getFullYear()}-${p2(dt.getMonth() + 1)}-${p2(dt.getDate())}`;
+      const [, , dd] = iso.split("-");
+      cells.push(`<button class="day-cell${iso === cur ? " sel" : ""}" data-day="${iso}">
+        <span class="day-name">${iso === today ? "היום" : "יום " + U.dayName(iso)}</span>
+        <span class="day-num">${+dd}</span>
+      </button>`);
+    }
+    return `<div class="date-strip">${cells.join("")}</div>`;
+  }
 
   const TARGET_REPS = 12, MIN_REPS = 8, STEP_KG = 2.5;
 
@@ -152,20 +169,50 @@ App.workout = (function () {
         </details>`;
     }).join("");
 
+    // מה תועד ביום הנבחר
+    const dayLogs = logsForDate(curDate());
+    const doneHtml = dayLogs.length
+      ? dayLogs.map((l) => `
+        <div class="log-row">
+          <span class="log-date">${U.esc(l.exerciseName)}</span>
+          <span class="log-sets">${l.sets.map((s) => `${s.weight}×${s.reps}`).join(" · ")}</span>
+          <button class="del-x" data-del="${l.id}" aria-label="מחק">✕</button>
+        </div>`).join("")
+      : `<p class="status">לא תועד אימון ביום זה. בחר תרגיל למטה כדי לתעד.</p>`;
+    const isToday = curDate() === U.todayISO();
+    const dayTitle = isToday ? "האימון של היום" : `אימון מ-${U.prettyDate(curDate())} (יום ${U.dayName(curDate())})`;
+
     root.innerHTML = `
       ${weekSummary()}
+      ${dateStrip()}
+      <div class="card-block">
+        <h3>${dayTitle}</h3>
+        ${doneHtml}
+      </div>
       <div class="row-btns">
         <button id="wk-history" class="btn-secondary">📋 היסטוריה</button>
         <button id="wk-add" class="btn-secondary">➕ הוסף תרגיל</button>
       </div>
-      <p class="section-hint">בחר תרגיל לתיעוד סטים ולהצעת התקדמות. התרגילים מחולקים לפי קבוצת שריר.</p>
+      <p class="section-hint">בחר תרגיל כדי לתעד אותו ליום הנבחר (התרגילים מחולקים לפי קבוצת שריר).</p>
       ${sections}
     `;
+    root.querySelectorAll("[data-day]").forEach((b) =>
+      b.addEventListener("click", () => { selDate = b.dataset.day; render(); })
+    );
+    root.querySelectorAll("[data-del]").forEach((b) =>
+      b.addEventListener("click", () => {
+        const d = raw(); d.logs = (d.logs || []).filter((l) => l.id !== b.dataset.del); save(d); render();
+      })
+    );
     root.querySelectorAll("[data-ex]").forEach((b) =>
       b.addEventListener("click", () => { view = { kind: "exercise", name: b.dataset.ex }; render(); })
     );
     root.querySelector("#wk-history").addEventListener("click", () => { view = { kind: "history" }; render(); });
     root.querySelector("#wk-add").addEventListener("click", addExercise);
+  }
+
+  function logsForDate(date) {
+    return logs().filter((l) => l.date === date);
   }
 
   function addExercise() {
@@ -198,7 +245,7 @@ App.workout = (function () {
       </div>
       <div class="suggest-box">💡 ${sug.text}</div>
       <div class="card-block">
-        <h3>תיעוד אימון היום</h3>
+        <h3>תיעוד ל-${curDate() === U.todayISO() ? "היום" : U.prettyDate(curDate())}</h3>
         <div id="wk-sets"></div>
         <button id="wk-addset" class="btn-secondary">➕ הוסף סט</button>
         <button id="wk-savesession" class="btn-primary full">שמור אימון</button>
@@ -243,7 +290,7 @@ App.workout = (function () {
         .filter((s) => s.weight > 0 && s.reps > 0);
       if (!sets.length) { alert("הזן לפחות סט אחד עם משקל וחזרות."); return; }
       const d = raw();
-      (d.logs ??= []).push({ id: U.uid(), exerciseName: name, date: U.todayISO(), sets });
+      (d.logs ??= []).push({ id: U.uid(), exerciseName: name, date: curDate(), sets });
       save(d);
       render();
     });
