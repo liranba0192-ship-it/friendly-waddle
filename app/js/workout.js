@@ -207,8 +207,15 @@ App.workout = (function () {
     const isToday = curDate() === U.todayISO();
     const dayTitle = isToday ? "האימון של היום" : `אימון מ-${U.prettyDate(curDate())} (יום ${U.dayName(curDate())})`;
     const rest = isRest(curDate());
+    const walked = walkDone(curDate());
     const dayBody = rest
-      ? `<div class="rest-banner">🛌 יום מנוחה — תן לשרירים להתאושש 💪</div>`
+      ? `<div class="rest-banner">
+           🛌 יום מנוחה — תן לשרירים להתאושש 💪<br>
+           <span class="rest-tip">🚶 מומלץ: <b>30 דק' הליכה קלה</b> (התאוששות אקטיבית)</span>
+           <button id="wk-walk" class="btn-${walked ? "secondary" : "primary"} full" style="margin-top:12px">
+             ${walked ? "✅ סימנת שהלכת 30 דק'" : "סמן שביצעתי 30 דק' הליכה"}
+           </button>
+         </div>`
       : doneHtml;
 
     root.innerHTML = `
@@ -233,6 +240,8 @@ App.workout = (function () {
       b.addEventListener("click", () => { selDate = b.dataset.day; render(); })
     );
     root.querySelector("#wk-rest").addEventListener("click", () => { toggleRest(curDate()); render(); });
+    const walkBtn = root.querySelector("#wk-walk");
+    if (walkBtn) walkBtn.addEventListener("click", () => { toggleWalk(curDate()); render(); });
     root.querySelectorAll("[data-split]").forEach((b) =>
       b.addEventListener("click", () => { setSplit(curDate(), b.dataset.split); render(); })
     );
@@ -260,6 +269,14 @@ App.workout = (function () {
     d.restDays = d.restDays || [];
     const i = d.restDays.indexOf(date);
     if (i >= 0) d.restDays.splice(i, 1); else d.restDays.push(date);
+    save(d);
+  }
+  function walkDone(date) { return (raw().restWalk || []).includes(date); }
+  function toggleWalk(date) {
+    const d = raw();
+    d.restWalk = d.restWalk || [];
+    const i = d.restWalk.indexOf(date);
+    if (i >= 0) d.restWalk.splice(i, 1); else d.restWalk.push(date);
     save(d);
   }
 
