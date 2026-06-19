@@ -6,14 +6,47 @@ App.workout = (function () {
   let root, current = null; // exerciseId currently open
 
   const DEFAULT_EXERCISES = [
-    { id: "squat", name: "סקוואט", muscle: "רגליים" },
-    { id: "bench", name: "לחיצת חזה", muscle: "חזה" },
+    // חזה
+    { id: "bench", name: "לחיצת חזה (מוט)", muscle: "חזה" },
+    { id: "bench_db", name: "לחיצת חזה (משקולות)", muscle: "חזה" },
+    { id: "incline", name: "לחיצת חזה בשיפוע", muscle: "חזה" },
+    { id: "fly", name: "פתיחות חזה (פרפר)", muscle: "חזה" },
+    { id: "dips", name: "מקבילים (Dips)", muscle: "חזה/יד אחורית" },
+    { id: "pushup", name: "שכיבות סמיכה", muscle: "חזה" },
+    // גב
     { id: "deadlift", name: "דדליפט", muscle: "גב/רגליים" },
-    { id: "ohp", name: "לחיצת כתפיים", muscle: "כתפיים" },
-    { id: "row", name: "חתירה", muscle: "גב" },
     { id: "pullup", name: "מתח", muscle: "גב" },
-    { id: "curl", name: "כפיפת מרפק", muscle: "יד קדמית" },
+    { id: "latpull", name: "פולי עליון (Lat Pulldown)", muscle: "גב" },
+    { id: "row", name: "חתירה במוט", muscle: "גב" },
+    { id: "row_db", name: "חתירה עם משקולת", muscle: "גב" },
+    { id: "seatedrow", name: "חתירה בישיבה (פולי)", muscle: "גב" },
+    { id: "facepull", name: "Face Pull", muscle: "גב עליון/כתף אחורית" },
+    // רגליים
+    { id: "squat", name: "סקוואט", muscle: "רגליים" },
+    { id: "frontsquat", name: "סקוואט קדמי", muscle: "רגליים" },
     { id: "legpress", name: "לחיצת רגליים", muscle: "רגליים" },
+    { id: "lunge", name: "לאנג'ים", muscle: "רגליים" },
+    { id: "legext", name: "פשיטת ברך (Leg Extension)", muscle: "ארבע ראשי" },
+    { id: "legcurl", name: "כפיפת ברך (Leg Curl)", muscle: "ירך אחורית" },
+    { id: "rdl", name: "דדליפט רומני (RDL)", muscle: "ירך אחורית" },
+    { id: "calf", name: "הרמות עקב (תאומים)", muscle: "שוקיים" },
+    { id: "hipthrust", name: "Hip Thrust", muscle: "ישבן" },
+    // כתפיים
+    { id: "ohp", name: "לחיצת כתפיים (מוט)", muscle: "כתפיים" },
+    { id: "ohp_db", name: "לחיצת כתפיים (משקולות)", muscle: "כתפיים" },
+    { id: "lateral", name: "הרחקות צד (Lateral Raise)", muscle: "כתף אמצעית" },
+    { id: "reardelt", name: "פתיחות כתף אחורית", muscle: "כתף אחורית" },
+    { id: "shrug", name: "משיכות כתפיים (Shrugs)", muscle: "טרפז" },
+    // ידיים
+    { id: "curl", name: "כפיפת מרפק (מוט)", muscle: "יד קדמית" },
+    { id: "curl_db", name: "כפיפת מרפק (משקולות)", muscle: "יד קדמית" },
+    { id: "hammer", name: "Hammer Curl", muscle: "יד קדמית/אמה" },
+    { id: "pushdown", name: "פשיטת מרפק בפולי", muscle: "יד אחורית" },
+    { id: "skull", name: "Skull Crushers", muscle: "יד אחורית" },
+    // ליבה
+    { id: "plank", name: "פלאנק", muscle: "ליבה" },
+    { id: "crunch", name: "כפיפות בטן", muscle: "בטן" },
+    { id: "legraise", name: "הרמות רגליים", muscle: "בטן תחתונה" },
   ];
   const TARGET_REPS = 12;   // קצה עליון של טווח החזרות
   const MIN_REPS = 8;       // קצה תחתון

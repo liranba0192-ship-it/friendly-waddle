@@ -55,6 +55,54 @@
 
     { "name": "חומוס מוכן (ממרח)", "cat": "אחר", "kcal": 177, "protein": 8, "carbs": 14, "fat": 10 },
     { "name": "חטיף חלבון", "cat": "אחר", "kcal": 350, "protein": 33, "carbs": 35, "fat": 8 },
-    { "name": "דבש", "cat": "אחר", "kcal": 304, "protein": 0.3, "carbs": 82, "fat": 0 }
+    { "name": "דבש", "cat": "אחר", "kcal": 304, "protein": 0.3, "carbs": 82, "fat": 0 },
+
+    { "name": "סטייק אנטריקוט", "cat": "חלבונים", "kcal": 271, "protein": 25, "carbs": 0, "fat": 19 },
+    { "name": "כבד עוף", "cat": "חלבונים", "kcal": 119, "protein": 17, "carbs": 0.7, "fat": 4.8 },
+    { "name": "סרדינים (בשמן)", "cat": "חלבונים", "kcal": 208, "protein": 25, "carbs": 0, "fat": 11 },
+    { "name": "דניס/לברק", "cat": "חלבונים", "kcal": 97, "protein": 20, "carbs": 0, "fat": 1.5 },
+    { "name": "שרימפס", "cat": "חלבונים", "kcal": 99, "protein": 24, "carbs": 0.2, "fat": 0.3 },
+    { "name": "סייטן", "cat": "חלבונים", "kcal": 141, "protein": 25, "carbs": 14, "fat": 2 },
+
+    { "name": "קוסקוס (מבושל)", "cat": "פחמימות", "kcal": 112, "protein": 3.8, "carbs": 23, "fat": 0.2 },
+    { "name": "בורגול (מבושל)", "cat": "פחמימות", "kcal": 83, "protein": 3, "carbs": 19, "fat": 0.2 },
+    { "name": "פתיתים (מבושל)", "cat": "פחמימות", "kcal": 150, "protein": 5, "carbs": 30, "fat": 1 },
+    { "name": "תירס", "cat": "פחמימות", "kcal": 96, "protein": 3.4, "carbs": 21, "fat": 1.5 },
+    { "name": "פיתה", "cat": "פחמימות", "kcal": 275, "protein": 9, "carbs": 55, "fat": 1.2 },
+    { "name": "לחמנייה", "cat": "פחמימות", "kcal": 290, "protein": 9, "carbs": 53, "fat": 4 },
+    { "name": "קרקר אורז", "cat": "פחמימות", "kcal": 387, "protein": 8, "carbs": 82, "fat": 3 },
+    { "name": "גרנולה", "cat": "פחמימות", "kcal": 471, "protein": 10, "carbs": 64, "fat": 20 },
+
+    { "name": "אפונה", "cat": "ירקות", "kcal": 81, "protein": 5, "carbs": 14, "fat": 0.4 },
+    { "name": "בצל", "cat": "ירקות", "kcal": 40, "protein": 1.1, "carbs": 9, "fat": 0.1 },
+    { "name": "קישוא", "cat": "ירקות", "kcal": 17, "protein": 1.2, "carbs": 3.1, "fat": 0.3 },
+    { "name": "חציל", "cat": "ירקות", "kcal": 25, "protein": 1, "carbs": 6, "fat": 0.2 },
+    { "name": "פטרייה", "cat": "ירקות", "kcal": 22, "protein": 3.1, "carbs": 3.3, "fat": 0.3 },
+    { "name": "בטטה מתוקה", "cat": "ירקות", "kcal": 86, "protein": 1.6, "carbs": 20, "fat": 0.1 },
+    { "name": "כרובית", "cat": "ירקות", "kcal": 25, "protein": 1.9, "carbs": 5, "fat": 0.3 },
+
+    { "name": "ענבים", "cat": "פירות", "kcal": 69, "protein": 0.7, "carbs": 18, "fat": 0.2 },
+    { "name": "אבטיח", "cat": "פירות", "kcal": 30, "protein": 0.6, "carbs": 8, "fat": 0.2 },
+    { "name": "מנגו", "cat": "פירות", "kcal": 60, "protein": 0.8, "carbs": 15, "fat": 0.4 },
+    { "name": "אוכמניות", "cat": "פירות", "kcal": 57, "protein": 0.7, "carbs": 14, "fat": 0.3 },
+    { "name": "תות שדה", "cat": "פירות", "kcal": 32, "protein": 0.7, "carbs": 8, "fat": 0.3 },
+
+    { "name": "קוטג' 3%", "cat": "מוצרי חלב", "kcal": 84, "protein": 11, "carbs": 3.5, "fat": 3 },
+    { "name": "גבינה בולגרית 5%", "cat": "מוצרי חלב", "kcal": 110, "protein": 13, "carbs": 3, "fat": 5 },
+    { "name": "מוצרלה", "cat": "מוצרי חלב", "kcal": 280, "protein": 22, "carbs": 2.2, "fat": 21 },
+    { "name": "שמנת חמוצה 15%", "cat": "מוצרי חלב", "kcal": 162, "protein": 3, "carbs": 4, "fat": 15 },
+    { "name": "חלב סויה", "cat": "מוצרי חלב", "kcal": 43, "protein": 3.3, "carbs": 2.6, "fat": 1.8 },
+
+    { "name": "אגוזי קשיו", "cat": "שומנים ואגוזים", "kcal": 553, "protein": 18, "carbs": 30, "fat": 44 },
+    { "name": "אגוזי לוז", "cat": "שומנים ואגוזים", "kcal": 628, "protein": 15, "carbs": 17, "fat": 61 },
+    { "name": "זרעי דלעת", "cat": "שומנים ואגוזים", "kcal": 559, "protein": 30, "carbs": 11, "fat": 49 },
+    { "name": "זרעי צ'יה", "cat": "שומנים ואגוזים", "kcal": 486, "protein": 17, "carbs": 42, "fat": 31 },
+    { "name": "חמאה", "cat": "שומנים ואגוזים", "kcal": 717, "protein": 0.9, "carbs": 0.1, "fat": 81 },
+
+    { "name": "שוקולד מריר 70%", "cat": "אחר", "kcal": 598, "protein": 7.8, "carbs": 46, "fat": 43 },
+    { "name": "פופקורן (מוכן)", "cat": "אחר", "kcal": 387, "protein": 13, "carbs": 78, "fat": 4.5 },
+    { "name": "במבה", "cat": "אחר", "kcal": 542, "protein": 13, "carbs": 49, "fat": 33 },
+    { "name": "קולה", "cat": "אחר", "kcal": 42, "protein": 0, "carbs": 11, "fat": 0 },
+    { "name": "ריבת פירות", "cat": "אחר", "kcal": 250, "protein": 0.4, "carbs": 62, "fat": 0.1 }
   ]
 }
