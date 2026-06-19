@@ -3,7 +3,7 @@ window.App = window.App || {};
 
 (function () {
   const TABS = [
-    { id: "briefing", label: "בוקר", icon: "🌅", title: "הרחבת ידע בוקר", mod: () => App.briefing },
+    { id: "briefing", label: "בוקר", icon: "🌅", title: "חלבונינץ", mod: () => App.briefing },
     { id: "workout", label: "אימון", icon: "💪", title: "אימון", mod: () => App.workout },
     { id: "food", label: "תזונה", icon: "🥗", title: "תזונה", mod: () => App.food },
     { id: "weight", label: "שקילה", icon: "⚖️", title: "שקילה", mod: () => App.weight },
