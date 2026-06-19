@@ -22,6 +22,7 @@
 </head>
 <body>
   <header class="app-header">
+    <button id="settingsBtn" class="settings-gear" aria-label="הגדרות">⚙️</button>
     <img class="app-logo" src="icons/logo-mark.svg" alt="לוגו" />
     <h1 id="appTitle" class="app-title">הרחבת ידע בוקר</h1>
   </header>
@@ -31,10 +32,21 @@
     <section id="view-workout" class="view" hidden></section>
     <section id="view-food" class="view" hidden></section>
     <section id="view-weight" class="view" hidden></section>
-    <section id="view-more" class="view" hidden></section>
   </main>
 
   <nav id="tabbar" class="tabbar" aria-label="ניווט"></nav>
+
+  <!-- מגירת הגדרות (נפתחת מגלגל-השיניים בכותרת) -->
+  <div id="settings-overlay" class="settings-overlay" hidden>
+    <div class="settings-panel">
+      <div class="settings-head">
+        <button id="settings-close" class="scan-close">✕ סגור</button>
+        <span class="settings-title">⚙️ הגדרות</span>
+        <span style="width:60px"></span>
+      </div>
+      <div id="settings-body" class="settings-body"></div>
+    </div>
+  </div>
 
   <script src="vendor/marked.min.js"></script>
   <script src="js/store.js"></script>

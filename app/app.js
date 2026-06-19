@@ -3,14 +3,13 @@ window.App = window.App || {};
 
 (function () {
   const TABS = [
-    { id: "briefing", label: "בוקר", icon: "🌅", mod: () => App.briefing },
-    { id: "workout", label: "אימון", icon: "💪", mod: () => App.workout },
-    { id: "food", label: "אוכל", icon: "🥗", mod: () => App.food },
-    { id: "weight", label: "שקילה", icon: "⚖️", mod: () => App.weight },
-    { id: "more", label: "עוד", icon: "⚙️", mod: () => App.more },
+    { id: "briefing", label: "בוקר", icon: "🌅", title: "הרחבת ידע בוקר", mod: () => App.briefing },
+    { id: "workout", label: "אימון", icon: "💪", title: "אימון", mod: () => App.workout },
+    { id: "food", label: "תזונה", icon: "🥗", title: "תזונה", mod: () => App.food },
+    { id: "weight", label: "שקילה", icon: "⚖️", title: "שקילה", mod: () => App.weight },
   ];
   const mounted = {};
-  let active = null;
+  let active = null, settingsMounted = false;
 
   // --- theme ---
   App.setTheme = function (theme) {
@@ -18,33 +17,27 @@ window.App = window.App || {};
     applyTheme();
   };
   function applyTheme() {
-    const t = localStorage.getItem("mb.theme") || "light";
-    document.documentElement.setAttribute("data-theme", t);
+    document.documentElement.setAttribute("data-theme", localStorage.getItem("mb.theme") || "light");
   }
 
   function titleFor(id) {
     const t = TABS.find((x) => x.id === id);
-    return `${t.icon} ${t.id === "briefing" ? "הרחבת ידע בוקר" : t.label}`;
+    return `${t.icon} ${t.title}`;
   }
 
   async function switchTab(id) {
     active = id;
     document.getElementById("appTitle").textContent = titleFor(id);
     for (const t of TABS) {
-      const view = document.getElementById("view-" + t.id);
-      const btn = document.getElementById("tab-" + t.id);
-      const isActive = t.id === id;
-      view.hidden = !isActive;
-      btn.classList.toggle("active", isActive);
+      document.getElementById("view-" + t.id).hidden = t.id !== id;
+      document.getElementById("tab-" + t.id).classList.toggle("active", t.id === id);
     }
     const tab = TABS.find((t) => t.id === id);
-    const mod = tab.mod();
     const view = document.getElementById("view-" + id);
-    if (!mounted[id]) { await mod.mount(view); mounted[id] = true; }
-    else if (mod.show) await mod.show();
-    // אנימציית כניסה
+    if (!mounted[id]) { await tab.mod().mount(view); mounted[id] = true; }
+    else if (tab.mod().show) await tab.mod().show();
     view.classList.remove("enter");
-    void view.offsetWidth; // restart animation
+    void view.offsetWidth;
     view.classList.add("enter");
     window.scrollTo(0, 0);
     location.hash = id;
@@ -60,9 +53,21 @@ window.App = window.App || {};
     );
   }
 
+  // --- settings overlay (gear top-right; no tab) ---
+  function openSettings() {
+    const ov = document.getElementById("settings-overlay");
+    ov.hidden = false;
+    const body = document.getElementById("settings-body");
+    if (!settingsMounted) { App.more.mount(body); settingsMounted = true; }
+    else if (App.more.show) App.more.show();
+  }
+  function closeSettings() { document.getElementById("settings-overlay").hidden = true; }
+
   function init() {
     applyTheme();
     buildTabbar();
+    document.getElementById("settingsBtn").addEventListener("click", openSettings);
+    document.getElementById("settings-close").addEventListener("click", closeSettings);
     const start = (location.hash || "").replace("#", "");
     switchTab(TABS.some((t) => t.id === start) ? start : "briefing");
     if ("serviceWorker" in navigator) {
