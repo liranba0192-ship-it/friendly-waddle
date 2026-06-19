@@ -173,6 +173,10 @@ App.workout = (function () {
     root.innerHTML = `
       <button id="wk-back" class="btn-secondary">‹ חזרה לתרגילים</button>
       <h2 class="view-h2">${U.esc(name)}</h2>
+      <div class="row-btns">
+        <button id="wk-video" class="btn-secondary">▶️ צפה בהדגמה</button>
+        <button id="wk-img" class="btn-secondary">🖼️ תמונות</button>
+      </div>
       <div class="suggest-box">💡 ${sug.text}</div>
       <div class="card-block">
         <h3>תיעוד אימון היום</h3>
@@ -206,6 +210,12 @@ App.workout = (function () {
       if (t.dataset.i != null) draft[+t.dataset.i][t.dataset.f] = t.value;
     });
 
+    root.querySelector("#wk-video").addEventListener("click", () =>
+      window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(name + " תרגיל טכניקה הדגמה")}`, "_blank", "noopener")
+    );
+    root.querySelector("#wk-img").addEventListener("click", () =>
+      window.open(`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(name + " exercise")}`, "_blank", "noopener")
+    );
     root.querySelector("#wk-addset").addEventListener("click", () => addSetRow());
     root.querySelector("#wk-back").addEventListener("click", () => { view = { kind: "home" }; render(); });
     root.querySelector("#wk-savesession").addEventListener("click", () => {

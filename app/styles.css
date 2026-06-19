@@ -202,6 +202,20 @@ input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: -1
 .add-row .qty input { width: 90px; flex: none; }
 .add-preview { color: var(--muted); font-size: 13px; margin-top: 8px; }
 
+/* ---------- food detail (macro ring) ---------- */
+.food-detail { text-align: center; }
+.detail-cat { color: var(--muted); font-size: 13px; margin: -6px 0 14px; }
+.macro-ring-wrap { display: flex; align-items: center; justify-content: center; gap: 18px; flex-wrap: wrap; }
+.donut { flex: none; }
+.donut-kcal { fill: var(--text); font-size: 22px; font-weight: 800; }
+.donut-unit { fill: var(--muted); font-size: 8px; }
+.macro-legend { display: grid; gap: 8px; text-align: start; min-width: 150px; }
+.legend-row { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.legend-dot { width: 12px; height: 12px; border-radius: 4px; flex: none; }
+.legend-name { flex: 1; color: var(--muted); }
+.legend-row b { font-weight: 700; }
+.legend-row small { color: var(--muted); min-width: 34px; text-align: end; }
+
 /* ---------- weight chart ---------- */
 .chart { width: 100%; height: auto; }
 .ch-line { stroke: var(--accent); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }

@@ -3,7 +3,7 @@ window.App = window.App || {};
 
 App.food = (function () {
   const U = App.util, S = App.store, N = App.nutrition;
-  let root, db = [], loaded = false, view = "main";
+  let root, db = [], loaded = false, view = "main", selectedFood = null;
 
   function entries() { return S.get("food.entries", []); }   // [{id,date,name,grams,kcal,protein,carbs,fat}]
   function custom() { return S.get("food.custom", []); }     // user foods (per 100g, optional unit)
@@ -28,6 +28,7 @@ App.food = (function () {
 
   function render() {
     if (view === "custom") return renderCustom();
+    if (view === "detail") return renderDetail(selectedFood);
     renderMain();
   }
 
@@ -104,49 +105,100 @@ App.food = (function () {
         <small>${f.kcal} קק"ל · ${f.protein} ח' / 100ג'</small>
       </button>`).join("");
     container.querySelectorAll(".food-item").forEach((b) =>
-      b.addEventListener("click", () => selectFood(list[+b.dataset.i]))
+      b.addEventListener("click", () => { selectedFood = list[+b.dataset.i]; view = "detail"; render(); })
     );
   }
 
-  function selectFood(food) {
-    const box = root.querySelector("#fd-add");
-    box.hidden = false;
+  // ---------- food detail page (macro breakdown) ----------
+  function donut(segs, centerKcal) {
+    const r = 46, C = 2 * Math.PI * r, cx = 60, cy = 60, sw = 16;
+    const total = segs.reduce((a, s) => a + s.v, 0) || 1;
+    let off = 0;
+    const arcs = segs.map((s) => {
+      const len = (s.v / total) * C;
+      const el = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${s.c}" stroke-width="${sw}" stroke-linecap="butt" stroke-dasharray="${len.toFixed(2)} ${(C - len).toFixed(2)}" stroke-dashoffset="${(-off).toFixed(2)}" />`;
+      off += len; return el;
+    }).join("");
+    return `<svg viewBox="0 0 120 120" class="donut" width="128" height="128" aria-hidden="true">
+      <g transform="rotate(-90 ${cx} ${cy})">
+        <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--surface-2)" stroke-width="${sw}"/>
+        ${arcs}
+      </g>
+      <text x="${cx}" y="${cy - 1}" text-anchor="middle" class="donut-kcal">${centerKcal}</text>
+      <text x="${cx}" y="${cy + 16}" text-anchor="middle" class="donut-unit">קק"ל / 100ג'</text>
+    </svg>`;
+  }
+
+  function renderDetail(food) {
+    if (!food) { view = "main"; return render(); }
     const hasUnit = food.unit && food.unitGrams > 0;
-    box.innerHTML = `
-      <div class="add-row">
-        <strong>${U.esc(food.name)}</strong>
-        <div class="qty">
+    const pk = food.protein * 4, ck = food.carbs * 4, fk = food.fat * 9, tot = pk + ck + fk || 1;
+    const COL = { p: "var(--accent)", c: "var(--amber)", f: "#a78bfa" };
+    const legend = (name, grams, col, frac) =>
+      `<div class="legend-row"><span class="legend-dot" style="background:${col}"></span>
+        <span class="legend-name">${name}</span>
+        <b>${U.round(grams)} ג'</b><small>${Math.round(frac * 100)}%</small></div>`;
+
+    root.innerHTML = `
+      <button id="fd-back" class="btn-secondary">‹ חזרה</button>
+
+      <div class="card-block food-detail">
+        <h2 class="view-h2">${U.esc(food.name)}${food.custom ? " ✏️" : ""}</h2>
+        <div class="detail-cat">${U.esc(food.cat || "")}</div>
+        <div class="macro-ring-wrap">
+          ${donut([{ v: pk, c: COL.p }, { v: ck, c: COL.c }, { v: fk, c: COL.f }], food.kcal)}
+          <div class="macro-legend">
+            ${legend("חלבון", food.protein, COL.p, pk / tot)}
+            ${legend("פחמימות", food.carbs, COL.c, ck / tot)}
+            ${legend("שומן", food.fat, COL.f, fk / tot)}
+          </div>
+        </div>
+      </div>
+
+      <div class="card-block">
+        <h3>כמה אכלת?</h3>
+        <div class="add-row inline">
           <input id="fd-qty" type="number" inputmode="decimal" value="${hasUnit ? 1 : 100}" min="0" step="${hasUnit ? 1 : 10}" />
           ${hasUnit ? `<select id="fd-mode">
               <option value="unit">${U.esc(food.unit)} (${food.unitGrams} ג')</option>
               <option value="g">גרם</option>
-            </select>` : `<span>גרם</span>`}
-          <button id="fd-confirm" class="btn-primary">הוסף</button>
+            </select>` : `<span style="white-space:nowrap">גרם</span>`}
         </div>
-        <div id="fd-preview" class="add-preview"></div>
-      </div>`;
+        <div id="fd-detail-totals" class="totals-grid" style="margin-top:12px"></div>
+        <button id="fd-confirm" class="btn-primary full">➕ הוסף ליומן</button>
+      </div>
+    `;
+
     const qty = root.querySelector("#fd-qty");
     const mode = root.querySelector("#fd-mode");
-    const preview = root.querySelector("#fd-preview");
+    const totalsEl = root.querySelector("#fd-detail-totals");
 
     function gramsNow() {
       const q = parseFloat(qty.value) || 0;
-      if (hasUnit && (!mode || mode.value === "unit")) return q * food.unitGrams;
-      return q;
+      return hasUnit && (!mode || mode.value === "unit") ? q * food.unitGrams : q;
     }
     function label() {
       const q = parseFloat(qty.value) || 0;
-      if (hasUnit && (!mode || mode.value === "unit")) return `${U.round(q)} ${food.unit} (${Math.round(gramsNow())} ג')`;
-      return `${Math.round(gramsNow())} ג'`;
+      return hasUnit && (!mode || mode.value === "unit")
+        ? `${U.round(q)} ${food.unit} (${Math.round(gramsNow())} ג')`
+        : `${Math.round(gramsNow())} ג'`;
+    }
+    function mini(label, val, unit) {
+      return `<div class="stat-card mini"><div class="stat-label">${label}</div><div class="stat-value">${val}<small> ${unit}</small></div></div>`;
     }
     function upd() {
       const f = gramsNow() / 100;
-      preview.textContent = `${Math.round(food.kcal * f)} קק"ל · חלבון ${U.round(food.protein * f)} ג' · פחמ' ${U.round(food.carbs * f)} · שומן ${U.round(food.fat * f)}`;
+      totalsEl.innerHTML =
+        mini("קלוריות", Math.round(food.kcal * f), 'קק"ל') +
+        mini("חלבון", U.round(food.protein * f), "ג'") +
+        mini("פחמימות", U.round(food.carbs * f), "ג'") +
+        mini("שומן", U.round(food.fat * f), "ג'");
     }
     qty.addEventListener("input", upd);
     if (mode) mode.addEventListener("change", () => { qty.value = mode.value === "unit" ? 1 : 100; qty.step = mode.value === "unit" ? 1 : 10; upd(); });
     upd();
 
+    root.querySelector("#fd-back").addEventListener("click", () => { view = "main"; render(); });
     root.querySelector("#fd-confirm").addEventListener("click", () => {
       const g = gramsNow();
       if (!(g > 0)) { alert("הזן כמות."); return; }
@@ -157,6 +209,7 @@ App.food = (function () {
         kcal: food.kcal * f, protein: food.protein * f, carbs: food.carbs * f, fat: food.fat * f,
       });
       saveEntries(list);
+      view = "main";
       render();
     });
   }
