@@ -28,6 +28,21 @@ App.workout = (function () {
 
   const TARGET_REPS = 12, MIN_REPS = 8, STEP_KG = 2.5;
 
+  // חלוקות אימון — כל חלוקה והקבוצות שמשתייכות אליה (התאמה לפי תת-מחרוזת)
+  const SPLITS = [
+    { key: "all", label: "הכל", match: null },
+    { key: "push", label: "דחיפה (Push)", match: ["חזה", "כתפיים", "יד אחורית"] },
+    { key: "pull", label: "משיכה (Pull)", match: ["גב", "יד קדמית", "אמות"] },
+    { key: "legs", label: "רגליים (Legs)", match: ["רגליים"] },
+    { key: "arms", label: "ידיים (Arms)", match: ["יד קדמית", "יד אחורית", "אמות"] },
+    { key: "upper", label: "פלג עליון", match: ["חזה", "גב", "כתפיים", "יד קדמית", "יד אחורית", "אמות"] },
+    { key: "lower", label: "פלג תחתון", match: ["רגליים", "בטן"] },
+  ];
+  function splitFor(date) { return (raw().split || {})[date] || "all"; }
+  function setSplit(date, key) {
+    const d = raw(); d.split = d.split || {}; d.split[date] = key; save(d);
+  }
+
   // ---------- storage (+ מיגרציה מהפורמט הישן) ----------
   function raw() { return S.get("workout", { customExercises: [], logs: [] }); }
   function save(d) { S.set("workout", d); }
@@ -148,7 +163,14 @@ App.workout = (function () {
     }
     const today = U.todayISO();
 
-    const sections = allGroups().map((g) => {
+    // סינון קבוצות לפי חלוקת האימון שנבחרה ליום
+    const curSplit = splitFor(curDate());
+    const splitDef = SPLITS.find((s) => s.key === curSplit) || SPLITS[0];
+    const groupsToShow = allGroups().filter((g) =>
+      !splitDef.match || splitDef.match.some((m) => g.name.includes(m))
+    );
+
+    const sections = groupsToShow.map((g) => {
       const items = g.exercises.map((name) => {
         const last = latest[name];
         const sub = last
@@ -199,13 +221,19 @@ App.workout = (function () {
         <button id="wk-history" class="btn-secondary">📋 היסטוריה</button>
         <button id="wk-add" class="btn-secondary">➕ הוסף תרגיל</button>
       </div>
-      <p class="section-hint">בחר תרגיל כדי לתעד אותו ליום הנבחר (התרגילים מחולקים לפי קבוצת שריר).</p>
-      ${sections}
+      <p class="section-hint" style="margin-bottom:6px">חלוקת אימון להיום:</p>
+      <div class="split-chips">
+        ${SPLITS.map((s) => `<button class="split-chip${s.key === curSplit ? " sel" : ""}" data-split="${s.key}">${s.label}</button>`).join("")}
+      </div>
+      ${sections || `<p class="status">אין קבוצות לחלוקה זו.</p>`}
     `;
     root.querySelectorAll("[data-day]").forEach((b) =>
       b.addEventListener("click", () => { selDate = b.dataset.day; render(); })
     );
     root.querySelector("#wk-rest").addEventListener("click", () => { toggleRest(curDate()); render(); });
+    root.querySelectorAll("[data-split]").forEach((b) =>
+      b.addEventListener("click", () => { setSplit(curDate(), b.dataset.split); render(); })
+    );
     root.querySelectorAll("[data-del]").forEach((b) =>
       b.addEventListener("click", () => {
         const d = raw(); d.logs = (d.logs || []).filter((l) => l.id !== b.dataset.del); save(d); render();
