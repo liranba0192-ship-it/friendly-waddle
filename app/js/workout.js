@@ -294,6 +294,7 @@ App.workout = (function () {
   function renderExercise(name) {
     const sug = suggestion(name);
     const past = logsForName(name);
+    const prev = past.find((l) => l.date < curDate()) || null; // האימון הקודם (לפני היום הנבחר)
     const history = past.map((l) => `
       <div class="log-row">
         <span class="log-date">${U.prettyDate(l.date)} · יום ${U.dayName(l.date)}</span>
@@ -309,6 +310,10 @@ App.workout = (function () {
         <button id="wk-img" class="btn-secondary">🖼️ תמונות</button>
       </div>
       <div class="suggest-box">💡 ${sug.text}</div>
+      ${prev ? `<div class="card-block prev-card">
+        <h3>💪 האימון הקודם · ${U.prettyDate(prev.date)} (יום ${U.dayName(prev.date)})</h3>
+        <div class="prev-sets">${prev.sets.map((s, i) => `<span class="prev-chip">סט ${i + 1}: <b>${s.weight}</b>×<b>${s.reps}</b></span>`).join("")}</div>
+      </div>` : `<div class="card-block"><p class="status">זה האימון הראשון שלך בתרגיל הזה 💪</p></div>`}
       <div class="card-block">
         <h3>תיעוד ל-${curDate() === U.todayISO() ? "היום" : U.prettyDate(curDate())}</h3>
         <div id="wk-sets"></div>
@@ -323,7 +328,7 @@ App.workout = (function () {
 
     const setsEl = root.querySelector("#wk-sets");
     const draft = [];
-    function addSetRow(weight = sug.weight || "", reps = sug.reps || "") {
+    function addSetRow(weight = "", reps = "", prevSet = null) {
       const i = draft.length;
       draft.push({ weight, reps });
       const row = document.createElement("div");
@@ -332,10 +337,13 @@ App.workout = (function () {
         <span class="set-num">סט ${i + 1}</span>
         <input type="number" inputmode="decimal" step="0.5" placeholder='ק"ג' value="${weight}" data-i="${i}" data-f="weight" />
         <span>×</span>
-        <input type="number" inputmode="numeric" placeholder="חזרות" value="${reps}" data-i="${i}" data-f="reps" />`;
+        <input type="number" inputmode="numeric" placeholder="חזרות" value="${reps}" data-i="${i}" data-f="reps" />
+        ${prevSet ? `<span class="set-prev">קודם ${prevSet.weight}×${prevSet.reps}</span>` : ""}`;
       setsEl.appendChild(row);
     }
-    addSetRow();
+    // אתחול: שורה לכל סט מהאימון הקודם (מלא מראש כדי שתשפר), אחרת שורה אחת לפי ההצעה
+    if (prev && prev.sets.length) prev.sets.forEach((ps) => addSetRow(ps.weight, ps.reps, ps));
+    else addSetRow(sug.weight || "", sug.reps || "");
     setsEl.addEventListener("input", (e) => {
       const t = e.target;
       if (t.dataset.i != null) draft[+t.dataset.i][t.dataset.f] = t.value;
@@ -347,7 +355,7 @@ App.workout = (function () {
     root.querySelector("#wk-img").addEventListener("click", () =>
       window.open(`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(name + " exercise")}`, "_blank", "noopener")
     );
-    root.querySelector("#wk-addset").addEventListener("click", () => addSetRow());
+    root.querySelector("#wk-addset").addEventListener("click", () => addSetRow("", "", prev && prev.sets[draft.length]));
     root.querySelector("#wk-back").addEventListener("click", () => { view = { kind: "home" }; render(); });
     root.querySelector("#wk-savesession").addEventListener("click", () => {
       const sets = draft

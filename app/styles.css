@@ -425,3 +425,8 @@ body { background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, 
 .ch-grid { stroke: var(--border); stroke-width: 1; }
 .ch-dot-last { fill: var(--accent-2); }
 .ch-last-txt { fill: var(--text); font-size: 12px; font-weight: 800; }
+/* האימון הקודם */
+.prev-card .prev-sets { display:flex; flex-wrap:wrap; gap:8px; }
+.prev-chip { background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent-2);
+  border-radius:999px; padding:5px 12px; font-size:13px; }
+.set-prev { font-size:11px; color:var(--muted); white-space:nowrap; align-self:center; }
