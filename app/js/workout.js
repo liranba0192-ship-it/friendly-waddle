@@ -37,6 +37,8 @@ App.workout = (function () {
     { key: "arms", label: "ידיים (Arms)", match: ["יד קדמית", "יד אחורית", "אמות"] },
     { key: "upper", label: "פלג עליון", match: ["חזה", "גב", "כתפיים", "יד קדמית", "יד אחורית", "אמות"] },
     { key: "lower", label: "פלג תחתון", match: ["רגליים", "בטן"] },
+    { key: "full", label: "גוף מלא (Full Body)", match: ["חזה", "גב", "רגליים", "כתפיים", "יד קדמית", "יד אחורית"] },
+    { key: "bro", label: "ברו ספליט (Bro Split)", match: null },
   ];
   function splitFor(date) { return (raw().split || {})[date] || "all"; }
   function setSplit(date, key) {
