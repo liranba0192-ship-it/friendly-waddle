@@ -3,12 +3,18 @@ window.App = window.App || {};
 
 App.food = (function () {
   const U = App.util, S = App.store, N = App.nutrition;
-  let root, db = [], loaded = false, view = "main", selectedFood = null;
+  let root, db = [], loaded = false, view = "main", selectedFood = null, selDate = null;
 
   function entries() { return S.get("food.entries", []); }   // [{id,date,name,grams,kcal,protein,carbs,fat}]
   function custom() { return S.get("food.custom", []); }     // user foods (per 100g, optional unit)
   function saveEntries(v) { S.set("food.entries", v); }
   function saveCustom(v) { S.set("food.custom", v); }
+  // מים (מ"ל) לפי תאריך + יעד
+  function water() { return S.get("food.water", {}); }
+  function waterFor(d) { return water()[d] || 0; }
+  function setWater(d, ml) { const w = water(); w[d] = Math.max(0, Math.round(ml)); S.set("food.water", w); }
+  function waterGoal() { return S.get("food.waterGoal", 2500); }
+  function curDate() { return selDate || U.todayISO(); }
 
   async function ensureDB() {
     if (loaded) return;
@@ -32,51 +38,141 @@ App.food = (function () {
     renderMain();
   }
 
-  // ---------- main screen ----------
-  function renderMain() {
+  // ---------- מחרוזת ימים אחרונים ----------
+  function dateStrip() {
     const today = U.todayISO();
-    const todays = entries().filter((e) => e.date === today);
-    const tot = todays.reduce((a, e) => ({
+    const cur = curDate();
+    const days = [];
+    const base = new Date();
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(base); d.setDate(base.getDate() - i);
+      const p2 = (x) => String(x).padStart(2, "0");
+      const iso = `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`;
+      days.push(iso);
+    }
+    const cells = days.map((iso) => {
+      const [, , dd] = iso.split("-");
+      const isSel = iso === cur, isToday = iso === today;
+      return `<button class="day-cell${isSel ? " sel" : ""}" data-day="${iso}">
+        <span class="day-name">${isToday ? "היום" : "יום " + U.dayName(iso)}</span>
+        <span class="day-num">${+dd}</span>
+      </button>`;
+    }).join("");
+    return `<div class="date-strip">${cells}</div>`;
+  }
+
+  // טבעת קלוריות (נצרך מול יעד)
+  function calRing(consumed, target) {
+    const r = 52, C = 2 * Math.PI * r, cx = 70, cy = 70, sw = 14;
+    const frac = target ? Math.min(1, consumed / target) : 0;
+    const len = frac * C;
+    return `<svg viewBox="0 0 140 140" class="cal-ring" width="150" height="150">
+      <g transform="rotate(-90 ${cx} ${cy})">
+        <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--surface-2)" stroke-width="${sw}"/>
+        <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="url(#calg)" stroke-width="${sw}"
+          stroke-linecap="round" stroke-dasharray="${len.toFixed(1)} ${(C - len).toFixed(1)}"/>
+      </g>
+      <text x="${cx}" y="${cy - 2}" text-anchor="middle" class="ring-num">${Math.round(consumed)}</text>
+      <text x="${cx}" y="${cy + 16}" text-anchor="middle" class="ring-sub">מתוך ${target}</text>
+      <defs><linearGradient id="calg" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="var(--accent)"/><stop offset="1" stop-color="var(--accent-2)"/>
+      </linearGradient></defs>
+    </svg>`;
+  }
+
+  function macroBar(name, val, target, col) {
+    const pct = target ? Math.min(100, Math.round((val / target) * 100)) : 0;
+    return `<div class="mb-row">
+      <div class="mb-head"><span style="color:${col};font-weight:700">${name}</span>
+        <span>${U.round(val)} / ${target || 0} ג'</span></div>
+      <div class="bar"><div class="bar-fill" style="width:${pct}%;background:${col}"></div></div>
+    </div>`;
+  }
+
+  // ---------- main screen (דשבורד) ----------
+  function renderMain() {
+    const d = curDate();
+    const list = entries().filter((e) => e.date === d);
+    const tot = list.reduce((a, e) => ({
       kcal: a.kcal + e.kcal, protein: a.protein + e.protein, carbs: a.carbs + e.carbs, fat: a.fat + e.fat,
     }), { kcal: 0, protein: 0, carbs: 0, fat: 0 });
     const tg = N.targets();
+    const wMl = waterFor(d), wGoal = waterGoal();
 
-    const rows = todays.map((e) => `
+    const rows = list.map((e) => `
       <div class="log-row">
         <span class="log-date">${U.esc(e.name)} · ${U.esc(e.label || (e.grams + " ג'"))}</span>
         <span class="log-sets">${Math.round(e.kcal)} קק"ל · ${U.round(e.protein)} ח'</span>
         <button class="del-x" data-del="${e.id}" aria-label="מחק">✕</button>
-      </div>`).join("") || `<p class="status">עדיין לא הוספת מאכלים היום.</p>`;
+      </div>`).join("") || `<p class="status">אין ארוחות ליום זה.</p>`;
 
     root.innerHTML = `
-      <div class="totals-grid">
-        ${stat("קלוריות", Math.round(tot.kcal), tg.kcal, 'קק"ל')}
-        ${stat("חלבון", U.round(tot.protein), tg.protein, "ג'")}
-        ${stat("פחמימות", U.round(tot.carbs), tg.carbs || 0, "ג'")}
-        ${stat("שומן", U.round(tot.fat), tg.fat || 0, "ג'")}
+      ${dateStrip()}
+
+      <div class="dash-grid">
+        <div class="card-block dash-cal">
+          <h3>קלוריות שנצרכו</h3>
+          ${calRing(tot.kcal, tg.kcal)}
+        </div>
+        <div class="card-block dash-macros">
+          <h3>ערכים תזונתיים</h3>
+          ${macroBar("חלבון", tot.protein, tg.protein, "var(--accent)")}
+          ${macroBar("פחמימות", tot.carbs, tg.carbs, "var(--amber)")}
+          ${macroBar("שומן", tot.fat, tg.fat, "#a78bfa")}
+        </div>
+      </div>
+
+      <div class="card-block water-card">
+        <h3>💧 מים</h3>
+        <div class="water-main">
+          <div><span class="water-num">${wMl}</span><span class="water-sub"> / ${wGoal} מ"ל</span></div>
+          <div class="water-btns">
+            <button id="w-minus" class="water-btn minus">−250</button>
+            <button id="w-plus" class="water-btn plus">+250</button>
+          </div>
+        </div>
+        <div class="bar"><div class="bar-fill" style="width:${Math.min(100, Math.round(wMl / wGoal * 100))}%"></div></div>
       </div>
 
       <div class="card-block">
         <h3>הוספת מאכל</h3>
-        <input id="fd-search" class="search-input" type="search" placeholder="חפש מאכל… (למשל: חזה עוף)" autocomplete="off" />
+        <div class="add-row inline" style="margin-bottom:10px">
+          <input id="fd-search" class="search-input" type="search" placeholder="חפש מאכל…" autocomplete="off" style="margin:0" />
+          <button id="fd-scan" class="btn-secondary" style="white-space:nowrap">📷 סרוק</button>
+        </div>
         <div id="fd-results" class="results-list"></div>
         <div id="fd-add" hidden></div>
       </div>
 
       <div class="card-block">
-        <h3>היום אכלתי</h3>
+        <h3>הארוחות שלי</h3>
         ${rows}
       </div>
 
-      <p class="section-hint">💡 את היעדים והמחשבון תמצא עכשיו בטאב <b>שקילה ⚖️</b>.</p>
       <button id="fd-custom" class="btn-secondary full">➕ הוסף מאכל משלך למאגר</button>
+      <p class="section-hint" style="text-align:center;margin-top:10px">💡 יעדים ומחשבון קלוריות — בטאב <b>שקילה ⚖️</b></p>
     `;
 
+    // date strip
+    root.querySelectorAll("[data-day]").forEach((b) =>
+      b.addEventListener("click", () => { selDate = b.dataset.day; render(); })
+    );
+    // water
+    root.querySelector("#w-plus").addEventListener("click", () => { setWater(d, wMl + 250); render(); });
+    root.querySelector("#w-minus").addEventListener("click", () => { setWater(d, wMl - 250); render(); });
+    // search + scan
     const search = root.querySelector("#fd-search");
     const results = root.querySelector("#fd-results");
     search.addEventListener("input", () => renderResults(search.value, results));
     renderResults("", results);
-
+    root.querySelector("#fd-scan").addEventListener("click", () => {
+      App.scanner.open((food) => {
+        const c = custom();
+        if (!c.some((x) => x.name === food.name)) { c.unshift(food); saveCustom(c); }
+        selectedFood = food; view = "detail"; render();
+      });
+    });
+    // delete + custom
     root.querySelectorAll("[data-del]").forEach((b) =>
       b.addEventListener("click", () => { saveEntries(entries().filter((e) => e.id !== b.dataset.del)); render(); })
     );
@@ -205,7 +301,7 @@ App.food = (function () {
       const f = g / 100;
       const list = entries();
       list.push({
-        id: U.uid(), date: U.todayISO(), name: food.name, grams: Math.round(g), label: label(),
+        id: U.uid(), date: curDate(), name: food.name, grams: Math.round(g), label: label(),
         kcal: food.kcal * f, protein: food.protein * f, carbs: food.carbs * f, fat: food.fat * f,
       });
       saveEntries(list);
