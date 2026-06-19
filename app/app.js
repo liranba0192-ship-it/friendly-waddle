@@ -42,6 +42,10 @@ window.App = window.App || {};
     const view = document.getElementById("view-" + id);
     if (!mounted[id]) { await mod.mount(view); mounted[id] = true; }
     else if (mod.show) await mod.show();
+    // אנימציית כניסה
+    view.classList.remove("enter");
+    void view.offsetWidth; // restart animation
+    view.classList.add("enter");
     window.scrollTo(0, 0);
     location.hash = id;
   }

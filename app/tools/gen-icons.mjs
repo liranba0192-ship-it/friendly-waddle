@@ -106,19 +106,36 @@ function draw(size, { maskable = false } = {}) {
 
   // white dumbbell (משקולת) — horizontal bar + plates
   const W = [255, 255, 255, 255];
-  const cy = Math.round(size * 0.5);
-  const barH = Math.round(size * 0.075);
+  const cy = Math.round(size * 0.58);
+  const barH = Math.round(size * 0.07);
   // center bar
   fillRoundRect(Math.round(size * 0.34), cy - Math.round(barH / 2), Math.round(size * 0.32), barH, Math.round(barH / 2), W);
   // inner plates
-  const pW = Math.round(size * 0.07);
-  const ipH = Math.round(size * 0.24);
-  fillRoundRect(Math.round(size * 0.28), cy - Math.round(ipH / 2), pW, ipH, Math.round(pW / 3), W);
-  fillRoundRect(Math.round(size * 0.65), cy - Math.round(ipH / 2), pW, ipH, Math.round(pW / 3), W);
+  const pW = Math.round(size * 0.065);
+  const ipH = Math.round(size * 0.2);
+  fillRoundRect(Math.round(size * 0.29), cy - Math.round(ipH / 2), pW, ipH, Math.round(pW / 3), W);
+  fillRoundRect(Math.round(size * 0.645), cy - Math.round(ipH / 2), pW, ipH, Math.round(pW / 3), W);
   // outer plates
-  const opH = Math.round(size * 0.34);
-  fillRoundRect(Math.round(size * 0.19), cy - Math.round(opH / 2), pW, opH, Math.round(pW / 3), W);
-  fillRoundRect(Math.round(size * 0.74), cy - Math.round(opH / 2), pW, opH, Math.round(pW / 3), W);
+  const opH = Math.round(size * 0.3);
+  fillRoundRect(Math.round(size * 0.2), cy - Math.round(opH / 2), pW, opH, Math.round(pW / 3), W);
+  fillRoundRect(Math.round(size * 0.735), cy - Math.round(opH / 2), pW, opH, Math.round(pW / 3), W);
+
+  // leaf (תזונה) — rotated ellipse + stem, growing above the dumbbell
+  const fillEllipseRot = (cx, cyy, rx, ry, ang, color) => {
+    const cos = Math.cos(ang), sin = Math.sin(ang);
+    const R = Math.ceil(Math.max(rx, ry));
+    for (let y = -R; y <= R; y++)
+      for (let x = -R; x <= R; x++) {
+        const rxr = x * cos + y * sin, ryr = -x * sin + y * cos;
+        if ((rxr / rx) ** 2 + (ryr / ry) ** 2 <= 1) set(Math.round(cx + x), Math.round(cyy + y), color[0], color[1], color[2], 255);
+      }
+  };
+  const leafCx = Math.round(size * 0.5), leafCy = Math.round(size * 0.32);
+  // stem
+  fillRoundRect(leafCx - Math.round(size * 0.008), leafCy, Math.round(size * 0.016), Math.round(size * 0.12), Math.round(size * 0.008), W);
+  // two leaves forming a sprout
+  fillEllipseRot(leafCx - Math.round(size * 0.055), leafCy - Math.round(size * 0.01), Math.round(size * 0.085), Math.round(size * 0.04), -Math.PI / 4, W);
+  fillEllipseRot(leafCx + Math.round(size * 0.055), leafCy - Math.round(size * 0.01), Math.round(size * 0.085), Math.round(size * 0.04), Math.PI / 4, W);
 
   return encodePNG(size, size, buf);
 }
