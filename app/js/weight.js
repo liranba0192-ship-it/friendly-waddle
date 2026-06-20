@@ -250,6 +250,16 @@ App.weight = (function () {
               <text x="${padX - 4}" y="${y + 3}" class="ch-txt" text-anchor="end">${val}</text>`;
     }).join("");
     const dots = data.map((d, i) => `<circle cx="${px(i)}" cy="${py(d.kg)}" r="3.5" class="ch-dot" />`).join("");
+    // קווי הקו צבועים: ירוק = כיוון טוב (לפי המטרה), אדום = כיוון הפוך
+    const goalDir = App.nutrition.profile().goalDir;
+    const goodDown = goalDir !== "gain"; // ירידה/שמירה → ירידה טובה; עלייה במסה → עלייה טובה
+    let segs = "";
+    for (let i = 1; i < data.length; i++) {
+      const delta = data[i].kg - data[i - 1].kg;
+      let col = "var(--muted)";
+      if (Math.abs(delta) >= 0.05) col = ((delta < 0) === goodDown) ? "#10b981" : "#ef4444";
+      segs += `<line x1="${px(i - 1)}" y1="${py(data[i - 1].kg)}" x2="${px(i)}" y2="${py(data[i].kg)}" stroke="${col}" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+    }
     // ערך אחרון מודגש
     const lastI = data.length - 1, lastV = data[lastI].kg;
     const lastLabel = `<circle cx="${px(lastI)}" cy="${py(lastV)}" r="5" class="ch-dot-last"/>
@@ -258,17 +268,19 @@ App.weight = (function () {
       ? `<line x1="${padX}" y1="${py(goalKg)}" x2="${W - padX}" y2="${py(goalKg)}" class="ch-goal" />
          <text x="${W - padX}" y="${py(goalKg) - 4}" class="ch-txt" text-anchor="end">🎯 ${goalKg}</text>`
       : "";
-    return `<svg viewBox="0 0 ${W} ${H}" class="chart" preserveAspectRatio="xMidYMid meet" dir="ltr">
+    const svg = `<svg viewBox="0 0 ${W} ${H}" class="chart" preserveAspectRatio="xMidYMid meet" dir="ltr">
       <defs><linearGradient id="wtarea" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="var(--accent)" stop-opacity="0.35"/>
+        <stop offset="0" stop-color="var(--accent)" stop-opacity="0.30"/>
         <stop offset="1" stop-color="var(--accent)" stop-opacity="0"/>
       </linearGradient></defs>
       ${grid}
       ${goalLine}
       <polygon points="${areaPts}" fill="url(#wtarea)" stroke="none"/>
-      <polyline points="${linePts}" class="ch-line" fill="none" />
+      ${segs}
       ${dots}${lastLabel}
     </svg>`;
+    const legend = `<div class="ch-legend"><span><span class="ld" style="background:#10b981"></span> כיוון טוב</span><span><span class="ld" style="background:#ef4444"></span> כיוון הפוך</span></div>`;
+    return svg + legend;
   }
 
   return { mount, show };
