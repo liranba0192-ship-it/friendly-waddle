@@ -17,7 +17,11 @@
         "שכיבות סמיכה",
         "מקבילים לחזה (Dips)",
         "לחיצת חזה בכבלים",
-        "Pullover במשקולת"
+        "Pullover במשקולת",
+        "שכיבות סמיכה רחבות",
+        "שכיבות סמיכה צרות (יהלום)",
+        "שכיבות סמיכה בשיפוע (רגליים מוגבהות)",
+        "Svend Press"
       ]
     },
     {
@@ -38,7 +42,11 @@
         "דדליפט סומו",
         "היפר אקסטנשן (Back Extension)",
         "פולאובר בכבל",
-        "שראגס (Shrugs)"
+        "שראגס (Shrugs)",
+        "Chin-up (אחיזה תחתונה)",
+        "חתירה אופקית במשקל גוף (Australian)",
+        "Meadows Row",
+        "חתירה בכבל יד אחת"
       ]
     },
     {
@@ -63,7 +71,13 @@
         "הרמות עקב בעמידה (תאומים)",
         "הרמות עקב בישיבה (תאומים)",
         "חטיפת ירך במכונה (Abduction)",
-        "קירוב ירך במכונה (Adduction)"
+        "קירוב ירך במכונה (Adduction)",
+        "סקוואט בולגרי במשקל גוף",
+        "Pistol Squat (סקוואט רגל אחת)",
+        "Nordic Hamstring Curl",
+        "הרמת אגן רגל אחת",
+        "Wall Sit (ישיבת קיר)",
+        "Sissy Squat"
       ]
     },
     {
@@ -79,7 +93,10 @@
         "פתיחות כתף אחורית (Rear Delt Fly)",
         "פרפר הפוך במכונה (Reverse Pec Deck)",
         "Face Pull",
-        "חתירה אנכית (Upright Row)"
+        "חתירה אנכית (Upright Row)",
+        "Pike Push-up",
+        "לחיצת כתפיים בסמית",
+        "הרחקות צד בכבל יד אחת"
       ]
     },
     {
@@ -94,7 +111,9 @@
         "כפיפת מרפק בספסל נוטה (Incline)",
         "Preacher Curl (ספסל סקוט)",
         "כפיפת מרפק בכבל גבוה",
-        "Spider Curl"
+        "Spider Curl",
+        "כפיפת מרפק בכבל חבל",
+        "Zottman Curl"
       ]
     },
     {
@@ -109,7 +128,9 @@
         "פשיטת מרפק לאחור (Kickback)",
         "לחיצות על ספסל (Bench Dips)",
         "פשיטת מרפק במשקולת מעל הראש",
-        "שכיבות סמיכה יהלום (Diamond)"
+        "שכיבות סמיכה יהלום (Diamond)",
+        "JM Press",
+        "פשיטת מרפק יד אחת בכבל"
       ]
     },
     {
@@ -139,7 +160,12 @@
         "Mountain Climbers",
         "V-Ups",
         "Dead Bug",
-        "Leg Raises על מקבילים"
+        "Leg Raises על מקבילים",
+        "Hollow Hold",
+        "Hanging Knee Raise (תלייה ברך)",
+        "Cable Woodchopper",
+        "Toes To Bar",
+        "Side Plank Dips"
       ]
     },
     {
@@ -151,7 +177,39 @@
         "אליפטיקל (Cross Trainer)",
         "מכונת חתירה",
         "קפיצה בחבל",
-        "Stairmaster (מדרגות)"
+        "Stairmaster (מדרגות)",
+        "בורפי (Burpees)",
+        "Box Jump (קפיצה על תיבה)"
+      ]
+    },
+    {
+      "name": "משקל גוף (Calisthenics)",
+      "exercises": [
+        "שכיבות סמיכה",
+        "מתח (Pull-up)",
+        "מקבילים (Dips)",
+        "סקוואט אוויר (Air Squat)",
+        "לאנג׳ים במשקל גוף",
+        "Pistol Squat",
+        "Pike Push-up",
+        "Archer Push-up",
+        "שכיבות סמיכה יהלום",
+        "Hollow Hold",
+        "Superman",
+        "Plank",
+        "פלאנק צד",
+        "Hanging Leg Raise",
+        "L-Sit",
+        "Mountain Climbers",
+        "Burpees",
+        "Jump Squat",
+        "Box Jump",
+        "Bear Crawl",
+        "Inchworm",
+        "Wall Sit",
+        "Glute Bridge",
+        "Nordic Curl",
+        "Calf Raise (משקל גוף)"
       ]
     }
   ]
