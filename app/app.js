@@ -62,6 +62,7 @@ window.App = window.App || {};
     else if (App.more.show) App.more.show();
   }
   function closeSettings() { document.getElementById("settings-overlay").hidden = true; }
+  App.openSettings = openSettings; // נגיש למודולים (כפתורי "הגדר תזכורת")
 
   function init() {
     applyTheme();

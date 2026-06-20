@@ -95,6 +95,12 @@ App.briefing = (function () {
     const today = U.todayISO();
     const frag = document.createDocumentFragment();
 
+    // כפתור הצעת תזכורת
+    const cta = document.createElement("li");
+    cta.innerHTML = `<button class="cta-reminder">🔔 קבל תזכורת ללימוד כל בוקר — להגדרה</button>`;
+    cta.querySelector("button").addEventListener("click", () => App.openSettings && App.openSettings());
+    frag.appendChild(cta);
+
     // רצף למידה
     const st = streakOf(items);
     if (st >= 2) {
