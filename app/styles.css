@@ -465,3 +465,8 @@ body { background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, 
 .help-input-row .btn-primary { white-space: nowrap; }
 .ch-legend { display:flex; justify-content:center; gap:18px; margin-top:8px; font-size:12px; color:var(--muted); }
 .ch-legend .ld { display:inline-block; width:12px; height:4px; border-radius:2px; vertical-align:middle; }
+/* כפתור הצעת תזכורת */
+.cta-reminder { display:block; width:100%; margin:12px 0; background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent-2); border:1px dashed color-mix(in srgb,var(--accent) 45%, transparent); border-radius:14px;
+  padding:12px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; }
+.cta-reminder:active { transform: scale(.98); }

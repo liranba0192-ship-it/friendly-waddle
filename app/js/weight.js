@@ -106,6 +106,8 @@ App.weight = (function () {
         <p class="section-hint">אפשר להוסיף כמה שקילות שרוצים — גם כמה באותו יום.</p>
       </div>
 
+      <button id="wt-remind" class="cta-reminder full">🔔 קבע תזכורת שקילה שבועית — להגדרה</button>
+
       <button id="wt-goal" class="btn-secondary full">🎯 הגדר משקל יעד</button>
 
       ${calculatorCard()}
@@ -128,6 +130,7 @@ App.weight = (function () {
     root.querySelectorAll("[data-del]").forEach((b) =>
       b.addEventListener("click", () => { save(logs().filter((w) => w.id !== b.dataset.del)); render(); })
     );
+    root.querySelector("#wt-remind").addEventListener("click", () => App.openSettings && App.openSettings());
     root.querySelector("#wt-goal").addEventListener("click", () => {
       const v = prompt('משקל יעד בק"ג:', g || "");
       if (v === null) return;
