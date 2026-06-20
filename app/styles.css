@@ -479,3 +479,4 @@ body { background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, 
 .grp-summary .gs-ex { display:inline-block; margin-inline-end: 10px; }
 .grp-summary b { color: var(--accent-2); }
 .po-target { color: var(--accent-2); font-weight: 700; white-space: nowrap; }
+.edit-x { background:none; border:none; color:var(--accent); font-size:15px; cursor:pointer; padding:4px 6px; }
