@@ -473,3 +473,9 @@ body { background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, 
 .setup-steps { margin: 4px 18px 12px; padding: 0; font-size: 13px; color: var(--text); line-height: 1.7; }
 .setup-steps li { margin-bottom: 6px; }
 .setup-steps pre { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 10px; overflow-x: auto; font-size: 11px; direction: ltr; text-align: left; white-space: pre-wrap; }
+/* סיכום קבוצה + יעד PO */
+.grp-summary { background: color-mix(in srgb, var(--accent) 9%, transparent); border-radius: 12px;
+  padding: 8px 10px; margin: 4px 0 10px; font-size: 12px; color: var(--muted); line-height: 1.7; }
+.grp-summary .gs-ex { display:inline-block; margin-inline-end: 10px; }
+.grp-summary b { color: var(--accent-2); }
+.po-target { color: var(--accent-2); font-weight: 700; white-space: nowrap; }

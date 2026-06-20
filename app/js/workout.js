@@ -188,17 +188,32 @@ App.workout = (function () {
       !splitDef.match || splitDef.match.some((m) => g.name.includes(m))
     );
 
+    const allLogs = logs();
     const sections = groupsToShow.map((g) => {
+      // סיכום האימון הקודם של הקבוצה: התאריך האחרון בו תועד תרגיל מהקבוצה
+      const inGroup = new Set(g.exercises);
+      const gLogs = allLogs.filter((l) => inGroup.has(l.exerciseName) && l.date < curDate());
+      let summary = "";
+      if (gLogs.length) {
+        const lastDate = gLogs.reduce((m, l) => (l.date > m ? l.date : m), gLogs[0].date);
+        const onDate = gLogs.filter((l) => l.date === lastDate);
+        summary = `<div class="grp-summary">📋 אימון קודם · ${U.prettyDate(lastDate)}:
+          ${onDate.map((l) => `<span class="gs-ex">${U.esc(l.exerciseName)} <b>${l.sets.map((s) => `${s.weight}×${s.reps}`).join(", ")}</b></span>`).join("")}</div>`;
+      }
+
       const items = g.exercises.map((name) => {
         const last = latest[name];
-        const sub = last
-          ? `${last.date === today ? "היום ✅ · " : U.prettyDate(last.date) + " · "}${last.sets.map((s) => `${s.weight}×${s.reps}`).join(", ")}`
-          : "טרם תועד";
+        let sub;
+        if (last) {
+          const sug = suggestion(name);
+          const lastTxt = `${last.date === today ? "היום ✅" : U.prettyDate(last.date)} · ${last.sets.map((s) => `${s.weight}×${s.reps}`).join(", ")}`;
+          sub = sug.weight ? `${lastTxt} <span class="po-target">🎯 ${sug.weight}×${sug.reps}</span>` : lastTxt;
+        } else sub = "טרם תועד";
         return `
           <button class="list-card" data-ex="${U.esc(name)}">
             <div class="lc-main">
               <div class="lc-title">${U.esc(name)}</div>
-              <div class="lc-sub">${U.esc(sub)}</div>
+              <div class="lc-sub">${sub}</div>
             </div>
             <span class="lc-chevron">‹</span>
           </button>`;
@@ -206,6 +221,7 @@ App.workout = (function () {
       return `
         <details class="muscle-group" open>
           <summary>${U.esc(g.name)} <span class="mg-count">${g.exercises.length}</span></summary>
+          ${summary}
           <div class="list-cards">${items}</div>
         </details>`;
     }).join("");
