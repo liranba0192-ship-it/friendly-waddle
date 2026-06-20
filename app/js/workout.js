@@ -7,6 +7,7 @@ App.workout = (function () {
   let groups = [];          // [{name, exercises:[name,...]}] מהמאגר
   let loaded = false;
   let view = { kind: "home" }; // home | exercise({name,group}) | history
+  const timer = { active: false, paused: false, remaining: 0, _id: null };
   let selDate = null;
   const curDate = () => selDate || U.todayISO();
 
@@ -47,9 +48,9 @@ App.workout = (function () {
 
   // מטרת אימון → עצימות (טווח חזרות + מנוחה)
   const GOALS = [
-    { key: "cut", label: "🔥 חיטוב", repMin: 12, repMax: 15, rest: "45–60 שׄ", tip: "חזרות גבוהות ומנוחות קצרות — שמירה על שריר בזמן גירעון" },
-    { key: "mass", label: "💪 מסה", repMin: 8, repMax: 12, rest: "90–120 שׄ", tip: "עומס מתון-כבד ונפח גבוה — מקסום היפרטרופיה (בניית שריר)" },
-    { key: "neutral", label: "⚖️ ניטרלי", repMin: 8, repMax: 12, rest: "60–90 שׄ", tip: "איזון כוח ונפח לכושר כללי" },
+    { key: "cut", label: "🔥 חיטוב", repMin: 12, repMax: 15, rest: "45–60 שׄ", restSecs: 60, tip: "חזרות גבוהות ומנוחות קצרות — שמירה על שריר בזמן גירעון" },
+    { key: "mass", label: "💪 מסה", repMin: 8, repMax: 12, rest: "90–120 שׄ", restSecs: 120, tip: "עומס מתון-כבד ונפח גבוה — מקסום היפרטרופיה (בניית שריר)" },
+    { key: "neutral", label: "⚖️ ניטרלי", repMin: 8, repMax: 12, rest: "60–90 שׄ", restSecs: 90, tip: "איזון כוח ונפח לכושר כללי" },
   ];
   function trainGoal() {
     const stored = raw().trainGoal;
@@ -330,6 +331,79 @@ App.workout = (function () {
     render();
   }
 
+  // ---------- rest timer ----------
+  function beep() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator(); const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value = 880;
+      gain.gain.setValueAtTime(0.35, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+      osc.start(); osc.stop(ctx.currentTime + 0.6);
+    } catch {}
+  }
+
+  function timerEl() { return document.getElementById("rest-timer-banner"); }
+
+  function timerTick() {
+    if (timer.paused) return;
+    timer.remaining = Math.max(0, timer.remaining - 1);
+    const el = timerEl(); if (!el || el.hidden) return;
+    if (timer.remaining === 0) {
+      clearInterval(timer._id); timer.active = false;
+      try { if (navigator.vibrate) navigator.vibrate([200, 100, 200]); } catch {}
+      beep();
+      el.querySelector(".rt-countdown").textContent = "✅ זמן!";
+      setTimeout(() => { el.hidden = true; }, 2500);
+    } else {
+      const m = Math.floor(timer.remaining / 60), s = timer.remaining % 60;
+      el.querySelector(".rt-countdown").textContent = `${m}:${String(s).padStart(2, "0")}`;
+    }
+  }
+
+  function startTimer(secs) {
+    clearInterval(timer._id);
+    timer.active = true; timer.paused = false; timer.remaining = secs;
+    let el = timerEl();
+    if (!el) {
+      el = document.createElement("div");
+      el.id = "rest-timer-banner";
+      el.className = "rest-timer-banner";
+      document.body.appendChild(el);
+    }
+    const fmtSec = (n) => n >= 60 ? (n / 60) + "′" : n + "″";
+    el.innerHTML = `
+      <div class="rt-top">
+        <span class="rt-label">⏱️ מנוחה</span>
+        <span class="rt-countdown">0:00</span>
+        <button type="button" id="rt-pause" class="rt-btn">⏸</button>
+        <button type="button" id="rt-skip" class="rt-btn">⏭ דלג</button>
+      </div>
+      <div class="rt-presets">
+        ${[30, 60, 90, 120].map((n) => `<button type="button" class="rt-preset${secs === n ? " sel" : ""}" data-secs="${n}">${fmtSec(n)}</button>`).join("")}
+      </div>`;
+    el.hidden = false;
+    const m0 = Math.floor(secs / 60), s0 = secs % 60;
+    el.querySelector(".rt-countdown").textContent = `${m0}:${String(s0).padStart(2, "0")}`;
+    el.querySelector("#rt-pause").addEventListener("click", () => {
+      timer.paused = !timer.paused;
+      el.querySelector("#rt-pause").textContent = timer.paused ? "▶️" : "⏸";
+    });
+    el.querySelector("#rt-skip").addEventListener("click", () => {
+      clearInterval(timer._id); timer.active = false; el.hidden = true;
+    });
+    el.querySelectorAll(".rt-preset").forEach((b) =>
+      b.addEventListener("click", () => startTimer(+b.dataset.secs))
+    );
+    timer._id = setInterval(timerTick, 1000);
+  }
+
+  function stopTimer() {
+    clearInterval(timer._id); timer.active = false; timer.paused = false;
+    const el = timerEl(); if (el) el.hidden = true;
+  }
+
   // ---------- single exercise ----------
   function renderExercise(name) {
     const sug = suggestion(name);
@@ -371,16 +445,36 @@ App.workout = (function () {
     const draft = [];
     function addSetRow(weight = "", reps = "", prevSet = null) {
       const i = draft.length;
-      draft.push({ weight, reps });
+      draft.push({ weight: String(weight), reps: String(reps) });
       const row = document.createElement("div");
       row.className = "set-input-row";
       row.innerHTML = `
         <span class="set-num">סט ${i + 1}</span>
-        <input type="number" inputmode="decimal" step="0.5" placeholder='ק"ג' value="${weight}" data-i="${i}" data-f="weight" />
-        <span>×</span>
-        <input type="number" inputmode="numeric" placeholder="חזרות" value="${reps}" data-i="${i}" data-f="reps" />
+        <div class="set-field">
+          <button type="button" class="qbtn" data-i="${i}" data-f="weight" data-d="-2.5">−</button>
+          <input type="number" inputmode="decimal" step="0.5" placeholder='ק"ג' value="${weight}" data-i="${i}" data-f="weight" />
+          <button type="button" class="qbtn" data-i="${i}" data-f="weight" data-d="2.5">+</button>
+        </div>
+        <span class="set-x">×</span>
+        <div class="set-field">
+          <button type="button" class="qbtn" data-i="${i}" data-f="reps" data-d="-1">−</button>
+          <input type="number" inputmode="numeric" placeholder="חזרות" value="${reps}" data-i="${i}" data-f="reps" />
+          <button type="button" class="qbtn" data-i="${i}" data-f="reps" data-d="1">+</button>
+        </div>
         ${prevSet ? `<span class="set-prev">קודם ${prevSet.weight}×${prevSet.reps}</span>` : ""}`;
       setsEl.appendChild(row);
+      row.querySelectorAll(".qbtn").forEach((b) =>
+        b.addEventListener("click", () => {
+          const idx = +b.dataset.i, field = b.dataset.f, delta = parseFloat(b.dataset.d);
+          const inp = row.querySelector(`input[data-i="${idx}"][data-f="${field}"]`);
+          const cur = parseFloat(inp.value) || 0;
+          const nv = field === "weight"
+            ? Math.max(0, Math.round((cur + delta) * 2) / 2)
+            : Math.max(1, Math.round(cur + delta));
+          inp.value = nv;
+          draft[idx][field] = String(nv);
+        })
+      );
     }
     // אתחול: שורה לכל סט מהאימון הקודם (מלא מראש כדי שתשפר), אחרת שורה אחת לפי ההצעה
     if (prev && prev.sets.length) prev.sets.forEach((ps) => addSetRow(ps.weight, ps.reps, ps));
@@ -396,13 +490,17 @@ App.workout = (function () {
     root.querySelector("#wk-img").addEventListener("click", () =>
       window.open(`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(name + " exercise")}`, "_blank", "noopener")
     );
-    root.querySelector("#wk-addset").addEventListener("click", () => addSetRow("", "", prev && prev.sets[draft.length]));
-    root.querySelector("#wk-back").addEventListener("click", () => { view = { kind: "home" }; render(); });
+    root.querySelector("#wk-addset").addEventListener("click", () => {
+      addSetRow("", "", prev && prev.sets[draft.length]);
+      startTimer(goalDef().restSecs);
+    });
+    root.querySelector("#wk-back").addEventListener("click", () => { stopTimer(); view = { kind: "home" }; render(); });
     root.querySelector("#wk-savesession").addEventListener("click", () => {
       const sets = draft
         .map((s) => ({ weight: parseFloat(s.weight), reps: parseInt(s.reps, 10) }))
         .filter((s) => s.weight > 0 && s.reps > 0);
       if (!sets.length) { alert("הזן לפחות סט אחד עם משקל וחזרות."); return; }
+      stopTimer();
       const d = raw();
       (d.logs ??= []).push({ id: U.uid(), exerciseName: name, date: curDate(), sets });
       save(d);

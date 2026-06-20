@@ -480,3 +480,24 @@ body { background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, 
 .grp-summary b { color: var(--accent-2); }
 .po-target { color: var(--accent-2); font-weight: 700; white-space: nowrap; }
 .edit-x { background:none; border:none; color:var(--accent); font-size:15px; cursor:pointer; padding:4px 6px; }
+/* --- טיימר מנוחה --- */
+.rest-timer-banner { position: fixed; bottom: calc(60px + env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%);
+  width: min(420px, calc(100vw - 24px)); background: var(--surface); border: 2px solid var(--accent);
+  border-radius: 18px; box-shadow: 0 8px 32px rgba(0,0,0,.18); padding: 12px 14px 10px; z-index: 900; }
+.rt-top { display: flex; align-items: center; gap: 10px; }
+.rt-label { font-size: 13px; color: var(--muted); flex-shrink: 0; }
+.rt-countdown { font-size: 28px; font-weight: 800; color: var(--accent); letter-spacing: -1px; flex: 1; text-align: center; }
+.rt-btn { background: none; border: 1px solid var(--border); border-radius: 10px; font-size: 16px; padding: 4px 10px; cursor: pointer; color: var(--text); flex-shrink: 0; }
+.rt-btn:active { transform: scale(.95); }
+.rt-presets { display: flex; gap: 6px; margin-top: 10px; justify-content: center; }
+.rt-preset { flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; font-size: 13px; font-weight: 600;
+  padding: 5px 0; cursor: pointer; color: var(--muted); transition: background .15s, color .15s; }
+.rt-preset.sel, .rt-preset:active { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+/* --- כפתורי + − מהירים --- */
+.set-field { display: flex; align-items: center; gap: 4px; }
+.set-field input { width: 58px; text-align: center; }
+.qbtn { width: 30px; height: 34px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg);
+  color: var(--text); font-size: 18px; font-weight: 700; cursor: pointer; line-height: 1;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.qbtn:active { background: var(--accent); color: var(--accent-ink); border-color: transparent; transform: scale(.92); }
+.set-x { color: var(--muted); font-size: 16px; }
