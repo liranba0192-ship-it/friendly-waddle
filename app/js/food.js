@@ -3,7 +3,7 @@ window.App = window.App || {};
 
 App.food = (function () {
   const U = App.util, S = App.store, N = App.nutrition;
-  let root, db = [], loaded = false, view = "main", selectedFood = null, selDate = null;
+  let root, db = [], loaded = false, view = "main", selectedFood = null, selDate = null, editPrefill = null;
 
   function entries() { return S.get("food.entries", []); }   // [{id,date,name,grams,kcal,protein,carbs,fat}]
   function custom() { return S.get("food.custom", []); }     // user foods (per 100g, optional unit)
@@ -26,7 +26,9 @@ App.food = (function () {
   }
 
   function allFoods() {
-    return [...custom().map((f) => ({ ...f, custom: true })), ...db];
+    const c = custom();
+    const names = new Set(c.map((f) => f.name));
+    return [...c.map((f) => ({ ...f, custom: true })), ...db.filter((f) => !names.has(f.name))];
   }
 
   async function mount(el) { root = el; await ensureDB(); render(); }
@@ -262,6 +264,7 @@ App.food = (function () {
         </div>
         <div id="fd-detail-totals" class="totals-grid" style="margin-top:12px"></div>
         <button id="fd-confirm" class="btn-primary full">➕ הוסף ליומן</button>
+        <button id="fd-edit" class="btn-secondary full">✏️ ערוך ערכים של מאכל זה</button>
       </div>
     `;
 
@@ -295,6 +298,10 @@ App.food = (function () {
     upd();
 
     root.querySelector("#fd-back").addEventListener("click", () => { view = "main"; render(); });
+    root.querySelector("#fd-edit").addEventListener("click", () => {
+      editPrefill = { name: food.name, kcal: food.kcal, protein: food.protein, carbs: food.carbs, fat: food.fat, unit: food.unit, unitGrams: food.unitGrams };
+      view = "custom"; render();
+    });
     root.querySelector("#fd-confirm").addEventListener("click", () => {
       const g = gramsNow();
       if (!(g > 0)) { alert("הזן כמות."); return; }
@@ -310,25 +317,29 @@ App.food = (function () {
     });
   }
 
-  // ---------- custom food ----------
+  // ---------- custom food (הוספה + עריכה) ----------
   function renderCustom() {
+    const p = editPrefill || {};
+    const editing = !!editPrefill;
+    const val = (v) => (v === undefined || v === null ? "" : v);
     root.innerHTML = `
       <button id="fd-back" class="btn-secondary">‹ חזרה</button>
       <div class="card-block">
-        <h3>הוספת מאכל משלך (ערכים ל-100 ג')</h3>
-        <label class="field">שם <input id="cf-name" type="text" /></label>
+        <h3>${editing ? "✏️ עריכת מאכל" : "הוספת מאכל משלך"} (ערכים ל-100 ג')</h3>
+        <label class="field">שם <input id="cf-name" type="text" value="${U.esc(val(p.name))}" /></label>
         <div class="grid2">
-          <label class="field">קלוריות <input id="cf-kcal" type="number" /></label>
-          <label class="field">חלבון <input id="cf-protein" type="number" /></label>
-          <label class="field">פחמימות <input id="cf-carbs" type="number" /></label>
-          <label class="field">שומן <input id="cf-fat" type="number" /></label>
+          <label class="field">קלוריות <input id="cf-kcal" type="number" value="${val(p.kcal)}" /></label>
+          <label class="field">חלבון <input id="cf-protein" type="number" value="${val(p.protein)}" /></label>
+          <label class="field">פחמימות <input id="cf-carbs" type="number" value="${val(p.carbs)}" /></label>
+          <label class="field">שומן <input id="cf-fat" type="number" value="${val(p.fat)}" /></label>
         </div>
         <p class="section-hint">לא חובה — אם המאכל נמדד ביחידות (לדוגמה "פרוסה"), מלא גם:</p>
         <div class="grid2">
-          <label class="field">שם יחידה <input id="cf-unit" type="text" placeholder="פרוסה / כוס" /></label>
-          <label class="field">משקל יחידה (ג') <input id="cf-unitg" type="number" /></label>
+          <label class="field">שם יחידה <input id="cf-unit" type="text" placeholder="פרוסה / כוס" value="${U.esc(val(p.unit))}" /></label>
+          <label class="field">משקל יחידה (ג') <input id="cf-unitg" type="number" value="${val(p.unitGrams)}" /></label>
         </div>
-        <button id="cf-save" class="btn-primary full">הוסף למאגר</button>
+        <button id="cf-save" class="btn-primary full">${editing ? "💾 שמור שינויים" : "הוסף למאגר"}</button>
+        ${editing ? `<button id="cf-cancel" class="btn-secondary full">ביטול</button>` : ""}
       </div>
       <div class="card-block">
         <h3>המאכלים שלי</h3>
@@ -336,11 +347,15 @@ App.food = (function () {
           <div class="log-row">
             <span class="log-date">${U.esc(c.name)}</span>
             <span class="log-sets">${c.kcal} קק"ל</span>
+            <button class="edit-x" data-editc="${i}" aria-label="ערוך">✏️</button>
             <button class="del-x" data-delc="${i}" aria-label="מחק">✕</button>
           </div>`).join("") : `<p class="status">עדיין אין מאכלים מותאמים.</p>`}
       </div>
     `;
-    root.querySelector("#fd-back").addEventListener("click", () => { view = "main"; render(); });
+    root.querySelector("#fd-back").addEventListener("click", () => { editPrefill = null; view = "main"; render(); });
+    const cancel = root.querySelector("#cf-cancel");
+    if (cancel) cancel.addEventListener("click", () => { editPrefill = null; render(); });
+
     root.querySelector("#cf-save").addEventListener("click", () => {
       const name = root.querySelector("#cf-name").value.trim();
       if (!name) { alert("הזן שם מאכל."); return; }
@@ -350,11 +365,16 @@ App.food = (function () {
       const item = { name, cat: "מותאם", kcal: num("#cf-kcal"), protein: num("#cf-protein"), carbs: num("#cf-carbs"), fat: num("#cf-fat") };
       if (unit && unitGrams > 0) { item.unit = unit; item.unitGrams = unitGrams; }
       const list = custom();
-      list.unshift(item);
+      const idx = list.findIndex((f) => f.name === name);          // upsert לפי שם
+      if (idx >= 0) list[idx] = item; else list.unshift(item);
       saveCustom(list);
-      alert("נוסף! עכשיו אפשר לחפש אותו.");
+      editPrefill = null;
+      alert(idx >= 0 ? "נשמר! ✅" : "נוסף! עכשיו אפשר לחפש אותו.");
       render();
     });
+    root.querySelectorAll("[data-editc]").forEach((b) =>
+      b.addEventListener("click", () => { editPrefill = { ...custom()[+b.dataset.editc] }; render(); window.scrollTo(0, 0); })
+    );
     root.querySelectorAll("[data-delc]").forEach((b) =>
       b.addEventListener("click", () => { const l = custom(); l.splice(+b.dataset.delc, 1); saveCustom(l); render(); })
     );
