@@ -1,6 +1,6 @@
 // Service Worker — "רשת קודם": תמיד מביא את הגרסה העדכנית כשיש אינטרנט,
 // ונופל למטמון רק במצב לא-מקוון. כך האפליקציה לא "נתקעת" על גרסה ישנה.
-const CACHE = "morning-briefing-v8";
+const CACHE = "morning-briefing-v9";
 const SHELL = [
   ".",
   "index.html",
@@ -9,6 +9,7 @@ const SHELL = [
   "manifest.webmanifest",
   "vendor/marked.min.js",
   "js/store.js",
+  "js/sync.js",
   "js/nutrition.js",
   "js/scanner.js",
   "js/briefing.js",
