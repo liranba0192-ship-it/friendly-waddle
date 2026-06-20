@@ -463,3 +463,5 @@ body { background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, 
 .help-input-row { display: flex; gap: 8px; padding: 10px 12px calc(var(--safe-bottom) + 12px); border-top: 1px solid var(--border); background: var(--bg); }
 .help-input-row input { flex: 1; }
 .help-input-row .btn-primary { white-space: nowrap; }
+.ch-legend { display:flex; justify-content:center; gap:18px; margin-top:8px; font-size:12px; color:var(--muted); }
+.ch-legend .ld { display:inline-block; width:12px; height:4px; border-radius:2px; vertical-align:middle; }
