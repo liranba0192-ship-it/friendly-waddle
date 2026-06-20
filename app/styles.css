@@ -470,3 +470,6 @@ body { background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, 
   color: var(--accent-2); border:1px dashed color-mix(in srgb,var(--accent) 45%, transparent); border-radius:14px;
   padding:12px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; }
 .cta-reminder:active { transform: scale(.98); }
+.setup-steps { margin: 4px 18px 12px; padding: 0; font-size: 13px; color: var(--text); line-height: 1.7; }
+.setup-steps li { margin-bottom: 6px; }
+.setup-steps pre { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 10px; overflow-x: auto; font-size: 11px; direction: ltr; text-align: left; white-space: pre-wrap; }

@@ -69,6 +69,7 @@ window.App = window.App || {};
     buildTabbar();
     document.getElementById("settingsBtn").addEventListener("click", openSettings);
     document.getElementById("settings-close").addEventListener("click", closeSettings);
+    if (App.sync && App.sync.init) App.sync.init();
     const start = (location.hash || "").replace("#", "");
     switchTab(TABS.some((t) => t.id === start) ? start : "briefing");
     if ("serviceWorker" in navigator) {
