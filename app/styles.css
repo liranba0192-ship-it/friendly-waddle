@@ -511,3 +511,56 @@ body { background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, 
 .auth-panel .btn-primary, .auth-panel .btn-secondary { width: 100%; margin: 4px 0; }
 .auth-hint { font-size: 14px; color: var(--muted); text-align: center; margin: 0 0 14px; width: 100%; }
 .auth-msg { font-size: 13px; color: #ef4444; min-height: 20px; text-align: center; margin: 8px 0 0; width: 100%; }
+/* ===== טאב לימוד ===== */
+.learn-seg { margin-bottom: 14px; }
+.learn-intro { text-align: center; }
+.learn-progress { height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; margin: 10px 0 8px; }
+.lp-bar { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); border-radius: 99px; transition: width .4s ease; }
+.learn-stats { display: flex; justify-content: center; gap: 18px; font-size: 13px; color: var(--muted); }
+.learn-stats b { color: var(--accent-2); }
+.center { text-align: center; }
+/* כרטיס מילה */
+.vocab-list { display: flex; flex-direction: column; gap: 10px; }
+.vocab-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 14px; transition: border-color .2s; }
+.vocab-card.marked-got { border-color: #10b981; }
+.vocab-card.marked-miss { border-color: #f59e0b; }
+.vc-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.vc-en { font-size: 19px; font-weight: 700; color: var(--text); direction: ltr; text-align: left; }
+.vc-pos { font-size: 12px; color: var(--muted); font-weight: 400; }
+.vc-rp { font-size: 10px; color: var(--accent-2); border: 1px solid var(--border); border-radius: 6px; padding: 2px 6px; flex-shrink: 0; }
+.vc-meaning-en { font-size: 13px; color: var(--muted); direction: ltr; text-align: left; margin-top: 4px; }
+.vc-reveal { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border); }
+.vc-he { font-size: 17px; font-weight: 700; color: var(--accent-2); }
+.vc-family { font-size: 12px; color: var(--muted); margin-top: 4px; direction: ltr; text-align: left; }
+.vc-btns { display: flex; gap: 8px; margin-top: 12px; }
+.vc-btn { flex: 1; border: 1px solid var(--border); background: var(--bg); border-radius: 10px; padding: 9px 0; font-size: 14px; font-weight: 600; cursor: pointer; color: var(--text); }
+.vc-btn.got.sel { background: #10b981; color: #fff; border-color: transparent; }
+.vc-btn.miss.sel { background: #f59e0b; color: #fff; border-color: transparent; }
+.vc-btn:active { transform: scale(.97); }
+/* תרגול */
+.practice-word { font-size: 30px; font-weight: 800; color: var(--text); text-align: center; direction: ltr; margin: 14px 0 4px; }
+.practice-opts { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.practice-opt { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; font-size: 15px; cursor: pointer; color: var(--text); }
+.practice-opt:active { transform: scale(.98); }
+.practice-opt.correct { background: #10b981; color: #fff; border-color: transparent; }
+.practice-opt.wrong { background: #ef4444; color: #fff; border-color: transparent; }
+.practice-opt:disabled { cursor: default; }
+.practice-feedback { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+.pf-ok { color: #10b981; font-weight: 700; }
+.pf-no { color: var(--text); }
+/* פיננסים */
+.lesson-card { display: flex; align-items: center; gap: 12px; text-align: right; }
+.lesson-ico { font-size: 26px; flex-shrink: 0; }
+.lesson-done { color: #10b981; }
+.lesson-body { line-height: 1.7; }
+.lesson-body h2 { font-size: 18px; margin: 4px 0 10px; }
+.lesson-body h3 { font-size: 16px; margin: 14px 0 6px; }
+.lesson-body p { margin: 8px 0; }
+.lesson-body ul, .lesson-body ol { margin: 8px 18px; line-height: 1.8; }
+.lesson-body table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 14px; }
+.lesson-body th, .lesson-body td { border: 1px solid var(--border); padding: 6px 10px; text-align: right; }
+.lesson-body th { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.lesson-body code { background: var(--bg); padding: 2px 6px; border-radius: 6px; font-size: 13px; }
+.lesson-body pre { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 10px; overflow-x: auto; }
+.lesson-body pre code { background: none; padding: 0; }
+.lesson-body blockquote { border-right: 3px solid var(--accent); margin: 10px 0; padding: 8px 12px; background: color-mix(in srgb, var(--accent) 8%, transparent); border-radius: 0 10px 10px 0; }

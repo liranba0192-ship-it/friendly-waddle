@@ -1,0 +1,8865 @@
+{
+"note": "אוצר מילים לבגרות — Band III Core I (רשימות A-D). 886 ערכים.",
+"words": [
+{
+"id": 0,
+"en": "addition",
+"pos": "n",
+"he": "תוספת, הוספה",
+"family": "additional",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 1,
+"en": "advance",
+"pos": "n",
+"he": "התקדמות, קידום",
+"family": "",
+"meaningEn": "progress",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 2,
+"en": "advanced",
+"pos": "adj",
+"he": "מתקדם, מודרני",
+"family": "",
+"meaningEn": "modern, high level",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 3,
+"en": "advertising",
+"pos": "n",
+"he": "פרסום, פרסומת",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 4,
+"en": "among other things",
+"pos": "",
+"he": "בין היתר",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 5,
+"en": "analysis",
+"pos": "n",
+"he": "ניתוח, אנליזה",
+"family": "analyze / analyst",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 6,
+"en": "appear",
+"pos": "v",
+"he": "להופיע, להיראות, להתגלות",
+"family": "appearance",
+"meaningEn": "seem",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 7,
+"en": "approach",
+"pos": "v, n",
+"he": "לגשת אל; גישה, שיטה",
+"family": "",
+"meaningEn": "deal with, method",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 8,
+"en": "as",
+"pos": "conj",
+"he": "בעוד, כאשר; כפי ש",
+"family": "",
+"meaningEn": "while, when",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 9,
+"en": "at least",
+"pos": "",
+"he": "לכל הפחות",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 10,
+"en": "average",
+"pos": "adj",
+"he": "ממוצע; רגיל",
+"family": "on average",
+"meaningEn": "ordinary, usual",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 11,
+"en": "be responsible for sth/doing sth",
+"pos": "",
+"he": "להיות אחראי ל-",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 12,
+"en": "before",
+"pos": "prep",
+"he": "לפני; כדי",
+"family": "",
+"meaningEn": "in order",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 13,
+"en": "besides",
+"pos": "prep, adv",
+"he": "חוץ מ-, בנוסף ל-",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 14,
+"en": "can",
+"pos": "v",
+"he": "יכול; מסוגל",
+"family": "",
+"meaningEn": "modal , sometimes happening",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 15,
+"en": "challenge",
+"pos": "v",
+"he": "לאתגר; לערער, להביע אי-הסכמה",
+"family": "",
+"meaningEn": "express disagreement",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 16,
+"en": "chance",
+"pos": "n",
+"he": "סיכוי; סיכון; הזדמנות",
+"family": "",
+"meaningEn": "risk",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 17,
+"en": "change",
+"pos": "v",
+"he": "לשנות; להחליף (בחנות/כסף)",
+"family": "change",
+"meaningEn": "exchange in shop; money; new experience; climate change",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 18,
+"en": "characteristic",
+"pos": "n",
+"he": "מאפיין, תכונה",
+"family": "characterize",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 19,
+"en": "claim",
+"pos": "v",
+"he": "לטעון; טענה, אמירה",
+"family": "",
+"meaningEn": "statement",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 20,
+"en": "come after/first/last, etc",
+"pos": "",
+"he": "להגיע אחרון/ראשון וכו'",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 21,
+"en": "common",
+"pos": "adj",
+"he": "נפוץ, משותף",
+"family": "",
+"meaningEn": "shared",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 22,
+"en": "complicated",
+"pos": "adj",
+"he": "מסובך, מורכב",
+"family": "complicate",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 23,
+"en": "concern",
+"pos": "v",
+"he": "לגעת ב-, להיות קשור ל-, להדאיג",
+"family": "concerned / concerning / concerned with sth",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 24,
+"en": "conditions",
+"pos": "n",
+"he": "תנאים, נסיבות",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 25,
+"en": "conduct",
+"pos": "v",
+"he": "לבצע, לנהל (מחקר/ניסוי)",
+"family": "",
+"meaningEn": "carry out",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 26,
+"en": "consequence",
+"pos": "n",
+"he": "תוצאה, השלכה",
+"family": "consequently",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 27,
+"en": "considerable",
+"pos": "adj",
+"he": "ניכר, משמעותי",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 28,
+"en": "cope",
+"pos": "v",
+"he": "להתמודד, להסתדר",
+"family": "cope with sth",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 29,
+"en": "critic",
+"pos": "n",
+"he": "מבקר; לבקר, לא לאשר",
+"family": "criticize / criticism",
+"meaningEn": "not approve",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 30,
+"en": "current",
+"pos": "adj",
+"he": "נוכחי, עכשווי",
+"family": "currently",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 31,
+"en": "decrease",
+"pos": "v, n",
+"he": "לרדת, להפחית; ירידה",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 32,
+"en": "delayed",
+"pos": "adj",
+"he": "מעוכב, מתעכב",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 33,
+"en": "deliberately",
+"pos": "adv",
+"he": "במכוון, בכוונה",
+"family": "deliberate",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 34,
+"en": "demonstrate",
+"pos": "v",
+"he": "להדגים, להפגין; להפגין (במחאה)",
+"family": "demonstration",
+"meaningEn": "march",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 35,
+"en": "design",
+"pos": "n",
+"he": "עיצוב; קישוט",
+"family": "designer",
+"meaningEn": "decoration",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 36,
+"en": "destruction",
+"pos": "n",
+"he": "הרס, חורבן",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 37,
+"en": "development",
+"pos": "n",
+"he": "התפתחות, פיתוח; אירוע, תהליך",
+"family": "developing / developed",
+"meaningEn": "event, process",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 38,
+"en": "disagreement",
+"pos": "n",
+"he": "חוסר הסכמה, מחלוקת",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 39,
+"en": "disaster",
+"pos": "n",
+"he": "אסון",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 40,
+"en": "discovery",
+"pos": "n",
+"he": "גילוי, תגלית",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 41,
+"en": "dislike",
+"pos": "n, v",
+"he": "חוסר חיבה, שנאה; לא לחבב",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 42,
+"en": "do",
+"pos": "aux v",
+"he": "לעשות (להדגשה)",
+"family": "",
+"meaningEn": "for emphasis",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 43,
+"en": "doubt",
+"pos": "v",
+"he": "לפקפק; ספק",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 44,
+"en": "drop",
+"pos": "v,n",
+"he": "להפיל, לזרוק; ירידה; להוריד",
+"family": "",
+"meaningEn": "move lower",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 45,
+"en": "educate",
+"pos": "v",
+"he": "לחנך, להשכיל",
+"family": "educated / educator",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 46,
+"en": "efficient",
+"pos": "adj",
+"he": "יעיל",
+"family": "efficiency / efficiently",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 47,
+"en": "emphasis",
+"pos": "n",
+"he": "דגש, הדגשה",
+"family": "emphasize",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 48,
+"en": "enjoyable",
+"pos": "adj",
+"he": "מהנה, נעים",
+"family": "enjoyment",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 49,
+"en": "essay",
+"pos": "n",
+"he": "חיבור, מסה (כתיבה)",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 50,
+"en": "essentially",
+"pos": "adv",
+"he": "בעיקרו של דבר, בעצם",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 51,
+"en": "even if",
+"pos": "",
+"he": "גם אם, אפילו אם",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 52,
+"en": "even though",
+"pos": "",
+"he": "למרות ש-, אף על פי ש-",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 53,
+"en": "event",
+"pos": "n",
+"he": "אירוע",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 54,
+"en": "exactly",
+"pos": "adv",
+"he": "בדיוק; להדגשה/הסכמה",
+"family": "",
+"meaningEn": "emphasis, agreement",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 55,
+"en": "except that",
+"pos": "",
+"he": "חוץ מזה ש-",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 56,
+"en": "exist",
+"pos": "v",
+"he": "להתקיים, להיות קיים",
+"family": "existence / existing",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 57,
+"en": "extraordinary",
+"pos": "adj",
+"he": "יוצא דופן, מדהים",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 58,
+"en": "feature",
+"pos": "n",
+"he": "מאפיין, תכונה חשובה",
+"family": "",
+"meaningEn": "important part of something",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 59,
+"en": "feedback",
+"pos": "n",
+"he": "משוב, תגובה",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 60,
+"en": "figure",
+"pos": "n",
+"he": "דמות, צורת גוף; מספר; לפענח (figure out)",
+"family": "figure out sth",
+"meaningEn": "body shape / figure out a problem",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 61,
+"en": "financial",
+"pos": "adj",
+"he": "כספי, פיננסי",
+"family": "finance",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 62,
+"en": "finding/findings",
+"pos": "n",
+"he": "ממצא, ממצאים",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 63,
+"en": "flexible",
+"pos": "adj",
+"he": "גמיש",
+"family": "flexibility",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 64,
+"en": "flood",
+"pos": "v, n",
+"he": "להציף; שיטפון",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 65,
+"en": "flu",
+"pos": "n",
+"he": "שפעת",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 66,
+"en": "focus on/upon sb/sth",
+"pos": "",
+"he": "להתמקד ב-",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 67,
+"en": "focus",
+"pos": "n",
+"he": "מוקד, פוקוס",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 68,
+"en": "frequent",
+"pos": "adj",
+"he": "תכוף, שכיח",
+"family": "frequency",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 69,
+"en": "fresh",
+"pos": "adj",
+"he": "טרי; עדכני, חדש",
+"family": "",
+"meaningEn": "recent",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 70,
+"en": "frighten",
+"pos": "v",
+"he": "להפחיד, להבהיל",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 71,
+"en": "from",
+"pos": "prep",
+"he": "מ-; מיקום, נקודת התחלה",
+"family": "",
+"meaningEn": "position, starting point",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 72,
+"en": "gain",
+"pos": "v, n",
+"he": "להרוויח, להשיג; רווח, עלייה",
+"family": "",
+"meaningEn": "increase",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 73,
+"en": "generate",
+"pos": "v",
+"he": "לייצר, ליצור",
+"family": "",
+"meaningEn": "create",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 74,
+"en": "guidance",
+"pos": "n",
+"he": "הדרכה, הכוונה",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 75,
+"en": "hopefully",
+"pos": "adv",
+"he": "בתקווה, אני מקווה ש-",
+"family": "hopeful",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 76,
+"en": "ideal",
+"pos": "adj",
+"he": "אידיאלי, מושלם",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 77,
+"en": "illness",
+"pos": "n",
+"he": "מחלה",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 78,
+"en": "illustrate",
+"pos": "v",
+"he": "להמחיש, לתאר; לאייר",
+"family": "illustration",
+"meaningEn": "picture",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 79,
+"en": "image",
+"pos": "n",
+"he": "דימוי, תדמית; תמונה (בסרט/טלוויזיה)",
+"family": "",
+"meaningEn": "picture, especially on film or television",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 80,
+"en": "in",
+"pos": "prep",
+"he": "ב-; במצב/רגש",
+"family": "",
+"meaningEn": "in a state, emotion",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 81,
+"en": "in … terms / / in terms of sth",
+"pos": "",
+"he": "מבחינת, במונחים של",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 82,
+"en": "in actual fact",
+"pos": "",
+"he": "למעשה, בעצם",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 83,
+"en": "in connection with sth",
+"pos": "",
+"he": "בקשר ל-, בנוגע ל-",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 84,
+"en": "in that case",
+"pos": "",
+"he": "במקרה כזה, אם כך",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 85,
+"en": "in the meantime",
+"pos": "",
+"he": "בינתיים, בין לבין",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 86,
+"en": "initial",
+"pos": "adj",
+"he": "ראשוני, התחלתי",
+"family": "initially",
+"meaningEn": "first",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 87,
+"en": "instruction",
+"pos": "n",
+"he": "הוראה, הנחיה; ללמד",
+"family": "",
+"meaningEn": "teach",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 88,
+"en": "intelligence",
+"pos": "n",
+"he": "אינטליגנציה, תבונה; מודיעין",
+"family": "intelligent",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 89,
+"en": "interest",
+"pos": "n, v",
+"he": "עניין, התעניינות; ריבית; לעניין",
+"family": "interested in sth",
+"meaningEn": "activity",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 90,
+"en": "introduce",
+"pos": "v",
+"he": "להציג, להכיר (דבר חדש); להציג מישהו",
+"family": "",
+"meaningEn": "something new",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 91,
+"en": "invest",
+"pos": "v",
+"he": "להשקיע",
+"family": "investor / investment",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 92,
+"en": "investigate",
+"pos": "v",
+"he": "לחקור, לבדוק",
+"family": "investigation / investigator",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 93,
+"en": "just about",
+"pos": "",
+"he": "כמעט, בערך",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 94,
+"en": "just about",
+"pos": "",
+"he": "כמעט, בערך",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 95,
+"en": "keep on doing sth",
+"pos": "",
+"he": "להמשיך לעשות משהו",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 96,
+"en": "kind of",
+"pos": "",
+"he": "סוג של, די",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 97,
+"en": "knowledge",
+"pos": "n",
+"he": "ידע, מודעות",
+"family": "",
+"meaningEn": "awareness",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 98,
+"en": "lack",
+"pos": "v",
+"he": "להיעדר, לחסר; מחסור",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 99,
+"en": "landscape",
+"pos": "n",
+"he": "נוף",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 100,
+"en": "likely",
+"pos": "adj, adv",
+"he": "סביר, צפוי; כנראה",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 101,
+"en": "limited",
+"pos": "adj",
+"he": "מוגבל",
+"family": "limitation",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 102,
+"en": "little",
+"pos": "adj",
+"he": "קטן; מעט",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 103,
+"en": "look at sth",
+"pos": "",
+"he": "להסתכל על משהו",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 104,
+"en": "low",
+"pos": "adv",
+"he": "נמוך; בכמות/רמה קטנה",
+"family": "",
+"meaningEn": "to a small amount or level",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 105,
+"en": "material",
+"pos": "n",
+"he": "חומר; מסמכים, מידע",
+"family": "",
+"meaningEn": "documents, information",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 106,
+"en": "mean",
+"pos": "v",
+"he": "להתכוון, לסמל; משמעות, מטרה",
+"family": "meaning",
+"meaningEn": "have significance, purpose",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 107,
+"en": "means",
+"pos": "n",
+"he": "אמצעי, דרך, שיטה",
+"family": "",
+"meaningEn": "method",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 108,
+"en": "measure",
+"pos": "n",
+"he": "מידה, אמצעי, צעד",
+"family": "",
+"meaningEn": "method",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 109,
+"en": "mention",
+"pos": "v, n",
+"he": "להזכיר; אזכור",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 110,
+"en": "miss",
+"pos": "v",
+"he": "להחמיץ, לפספס; להתגעגע",
+"family": "",
+"meaningEn": "fail to do",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 111,
+"en": "misunderstand",
+"pos": "v",
+"he": "להבין לא נכון, לא להבין",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 112,
+"en": "more or less",
+"pos": "",
+"he": "פחות או יותר",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 113,
+"en": "must",
+"pos": "v",
+"he": "חייב; כנראה (modal)",
+"family": "",
+"meaningEn": "modal likely",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 114,
+"en": "naturally",
+"pos": "adv",
+"he": "באופן טבעי, כמובן, כצפוי",
+"family": "",
+"meaningEn": "as expected, normally",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 115,
+"en": "nature",
+"pos": "n",
+"he": "טבע; אופי, סוג",
+"family": "",
+"meaningEn": "character, type",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 116,
+"en": "necessarily",
+"pos": "adv",
+"he": "בהכרח",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 117,
+"en": "nevertheless",
+"pos": "adv",
+"he": "אף על פי כן, ובכל זאת",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 118,
+"en": "not at all",
+"pos": "",
+"he": "בכלל לא, ממש לא",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 119,
+"en": "not only",
+"pos": "",
+"he": "לא רק",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 120,
+"en": "notice",
+"pos": "n",
+"he": "הודעה; התראה מוקדמת",
+"family": "",
+"meaningEn": "advanced warning",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 121,
+"en": "objective",
+"pos": "n",
+"he": "מטרה, יעד; אובייקטיבי",
+"family": "",
+"meaningEn": "aim, purpose",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 122,
+"en": "occasional",
+"pos": "adj",
+"he": "מזדמן, לא קבוע",
+"family": "occasionally",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 123,
+"en": "official",
+"pos": "adj",
+"he": "רשמי",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 124,
+"en": "on the one hand ... on the other hand",
+"pos": "",
+"he": "מצד אחד... מצד שני",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 125,
+"en": "once",
+"pos": "conj",
+"he": "פעם; ברגע ש-, מיד כש-",
+"family": "",
+"meaningEn": "as soon as",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 126,
+"en": "others",
+"pos": "pron",
+"he": "אחרים; אנשים בכלל",
+"family": "",
+"meaningEn": "people in general",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 127,
+"en": "otherwise",
+"pos": "conj,adv",
+"he": "אחרת; אם לא",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 128,
+"en": "out of date",
+"pos": "",
+"he": "מיושן, לא עדכני",
+"family": "old-fashioned",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 129,
+"en": "participate",
+"pos": "v",
+"he": "להשתתף, לקחת חלק",
+"family": "participant / participation",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 130,
+"en": "particular",
+"pos": "adj",
+"he": "מסוים, ספציפי",
+"family": "particularly",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 131,
+"en": "past",
+"pos": "adj",
+"he": "עבר; לפני עכשיו",
+"family": "",
+"meaningEn": "before now",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 132,
+"en": "perform",
+"pos": "v",
+"he": "לבצע, להופיע; כמה מוצלח מישהו/משהו",
+"family": "performance",
+"meaningEn": "carry out action, how successful someone or something is",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 133,
+"en": "personality",
+"pos": "n",
+"he": "אישיות, אופי",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 134,
+"en": "personally",
+"pos": "adv",
+"he": "באופן אישי, לדעתי האישית",
+"family": "",
+"meaningEn": "own opinion, not someone else",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 135,
+"en": "planet",
+"pos": "n",
+"he": "כוכב לכת, פלנטה",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 136,
+"en": "planning",
+"pos": "n",
+"he": "תכנון",
+"family": "planned",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 137,
+"en": "plant",
+"pos": "v",
+"he": "לשתול",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 138,
+"en": "point of view",
+"pos": "",
+"he": "נקודת מבט",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 139,
+"en": "policy",
+"pos": "n",
+"he": "מדיניות",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 140,
+"en": "pollution",
+"pos": "n",
+"he": "זיהום",
+"family": "pollute",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 141,
+"en": "popular",
+"pos": "adj",
+"he": "פופולרי, נפוץ, מקובל",
+"family": "",
+"meaningEn": "general, widespread",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 142,
+"en": "population",
+"pos": "n",
+"he": "אוכלוסייה",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 143,
+"en": "prevent",
+"pos": "v",
+"he": "למנוע",
+"family": "prevention",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 144,
+"en": "priority",
+"pos": "n",
+"he": "עדיפות",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 145,
+"en": "private",
+"pos": "adj",
+"he": "פרטי; בשליטת/מימון אדם או חברה ולא הממשלה",
+"family": "",
+"meaningEn": "controlled or paid for by a person or company and not the government",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 146,
+"en": "probable",
+"pos": "adj",
+"he": "סביר, צפוי",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 147,
+"en": "produce",
+"pos": "v",
+"he": "לייצר; להפיק (סרט/תוכנית)",
+"family": "producer",
+"meaningEn": "make film/TV program",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 148,
+"en": "profession",
+"pos": "n",
+"he": "מקצוע; עבודה מיומנת",
+"family": "professional",
+"meaningEn": "work; skilled",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 149,
+"en": "professor",
+"pos": "n",
+"he": "פרופסור",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 150,
+"en": "proof",
+"pos": "n",
+"he": "הוכחה",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 151,
+"en": "proposed",
+"pos": "adj",
+"he": "מוצע, מוצא",
+"family": "",
+"meaningEn": "suggested",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 152,
+"en": "protest",
+"pos": "n, v",
+"he": "מחאה; למחות, להפגין נגד משהו",
+"family": "",
+"meaningEn": "demonstrate about/against/at something",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 153,
+"en": "provided (that)",
+"pos": "",
+"he": "בתנאי ש-",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 154,
+"en": "psychology",
+"pos": "n",
+"he": "פסיכולוגיה",
+"family": "psychological / psychologist",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 155,
+"en": "public",
+"pos": "adj",
+"he": "ציבורי; השייך לממשלה",
+"family": "publicly",
+"meaningEn": "belonging to government",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 156,
+"en": "purpose",
+"pos": "n",
+"he": "מטרה, כוונה",
+"family": "",
+"meaningEn": "intention",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 157,
+"en": "quality",
+"pos": "n",
+"he": "איכות; תכונה, מאפיין",
+"family": "",
+"meaningEn": "characteristic",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 158,
+"en": "question",
+"pos": "v",
+"he": "לשאול, לחקור, לתשאל",
+"family": "",
+"meaningEn": "ask, interrogate",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 159,
+"en": "question",
+"pos": "n",
+"he": "בעיה, סוגיה; שאלה",
+"family": "",
+"meaningEn": "problem, issue",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 160,
+"en": "questionnaire",
+"pos": "n",
+"he": "שאלון",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 161,
+"en": "react",
+"pos": "v",
+"he": "להגיב; תגובה",
+"family": "reaction",
+"meaningEn": "respond, response",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 162,
+"en": "reasonable",
+"pos": "adj",
+"he": "סביר, הגיוני; מחיר סביר",
+"family": "reasonably",
+"meaningEn": "price",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 163,
+"en": "recommend",
+"pos": "v",
+"he": "להמליץ",
+"family": "recommendation",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 164,
+"en": "recycle",
+"pos": "v",
+"he": "למחזר",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 165,
+"en": "regard",
+"pos": "v, n",
+"he": "להתייחס, להחשיב; התחשבות, כבוד",
+"family": "regardless / regarding",
+"meaningEn": "consider",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 166,
+"en": "region",
+"pos": "n",
+"he": "אזור, חבל ארץ",
+"family": "regional",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 167,
+"en": "regular",
+"pos": "adj",
+"he": "רגיל, קבוע; סדיר",
+"family": "",
+"meaningEn": "normal",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 168,
+"en": "relevant",
+"pos": "adj",
+"he": "רלוונטי, ענייני",
+"family": "relevance",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 169,
+"en": "reliable",
+"pos": "adj",
+"he": "אמין",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 170,
+"en": "rely on/upon sb/sth",
+"pos": "",
+"he": "להסתמך על, לסמוך על",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 171,
+"en": "request",
+"pos": "n, v",
+"he": "בקשה; לבקש",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 172,
+"en": "research",
+"pos": "v, n",
+"he": "מחקר; לחקור",
+"family": "researcher",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 173,
+"en": "result",
+"pos": "n",
+"he": "תוצאה (מדעית/ספורט)",
+"family": "resulting",
+"meaningEn": "scientific, sport",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 174,
+"en": "review",
+"pos": "v, n",
+"he": "לסקור, לבקר; ביקורת, סקירה",
+"family": "",
+"meaningEn": "give opinion",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 175,
+"en": "revise",
+"pos": "v",
+"he": "לתקן, לעדכן; לחזור על חומר (ללימוד)",
+"family": "revision",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 176,
+"en": "risk",
+"pos": "n, v",
+"he": "סיכון; להסתכן",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 177,
+"en": "run out of",
+"pos": "",
+"he": "לאזול, להיגמר (מ-)",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 178,
+"en": "rural",
+"pos": "adj",
+"he": "כפרי",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 179,
+"en": "salary",
+"pos": "n",
+"he": "משכורת",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 180,
+"en": "sample",
+"pos": "n",
+"he": "דגימה, דוגמה",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 181,
+"en": "seldom",
+"pos": "adv",
+"he": "לעיתים רחוקות, ��דירות",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 182,
+"en": "sense",
+"pos": "n",
+"he": "חוש; היגיון, שכל ישר",
+"family": "sensible",
+"meaningEn": "reason, good judgement",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 183,
+"en": "set up sth or set sth up",
+"pos": "",
+"he": "להקים, להגדיר; להעמיד",
+"family": "set out sth, set sth out",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 184,
+"en": "significant",
+"pos": "adj",
+"he": "משמעותי, ניכר",
+"family": "significantly / significance",
+"meaningEn": "",
+"list": "A",
+"rp": ""
+},
+{
+"id": 185,
+"en": "skilled",
+"pos": "adj",
+"he": "מיומן, מקצועי",
+"family": "skillful",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 186,
+"en": "slight",
+"pos": "adj",
+"he": "קל, קטן, קלוש",
+"family": "slightly",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 187,
+"en": "specialist",
+"pos": "n",
+"he": "מומחה, מקצוען",
+"family": "specialize /",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 188,
+"en": "specific",
+"pos": "adj",
+"he": "ספציפי, מסוים",
+"family": "specifically / specify",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 189,
+"en": "still",
+"pos": "adv",
+"he": "עדיין; למרות",
+"family": "",
+"meaningEn": "despite",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 190,
+"en": "structure",
+"pos": "n",
+"he": "מבנה, מבנה",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 191,
+"en": "study",
+"pos": "v, n",
+"he": "ללמוד; לבחון, לעיין; לימוד",
+"family": "",
+"meaningEn": "examine, look at; learning",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 192,
+"en": "supposed",
+"pos": "adj",
+"he": "אמור, צריך, מצופה",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 193,
+"en": "surface",
+"pos": "n",
+"he": "משטח, פני שטח",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 194,
+"en": "take advantage of sth",
+"pos": "",
+"he": "לנצל משהו",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 195,
+"en": "thanks to sb/sth",
+"pos": "",
+"he": "הודות ל-, בזכות",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 196,
+"en": "theory",
+"pos": "n",
+"he": "תיאוריה, תאוריה",
+"family": "theoretical",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 197,
+"en": "throw away/out sth or throw sth away/out",
+"pos": "",
+"he": "לזרוק, להשליך",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 198,
+"en": "transport",
+"pos": "n, v",
+"he": "תחבורה; להוביל",
+"family": "transportation",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 199,
+"en": "trash",
+"pos": "n",
+"he": "זבל, אשפה",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 200,
+"en": "treatment",
+"pos": "n",
+"he": "טיפול; התמודדות עם",
+"family": "",
+"meaningEn": "dealing with",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 201,
+"en": "unfortunately",
+"pos": "adv",
+"he": "לצערי, לרוע המזל",
+"family": "unfortunate",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 202,
+"en": "unhealthy",
+"pos": "adj",
+"he": "לא בריא",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 203,
+"en": "unique",
+"pos": "adj",
+"he": "ייחודי, יחיד במינו",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 204,
+"en": "united",
+"pos": "adj",
+"he": "מאוחד",
+"family": "unity / unite",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 205,
+"en": "universe",
+"pos": "n",
+"he": "יקום",
+"family": "universal",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 206,
+"en": "unknown",
+"pos": "adj",
+"he": "לא ידוע, לא מוכר",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 207,
+"en": "unlike",
+"pos": "prep",
+"he": "בניגוד ל-",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 208,
+"en": "unlikely",
+"pos": "adj",
+"he": "לא סביר, לא צפוי",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 209,
+"en": "urban",
+"pos": "adj",
+"he": "עירוני",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 210,
+"en": "vary",
+"pos": "v",
+"he": "להשתנות, להיות שונה",
+"family": "variation",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 211,
+"en": "view",
+"pos": "n",
+"he": "נוף, מבט; דעה",
+"family": "viewer",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 212,
+"en": "visible",
+"pos": "adj",
+"he": "נראה, גלוי לעין",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 213,
+"en": "vision",
+"pos": "n",
+"he": "חזון; חלום, רעיון; ראייה",
+"family": "",
+"meaningEn": "dream, hope, idea",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 214,
+"en": "volume",
+"pos": "n",
+"he": "נפח; עוצמת קול; כמות",
+"family": "",
+"meaningEn": "amount",
+"list": "A",
+"rp": "Rec"
+},
+{
+"id": 215,
+"en": "whom",
+"pos": "pron",
+"he": "את מי, אשר (לאדם)",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 216,
+"en": "wildlife",
+"pos": "n",
+"he": "חיות בר",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 217,
+"en": "within",
+"pos": "adv, prep",
+"he": "בתוך, בתחום; בתוך (זמן/מרחק/גבול)",
+"family": "",
+"meaningEn": "time; distance; limit",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 218,
+"en": "worthwhile",
+"pos": "adj",
+"he": "כדאי, שווה את המאמץ",
+"family": "",
+"meaningEn": "",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 219,
+"en": "would",
+"pos": "v",
+"he": "היה, נהג (צורת עבר של will)",
+"family": "",
+"meaningEn": "used as the past form of 'will' to talk about what someone said or thought",
+"list": "A",
+"rp": "Prod"
+},
+{
+"id": 220,
+"en": "above",
+"pos": "adj",
+"he": "מעל, לעיל",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 221,
+"en": "account",
+"pos": "n",
+"he": "חשבון; דיווח",
+"family": "",
+"meaningEn": "report",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 222,
+"en": "acquire",
+"pos": "v",
+"he": "לרכוש, להשיג",
+"family": "acquisition",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 223,
+"en": "age",
+"pos": "n",
+"he": "גיל; תקופה היסטורית",
+"family": "aged",
+"meaningEn": "period of history",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 224,
+"en": "agriculture",
+"pos": "n",
+"he": "חקלאות",
+"family": "agricultural",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 225,
+"en": "all of a sudden",
+"pos": "",
+"he": "פתאום, בבת אחת",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 226,
+"en": "altogether",
+"pos": "adv",
+"he": "לגמרי, סך הכל",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 227,
+"en": "anxious",
+"pos": "adj",
+"he": "חרד, מודאג; להוט",
+"family": "anxiety",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 228,
+"en": "apparent",
+"pos": "adj",
+"he": "ניכר, ברור לעין",
+"family": "apparently",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 229,
+"en": "appropriate",
+"pos": "adj",
+"he": "מתאים, הולם",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 230,
+"en": "atmosphere",
+"pos": "n",
+"he": "אטמוספרה, אווירה",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 231,
+"en": "automatically",
+"pos": "adv",
+"he": "אוטומטית, מאליו",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 232,
+"en": "bad",
+"pos": "adj",
+"he": "רע; מקולקל, רקוב",
+"family": "",
+"meaningEn": "rotting",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 233,
+"en": "be in charge",
+"pos": "",
+"he": "להיות אחראי, להיות בראש",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 234,
+"en": "be situated in/on/by, etc",
+"pos": "",
+"he": "להיות ממוקם ב-/על/ליד",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 235,
+"en": "behind",
+"pos": "behind",
+"he": "מאחור; איטי יותר, מפגר אחרי",
+"family": "",
+"meaningEn": "slower",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 236,
+"en": "believe in sth",
+"pos": "",
+"he": "להאמין במשהו",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 237,
+"en": "blame",
+"pos": "n",
+"he": "אשמה; להאשים",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 238,
+"en": "block",
+"pos": "v",
+"he": "לחסום, להפריע",
+"family": "",
+"meaningEn": "obstruct",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 239,
+"en": "brilliant",
+"pos": "adj",
+"he": "מבריק; אינטליגנטי מאוד",
+"family": "",
+"meaningEn": "very intelligent",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 240,
+"en": "bring up sb or bring sb up",
+"pos": "",
+"he": "לגדל (ילד), לחנך",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 241,
+"en": "calculate",
+"pos": "v",
+"he": "לחשב",
+"family": "calculator",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 242,
+"en": "clothing",
+"pos": "n",
+"he": "ביגוד, לבוש",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 243,
+"en": "competitive",
+"pos": "adj",
+"he": "תחרותי",
+"family": "competitor",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 244,
+"en": "contemporary",
+"pos": "adj",
+"he": "עכשווי, בן זמננו",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 245,
+"en": "contest",
+"pos": "n",
+"he": "תחרות",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 246,
+"en": "continent",
+"pos": "n",
+"he": "יבשת",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 247,
+"en": "copy",
+"pos": "n",
+"he": "עותק; עותק יחיד (ספר/עיתון)",
+"family": "",
+"meaningEn": "single one (book, paper)",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 248,
+"en": "criterion",
+"pos": "n",
+"he": "קריטריון, אמת מידה",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 249,
+"en": "cut down sth or cut sth down",
+"pos": "",
+"he": "לצמצם, להפחית",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 250,
+"en": "decade",
+"pos": "n",
+"he": "עשור",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 251,
+"en": "declare",
+"pos": "v",
+"he": "להכריז, להצהיר",
+"family": "declaration",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 252,
+"en": "degree",
+"pos": "n",
+"he": "מעלה (חום/זווית); תואר אקדמי",
+"family": "",
+"meaningEn": "qualification",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 253,
+"en": "deliver",
+"pos": "v, n",
+"he": "לספק, להעביר, למסור",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 254,
+"en": "demanding",
+"pos": "adj",
+"he": "תובעני, מאתגר",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 255,
+"en": "detect",
+"pos": "v",
+"he": "לזהות, לגלות",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 256,
+"en": "determine",
+"pos": "v",
+"he": "לקבוע, להחליט",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 257,
+"en": "differ",
+"pos": "v",
+"he": "להיות שונה; לחלוק על, לא להסכים",
+"family": "",
+"meaningEn": "disagree",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 258,
+"en": "differ",
+"pos": "v",
+"he": "להיות שונה; להשתנות מאוד",
+"family": "",
+"meaningEn": "vary widely",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 259,
+"en": "disappointed",
+"pos": "adj",
+"he": "מאוכזב",
+"family": "disappointment",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 260,
+"en": "divide",
+"pos": "v",
+"he": "לחלק; לחלק (חשבון)",
+"family": "division",
+"meaningEn": "calculate",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 261,
+"en": "domestic",
+"pos": "n",
+"he": "מקומי, של המדינה; ביתי",
+"family": "",
+"meaningEn": "country",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 262,
+"en": "done",
+"pos": "adj",
+"he": "גמור, עשוי",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 263,
+"en": "double",
+"pos": "v, adv",
+"he": "להכפיל; כפול",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 264,
+"en": "economical",
+"pos": "adj",
+"he": "חסכוני",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 265,
+"en": "editor",
+"pos": "n",
+"he": "עורך",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 266,
+"en": "either way",
+"pos": "",
+"he": "בכל מקרה, כך או כך",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 267,
+"en": "element",
+"pos": "n",
+"he": "יסוד, מרכיב",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 268,
+"en": "emerge",
+"pos": "v",
+"he": "להופיע, לצוץ, להתגלות",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 269,
+"en": "emotion",
+"pos": "n",
+"he": "רגש",
+"family": "emotional",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 270,
+"en": "exception",
+"pos": "n",
+"he": "חריג, יוצא דופן",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 271,
+"en": "exchange",
+"pos": "v",
+"he": "להחליף, להמיר",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 272,
+"en": "expected",
+"pos": "adj",
+"he": "צפוי, מצופה",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 273,
+"en": "expedition",
+"pos": "n",
+"he": "משלחת, מסע",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 274,
+"en": "expense",
+"pos": "n",
+"he": "הוצאה, עלות",
+"family": "at the expense of",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 275,
+"en": "export",
+"pos": "n, v",
+"he": "ייצוא; לייצא",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 276,
+"en": "expression",
+"pos": "n",
+"he": "ביטוי; מילה או צירוף מילים",
+"family": "",
+"meaningEn": "word or phrase",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 277,
+"en": "extend",
+"pos": "v",
+"he": "להאריך, להרחיב; להאריך משך",
+"family": "",
+"meaningEn": "make last",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 278,
+"en": "extreme",
+"pos": "adj",
+"he": "קיצוני, קיצון",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 279,
+"en": "farther/further",
+"pos": "adj, adv",
+"he": "רחוק יותר; יתר על כן",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 280,
+"en": "fed up",
+"pos": "",
+"he": "נמאס לי, עייף מ-",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 281,
+"en": "fetch",
+"pos": "v",
+"he": "להביא, ללכת להביא",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 282,
+"en": "final",
+"pos": "n",
+"he": "גמר, סופי",
+"family": "semi-final",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 283,
+"en": "fit",
+"pos": "adj",
+"he": "מתאים, כשיר; בכושר, בריא",
+"family": "fitness",
+"meaningEn": "healthy",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 284,
+"en": "generation",
+"pos": "n",
+"he": "דור",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 285,
+"en": "genuine",
+"pos": "adj",
+"he": "אמיתי, מקורי, כן",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 286,
+"en": "get rid of sth",
+"pos": "",
+"he": "להיפטר ממשהו",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 287,
+"en": "get sth wrong",
+"pos": "",
+"he": "לטעות ב-, להבין משהו לא נכון",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 288,
+"en": "get worse",
+"pos": "",
+"he": "להחמיר, להחמיר",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 289,
+"en": "give away sth or give sth away",
+"pos": "",
+"he": "לתת, למסור (חינם); להסגיר",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 290,
+"en": "go out",
+"pos": "",
+"he": "לצאת, לכבות",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 291,
+"en": "hidden",
+"pos": "adj",
+"he": "מוסתר, נסתר",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 292,
+"en": "highlight",
+"pos": "v",
+"he": "להדגיש, להבליט",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": ""
+},
+{
+"id": 293,
+"en": "historian",
+"pos": "n",
+"he": "היסטוריון",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 294,
+"en": "historic",
+"pos": "adj",
+"he": "היסטורי; בעל חשיבות רבה",
+"family": "",
+"meaningEn": "of great importance",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 295,
+"en": "identical",
+"pos": "adj",
+"he": "זהה, חופף",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 296,
+"en": "immigration",
+"pos": "n",
+"he": "הגירה",
+"family": "immigrant",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 297,
+"en": "import",
+"pos": "v, n",
+"he": "לייבא; ייבוא",
+"family": "import",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 298,
+"en": "impress",
+"pos": "v",
+"he": "להרשים",
+"family": "impressive",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 299,
+"en": "impression",
+"pos": "n",
+"he": "רושם, התרשמות",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 300,
+"en": "incredible",
+"pos": "adj",
+"he": "מדהים, לא ייאמן",
+"family": "incredibly",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 301,
+"en": "indoors",
+"pos": "adv, adj",
+"he": "בתוך הבית, פנימה",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 302,
+"en": "infection",
+"pos": "n",
+"he": "זיהום, דלקת",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 303,
+"en": "input",
+"pos": "n",
+"he": "קלט, תרומה",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 304,
+"en": "inside",
+"pos": "adv",
+"he": "בפנים; תחושה פנימית",
+"family": "",
+"meaningEn": "feeling",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 305,
+"en": "interaction",
+"pos": "n",
+"he": "אינטראקציה, גומלין",
+"family": "interact",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 306,
+"en": "interpret",
+"pos": "v",
+"he": "לפרש, לתרגם; לפרש (משפה אחרת)",
+"family": "",
+"meaningEn": "from another language",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 307,
+"en": "interrupt",
+"pos": "v",
+"he": "להפריע, לקטוע (דיבור)",
+"family": "interruption",
+"meaningEn": "stop speaking",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 308,
+"en": "involvement",
+"pos": "n",
+"he": "מעורבות",
+"family": "involved / involve",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 309,
+"en": "issue",
+"pos": "n",
+"he": "נושא, סוגיה; גיליון",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 310,
+"en": "it looks like/as if/as though",
+"pos": "",
+"he": "נראה כאילו, כאילו",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 311,
+"en": "jam",
+"pos": "n",
+"he": "ריבה; פקק (תנועה)",
+"family": "traffic jam",
+"meaningEn": "traffic",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 312,
+"en": "journalist",
+"pos": "n",
+"he": "עיתונאי",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 313,
+"en": "judgment",
+"pos": "n",
+"he": "שיפוט, שיקול דעת; שכל ישר",
+"family": "",
+"meaningEn": "good sense",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 314,
+"en": "just as bad / good / tall /clever, etc (as sb/sth)",
+"pos": "",
+"he": "בדיוק כמו רע/טוב/גבוה וכו' (כמו)",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 315,
+"en": "justice",
+"pos": "n",
+"he": "צדק",
+"family": "just",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 316,
+"en": "keen",
+"pos": "adj",
+"he": "להוט, נלהב; חד",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 317,
+"en": "keep",
+"pos": "v",
+"he": "לשמור; לעכב, לדחות",
+"family": "",
+"meaningEn": "delay",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 318,
+"en": "kit",
+"pos": "n",
+"he": "ערכה, ציוד",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 319,
+"en": "learn",
+"pos": "v",
+"he": "ללמוד; לזכור, לשנן",
+"family": "",
+"meaningEn": "remember",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 320,
+"en": "lecture",
+"pos": "n, v",
+"he": "הרצאה; להרצות",
+"family": "lecture",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 321,
+"en": "light",
+"pos": "v",
+"he": "להדליק, להאיר; אור; קל",
+"family": "in light of",
+"meaningEn": "illuminate",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 322,
+"en": "living",
+"pos": "n",
+"he": "פרנסה, מחיה",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 323,
+"en": "logical",
+"pos": "adj",
+"he": "הגיוני, לוגי",
+"family": "logic",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 324,
+"en": "look forward to sth/doing sth",
+"pos": "",
+"he": "לצפות בכיליון עיניים ל-",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 325,
+"en": "lower",
+"pos": "v",
+"he": "להנמיך, להוריד (גובה)",
+"family": "",
+"meaningEn": "height",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 326,
+"en": "make sense",
+"pos": "",
+"he": "להיות הגיוני, להישמע הגיוני",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 327,
+"en": "make up sth or make sth up",
+"pos": "",
+"he": "להמציא, לאפר; להתאפר",
+"family": "made up of",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 328,
+"en": "make up your mind or make your mind up",
+"pos": "",
+"he": "להחליט, לגבש דעה",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 329,
+"en": "mend",
+"pos": "v",
+"he": "לתקן",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 330,
+"en": "mixture",
+"pos": "n",
+"he": "תערובת, ערבוב",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 331,
+"en": "monthly",
+"pos": "adj",
+"he": "חודשי",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 332,
+"en": "mystery",
+"pos": "n",
+"he": "תעלומה, מסתורין",
+"family": "mysterious",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 333,
+"en": "name",
+"pos": "v",
+"he": "לנקוב בשם, לחשוף שמות",
+"family": "",
+"meaningEn": "reveal names",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 334,
+"en": "native",
+"pos": "adj",
+"he": "מקומי, ילידי; שפת אם",
+"family": "native language",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 335,
+"en": "neither … nor",
+"pos": "",
+"he": "לא זה... ולא זה",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 336,
+"en": "nightmare",
+"pos": "n",
+"he": "סיוט, חלום ביעותים",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 337,
+"en": "nonsense",
+"pos": "n",
+"he": "שטות, איוולת",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 338,
+"en": "not believe / understand / hear / say, etc. a word",
+"pos": "",
+"he": "לא להאמין/להבין/לשמוע מילה",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 339,
+"en": "not until",
+"pos": "",
+"he": "לא עד ש-, רק כאשר",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 340,
+"en": "occupation",
+"pos": "n",
+"he": "עיסוק, מקצוע; כיבוש",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 341,
+"en": "occupy",
+"pos": "v",
+"he": "לכבוש, לתפוס; לאכלס; למלא (מקום/זמן)",
+"family": "occupied",
+"meaningEn": "fill or use a place or period of time",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 342,
+"en": "oil",
+"pos": "n",
+"he": "שמן; דלק, נפט",
+"family": "",
+"meaningEn": "fuel",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 343,
+"en": "on the whole",
+"pos": "",
+"he": "בסך הכל, באופן כללי",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 344,
+"en": "open",
+"pos": "v",
+"he": "לפתוח; לפתוח רשמית",
+"family": "opening",
+"meaningEn": "start officially",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 345,
+"en": "operate",
+"pos": "v",
+"he": "להפעיל; לנתח (ניתוח כירורגי)",
+"family": "operation",
+"meaningEn": "surgery",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 346,
+"en": "organ",
+"pos": "n",
+"he": "איבר (בגוף); עוגב",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 347,
+"en": "organization",
+"pos": "n",
+"he": "ארגון; סידור, ארגון",
+"family": "",
+"meaningEn": "arrangement",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 348,
+"en": "outstanding",
+"pos": "adj",
+"he": "מצטיין, יוצא דופן",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 349,
+"en": "part-time",
+"pos": "",
+"he": "במשרה חלקית",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 350,
+"en": "patient",
+"pos": "adj",
+"he": "סבלני; חולה (מטופל)",
+"family": "patience",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 351,
+"en": "peculiar",
+"pos": "adj",
+"he": "מוזר, משונה",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 352,
+"en": "place",
+"pos": "n",
+"he": "מקום; מקום (באוניברסיטה/בתחרות)",
+"family": "",
+"meaningEn": "at university, in race or competition",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 353,
+"en": "point",
+"pos": "n",
+"he": "נקודה; זמן/מקום מסוים",
+"family": "",
+"meaningEn": "particular time/place",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 354,
+"en": "point",
+"pos": "v",
+"he": "להצביע, לכוון אל",
+"family": "",
+"meaningEn": "to hold something so that it faces towards someone or something",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 355,
+"en": "position",
+"pos": "n",
+"he": "מיקום, עמדה; מצב",
+"family": "",
+"meaningEn": "situation, usually no plural, the situation someone is in",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 356,
+"en": "potential",
+"pos": "n",
+"he": "פוטנציאל, יכולת חבויה",
+"family": "potentially",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 357,
+"en": "preference",
+"pos": "n",
+"he": "העדפה",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 358,
+"en": "present",
+"pos": "v",
+"he": "להציג; להעניק באופן רשמי",
+"family": "",
+"meaningEn": "give formally",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 359,
+"en": "pressure",
+"pos": "n",
+"he": "לחץ",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 360,
+"en": "prime",
+"pos": "adj",
+"he": "ראשי, מרכזי; מיטבי",
+"family": "primary",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 361,
+"en": "principal",
+"pos": "adj, n",
+"he": "ראשי, עיקרי; מנהל בית ספר; קרן (כספית)",
+"family": "",
+"meaningEn": "main; head of school",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 362,
+"en": "promote",
+"pos": "v",
+"he": "לקדם; לקדם בדרגה",
+"family": "promotion",
+"meaningEn": "job, increase rank",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 363,
+"en": "put up with sth/sb",
+"pos": "",
+"he": "לסבול, להשלים עם",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 364,
+"en": "reach",
+"pos": "v, n",
+"he": "להגיע, להשיג; למתוח ולגעת",
+"family": "",
+"meaningEn": "stretch and touch",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 365,
+"en": "reason",
+"pos": "n",
+"he": "סיבה, היגיון; הגיוני וצודק",
+"family": "",
+"meaningEn": "fair and showing good judgement",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 366,
+"en": "record",
+"pos": "v, n",
+"he": "להקליט, לתעד; שיא; תקליט",
+"family": "",
+"meaningEn": "store information",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 367,
+"en": "reflect",
+"pos": "v",
+"he": "לשקף, להרהר; השתקפות (במראה)",
+"family": "reflection",
+"meaningEn": "image, in mirror",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 368,
+"en": "register",
+"pos": "n, v",
+"he": "מרשם, רישום; להירשם",
+"family": "registration",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 369,
+"en": "regret",
+"pos": "v, n",
+"he": "להצטער, להתחרט; חרטה",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 370,
+"en": "relate",
+"pos": "v",
+"he": "להתייחס, לקשר; חשיבות יחסית",
+"family": "related / relationship / relative",
+"meaningEn": "connect / / relative importance",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 371,
+"en": "relax",
+"pos": "v",
+"he": "להירגע",
+"family": "relaxed",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 372,
+"en": "remark",
+"pos": "v, n",
+"he": "להעיר; הערה, אמירה",
+"family": "",
+"meaningEn": "comment",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 373,
+"en": "remote",
+"pos": "adj",
+"he": "מרוחק, נידח",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 374,
+"en": "replace",
+"pos": "v",
+"he": "להחליף, להחליף מקום",
+"family": "replacement",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 375,
+"en": "rescue",
+"pos": "v, n",
+"he": "להציל; הצלה",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 376,
+"en": "respect",
+"pos": "v, n",
+"he": "לכבד; כבוד, הערכה",
+"family": "respectable",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 377,
+"en": "retire",
+"pos": "v",
+"he": "לפרוש (מעבודה), לסיים קריירה",
+"family": "retired / retirement",
+"meaningEn": "end one's career",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 378,
+"en": "right",
+"pos": "adj",
+"he": "נכון; ימין; מוסרי, ראוי",
+"family": "",
+"meaningEn": "morally acceptable",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 379,
+"en": "role",
+"pos": "n",
+"he": "תפקיד, פונקציה",
+"family": "",
+"meaningEn": "function, purpose",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 380,
+"en": "room",
+"pos": "n",
+"he": "חדר; מקום, מרחב",
+"family": "",
+"meaningEn": "space",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 381,
+"en": "rough",
+"pos": "adj",
+"he": "מחוספס, גס; לא מדויק, בערך",
+"family": "roughly",
+"meaningEn": "not exact; not exactly",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 382,
+"en": "rule",
+"pos": "n",
+"he": "כלל, חוק, תקנה",
+"family": "",
+"meaningEn": "law, regulation",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 383,
+"en": "rule",
+"pos": "v, n",
+"he": "למשול, לשלוט; שלטון",
+"family": "ruler",
+"meaningEn": "reign, govern",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 384,
+"en": "run",
+"pos": "v",
+"he": "לרוץ; להפעיל, לנהל (עסק)",
+"family": "",
+"meaningEn": "to operate, manage a business",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 385,
+"en": "rush",
+"pos": "v, n",
+"he": "למהר, להזדרז; חיפזון, בהלה",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 386,
+"en": "satisfy",
+"pos": "v",
+"he": "לספק, להניח את הדעת",
+"family": "satisfaction / satisfactory / satisfied",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 387,
+"en": "scale",
+"pos": "n",
+"he": "קנה מידה; גודל, יחס; משקל (מאזניים)",
+"family": "",
+"meaningEn": "size, ratio",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 388,
+"en": "scene",
+"pos": "n",
+"he": "סצנה, מחזה; סצנה (בהצגה/סרט)",
+"family": "scenery",
+"meaningEn": "in play, film etc",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 389,
+"en": "schedule",
+"pos": "n",
+"he": "לוח זמנים, תזמון",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 390,
+"en": "sensitive",
+"pos": "adj",
+"he": "רגיש",
+"family": "sensitivity",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 391,
+"en": "service",
+"pos": "n",
+"he": "שירות; מערכת/משרד ממשלתי; שירות לחברה (צבא/ממשל)",
+"family": "serve",
+"meaningEn": "government system, department; do work that helps society (e.g., army or government)",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 392,
+"en": "set",
+"pos": "v",
+"he": "להגדיר; קבוע, מוגדר מראש; לקבוע; לשקוע",
+"family": "",
+"meaningEn": "fixed, predetermined",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 393,
+"en": "setting",
+"pos": "n",
+"he": "תפאורה, סביבה (בספר/סרט); רקע הסיפור",
+"family": "set",
+"meaningEn": "book/film etc.; story; film/play",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 394,
+"en": "shortly",
+"pos": "adv",
+"he": "בקרוב, מיד",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 395,
+"en": "shut (sth) down or shut down (sth)",
+"pos": "",
+"he": "לסגור, לכבות (עסק/מכונה)",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 396,
+"en": "similarity",
+"pos": "n",
+"he": "דמיון, נקודת דמיון",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 397,
+"en": "slow (sb/sth) down / up or slow down/up (sb/sth)",
+"pos": "",
+"he": "להאט (מישהו/משהו)",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 398,
+"en": "so-called",
+"pos": "",
+"he": "מה שנקרא, כביכול",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 399,
+"en": "society",
+"pos": "n",
+"he": "חברה; אגודה, מועדון, ארגון",
+"family": "social",
+"meaningEn": "club, organization",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 400,
+"en": "sooner or later",
+"pos": "",
+"he": "במוקדם או במאוחר",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 401,
+"en": "spectacular",
+"pos": "adj",
+"he": "מרהיב, מרשים",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 402,
+"en": "speech",
+"pos": "n",
+"he": "דיבור, נאום; נאום רשמי",
+"family": "",
+"meaningEn": "formal talk",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 403,
+"en": "spoil",
+"pos": "v",
+"he": "לקלקל, להרוס; לפנק",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 404,
+"en": "start (sth) off or start off (sth)",
+"pos": "",
+"he": "להתחיל (משהו)",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 405,
+"en": "style",
+"pos": "n",
+"he": "סגנון; דרך אישית; סגנון (באמנות/ספרות/מוזיקה)",
+"family": "",
+"meaningEn": "individual way, method etc.; in art, literature, music, etc.",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 406,
+"en": "sum up (sth/sb) or sum (sth/sb) up",
+"pos": "",
+"he": "לסכם, לתמצת",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 407,
+"en": "summary",
+"pos": "n",
+"he": "סיכום, תקציר",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 408,
+"en": "support",
+"pos": "v, n",
+"he": "לתמוך; לעודד (אוהד); לפרנס, לכלכל",
+"family": "supporter",
+"meaningEn": "encourage (e.g., sports fan); look after, especially financially",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 409,
+"en": "survive",
+"pos": "v",
+"he": "לשרוד",
+"family": "survival / survivor",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 410,
+"en": "take into account sth",
+"pos": "",
+"he": "לקחת בחשבון, להתחשב ב-",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 411,
+"en": "take part",
+"pos": "",
+"he": "לקחת חלק, להשתתף",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 412,
+"en": "take place",
+"pos": "",
+"he": "להתרחש, לקרות",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 413,
+"en": "take the/this opportunity to do sth",
+"pos": "",
+"he": "לנצל את ההזדמנות לעשות משהו",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 414,
+"en": "take sb/sth seriously",
+"pos": "",
+"he": "לקחת ברצינות מישהו/משהו",
+"family": "seriously",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 415,
+"en": "take/accept/claim responsibility for sth",
+"pos": "",
+"he": "לקחת/לקבל/לטעון אחריות על משהו",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 416,
+"en": "the headlines",
+"pos": "",
+"he": "הכותרות (בחדשות)",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 417,
+"en": "the heart of sth",
+"pos": "",
+"he": "לב העניין, הליבה של משהו",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 418,
+"en": "the main thing",
+"pos": "",
+"he": "העיקר, הדבר העיקרי",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 419,
+"en": "the reality/realities of sth",
+"pos": "",
+"he": "המציאות של משהו",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 420,
+"en": "theme",
+"pos": "n",
+"he": "נושא, תמה (מרכזית)",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 421,
+"en": "to",
+"pos": "prep",
+"he": "אל, ל-; טווח",
+"family": "",
+"meaningEn": "range",
+"list": "B",
+"rp": ""
+},
+{
+"id": 422,
+"en": "to start with",
+"pos": "",
+"he": "ראשית, להתחיל עם",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 423,
+"en": "treasure",
+"pos": "n",
+"he": "אוצר; מטמון",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 424,
+"en": "try",
+"pos": "n",
+"he": "ניסיון; לנסות",
+"family": "",
+"meaningEn": "attempt",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 425,
+"en": "turn",
+"pos": "n",
+"he": "תור; הזדמנות; פנייה",
+"family": "",
+"meaningEn": "chance, opportunity",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 426,
+"en": "uncomfortable",
+"pos": "adj",
+"he": "לא נוח, לא נעים",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 427,
+"en": "underneath",
+"pos": "prep, adv",
+"he": "מתחת ל-, למטה",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 428,
+"en": "understand",
+"pos": "v",
+"he": "להבין; להבין רגשות, אמפתיה",
+"family": "understanding",
+"meaningEn": "know feelings; sympathy; sympathetic",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 429,
+"en": "undo",
+"pos": "v",
+"he": "לבטל פעולה, לפתוח (קשר)",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 430,
+"en": "unemployed",
+"pos": "adj",
+"he": "מובטל, חסר עבודה",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 431,
+"en": "unexpected",
+"pos": "adj",
+"he": "בלתי צפוי, לא צפוי",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 432,
+"en": "up-to-date",
+"pos": "",
+"he": "מעודכן, עדכני",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 433,
+"en": "urgent",
+"pos": "adj",
+"he": "דחוף",
+"family": "urgently",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 434,
+"en": "use up sth or use sth up",
+"pos": "",
+"he": "לכלות, לנצל עד תום",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 435,
+"en": "virtual reality",
+"pos": "",
+"he": "מציאות מדומה",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 436,
+"en": "vowel",
+"pos": "n",
+"he": "תנועה (אות)",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 437,
+"en": "waste",
+"pos": "v, adj",
+"he": "לבזבז; פסולת; לבזבז, להשתמש יותר מדי",
+"family": "",
+"meaningEn": "use too much",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 438,
+"en": "wealth",
+"pos": "n",
+"he": "עושר, הון",
+"family": "wealthy",
+"meaningEn": "",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 439,
+"en": "welcome",
+"pos": "v, adj",
+"he": "לקדם בברכה, לברך; רצוי, נעים; ברוך הבא",
+"family": "",
+"meaningEn": "support, encourage; pleasing",
+"list": "B",
+"rp": "Prod"
+},
+{
+"id": 440,
+"en": "wherever",
+"pos": "adv",
+"he": "בכל מקום ש-, היכן ש-",
+"family": "",
+"meaningEn": "",
+"list": "B",
+"rp": "Rec"
+},
+{
+"id": 441,
+"en": "(all) on your own",
+"pos": "",
+"he": "לבד, בכוחות עצמך",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 442,
+"en": "(at) any minute; any minute now",
+"pos": "",
+"he": "בכל רגע; כל רגע עכשיו",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 443,
+"en": "(be) in your twenties / 20s /thirties/30s, etc",
+"pos": "",
+"he": "בשנות העשרים/השלושים שלך וכו' (גיל)",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 444,
+"en": "absorb",
+"pos": "v",
+"he": "לספוג, לקלוט",
+"family": "",
+"meaningEn": "soak up",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 445,
+"en": "access",
+"pos": "n, v",
+"he": "גישה, נגישות; לגשת אל",
+"family": "accessible",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 446,
+"en": "ambition",
+"pos": "n",
+"he": "שאיפה, שאפתנות",
+"family": "ambitious",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 447,
+"en": "annoy",
+"pos": "v",
+"he": "להציק, להרגיז",
+"family": "annoyed / annoying",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 448,
+"en": "argue",
+"pos": "v",
+"he": "להתווכח; לשכנע, לתת נימוקים",
+"family": "argument",
+"meaningEn": "persuade, give reasons",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 449,
+"en": "as a matter of fact",
+"pos": "",
+"he": "למען האמת, למעשה",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 450,
+"en": "ashamed",
+"pos": "adj",
+"he": "מבויש, נבוך",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 451,
+"en": "aside",
+"pos": "adv",
+"he": "הצידה, לצד אחד",
+"family": "",
+"meaningEn": "to one side",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 452,
+"en": "assure",
+"pos": "v",
+"he": "להבטיח, לוודא, להרגיע",
+"family": "assurance",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 453,
+"en": "at his/its, etc. best",
+"pos": "",
+"he": "במיטבו",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 454,
+"en": "attraction",
+"pos": "n",
+"he": "אטרקציה, מוקד משיכה; משיכה (רגש)",
+"family": "",
+"meaningEn": "thing to see, feeling",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 455,
+"en": "awareness",
+"pos": "n",
+"he": "מודעות",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 456,
+"en": "barely",
+"pos": "adv",
+"he": "בקושי, אך בקושי",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 457,
+"en": "barrier",
+"pos": "n",
+"he": "מחסום, מכשול",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 458,
+"en": "be (just) about to do sth",
+"pos": "",
+"he": "עומד (ממש) לעשות משהו",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 459,
+"en": "be out of sth",
+"pos": "",
+"he": "לאזול לו, להיגמר לו (מ-)",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 460,
+"en": "beat",
+"pos": "n",
+"he": "מקצב, פעימה",
+"family": "",
+"meaningEn": "rhythm",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 461,
+"en": "bend",
+"pos": "v, n",
+"he": "לכופף, להתכופף; כיפוף, עיקול",
+"family": "bent",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 462,
+"en": "biology",
+"pos": "n",
+"he": "ביולוגיה",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 463,
+"en": "bitter",
+"pos": "adj",
+"he": "מר",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 464,
+"en": "bold",
+"pos": "adj",
+"he": "נועז, אמיץ",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 465,
+"en": "bother",
+"pos": "v",
+"he": "להטריד, לטרוח, לטרוד",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 466,
+"en": "bottom",
+"pos": "adj",
+"he": "תחתון, החלק הנמוך ביותר",
+"family": "",
+"meaningEn": "lowest part",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 467,
+"en": "breeze",
+"pos": "n",
+"he": "משב רוח קל, בריזה",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 468,
+"en": "brilliant",
+"pos": "adj",
+"he": "מבריק; מלא אור וצבע",
+"family": "",
+"meaningEn": "full of light and color",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 469,
+"en": "can tell",
+"pos": "",
+"he": "אפשר לראות/להבחין",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 470,
+"en": "capacity",
+"pos": "n",
+"he": "קיבולת, נפח",
+"family": "",
+"meaningEn": "volume",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 471,
+"en": "cash",
+"pos": "v",
+"he": "לפדות צ'ק; להמיר למזומן",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 472,
+"en": "capture",
+"pos": "v",
+"he": "ללכוד, לתפוס",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 473,
+"en": "casual",
+"pos": "adj",
+"he": "לא רשמי, יומיומי",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 474,
+"en": "ceremony",
+"pos": "n",
+"he": "טקס",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 475,
+"en": "chairperson",
+"pos": "n",
+"he": "יו\"ר, יושב ראש",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 476,
+"en": "chase",
+"pos": "v, n",
+"he": "לרדוף; מרדף",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 477,
+"en": "cheat",
+"pos": "v, n",
+"he": "לרמות, לרמאות; רמאי",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 478,
+"en": "classic",
+"pos": "adj",
+"he": "קלאסי",
+"family": "classical",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 479,
+"en": "clinic",
+"pos": "n",
+"he": "מרפאה, קליניקה",
+"family": "clinical",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 480,
+"en": "coach",
+"pos": "n, v",
+"he": "מאמן; מאמן (אדם)",
+"family": "",
+"meaningEn": "person",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 481,
+"en": "collector",
+"pos": "n",
+"he": "אספן",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 482,
+"en": "correspond",
+"pos": "v",
+"he": "להתכתב; להתאים, לתאום",
+"family": "correspondent / correspondence",
+"meaningEn": "write",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 483,
+"en": "costume",
+"pos": "n",
+"he": "תחפושת, תלבושת",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 484,
+"en": "courage",
+"pos": "n",
+"he": "אומץ",
+"family": "courageous",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 485,
+"en": "cover",
+"pos": "v",
+"he": "לכסות; לסקר (חדשות)",
+"family": "coverage",
+"meaningEn": "news",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 486,
+"en": "cure",
+"pos": "v, n",
+"he": "לרפא; מרפא, תרופה",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 487,
+"en": "cyberbullying",
+"pos": "n",
+"he": "בריונות ברשת, סייבר-בריונות",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 488,
+"en": "cycle",
+"pos": "n, v",
+"he": "מחזור; לרכוב על אופניים",
+"family": "cyclist",
+"meaningEn": "bicycle",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 489,
+"en": "deaf",
+"pos": "adj",
+"he": "חירש",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 490,
+"en": "debt",
+"pos": "n",
+"he": "חוב",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 491,
+"en": "decorate",
+"pos": "v",
+"he": "לקשט",
+"family": "decoration",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 492,
+"en": "dedicate",
+"pos": "v",
+"he": "להקדיש; להנציח לזכר",
+"family": "",
+"meaningEn": "in memory",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 493,
+"en": "departure",
+"pos": "n",
+"he": "יציאה, עזיבה, המראה",
+"family": "depart",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 494,
+"en": "deposit",
+"pos": "n",
+"he": "פיקדון, מקדמה",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 495,
+"en": "deserve",
+"pos": "v",
+"he": "להגיע לו, להיות ראוי ל-",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 496,
+"en": "destination",
+"pos": "n",
+"he": "יעד",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 497,
+"en": "direct",
+"pos": "v",
+"he": "לביים; לנהל; לכוון (סרט/הצגה)",
+"family": "direction",
+"meaningEn": "play/film",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 498,
+"en": "disabled",
+"pos": "adj, n",
+"he": "נכה, מוגבל",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 499,
+"en": "dispute",
+"pos": "n",
+"he": "מחלוקת, סכסוך, מריבה",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 500,
+"en": "distinguish",
+"pos": "v",
+"he": "להבחין, להבדיל",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 501,
+"en": "disturb",
+"pos": "v",
+"he": "להפריע, להטריד",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 502,
+"en": "do a good/excellent, etc. job",
+"pos": "",
+"he": "לעשות עבודה טובה/מצוינת",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 503,
+"en": "dozen",
+"pos": "n",
+"he": "תריסר",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 504,
+"en": "draft",
+"pos": "n",
+"he": "טיוטה; גיוס לצבא",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 505,
+"en": "dramatic",
+"pos": "adj",
+"he": "דרמטי",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 506,
+"en": "earth",
+"pos": "n",
+"he": "כדור הארץ; אדמה, עפר",
+"family": "",
+"meaningEn": "soil",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 507,
+"en": "earthquake",
+"pos": "n",
+"he": "רעידת אדמה",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 508,
+"en": "elderly",
+"pos": "adj",
+"he": "קשיש, מבוגר",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 509,
+"en": "enter",
+"pos": "v",
+"he": "להיכנס; להזין (מידע)",
+"family": "",
+"meaningEn": "information",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 510,
+"en": "episode",
+"pos": "n",
+"he": "פרק (בסדרה), אפיזודה",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 511,
+"en": "equal",
+"pos": "v",
+"he": "שווה ל-; להשתוות",
+"family": "equality",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 512,
+"en": "escape",
+"pos": "n",
+"he": "בריחה, מנוסה",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 513,
+"en": "fare",
+"pos": "n",
+"he": "דמי נסיעה, מחיר כרטיס",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 514,
+"en": "fire",
+"pos": "v",
+"he": "לפטר (מעבודה); לירות",
+"family": "",
+"meaningEn": "dismiss, sack",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 515,
+"en": "firm",
+"pos": "adj",
+"he": "מוצק, יציב; תקיף",
+"family": "firmly",
+"meaningEn": "hard, solid",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 516,
+"en": "float",
+"pos": "v",
+"he": "לצוף",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 517,
+"en": "fold",
+"pos": "v",
+"he": "לקפל",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 518,
+"en": "follow",
+"pos": "v",
+"he": "לעקוב; להבין, לעקוב אחרי",
+"family": "",
+"meaningEn": "understand",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 519,
+"en": "for the sake of sth/sb; for sth's/sb's sake",
+"pos": "",
+"he": "למען, לטובת; בגלל",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 520,
+"en": "formal",
+"pos": "adj",
+"he": "רשמי, פורמלי",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 521,
+"en": "former",
+"pos": "adj",
+"he": "לשעבר, קודם",
+"family": "formerly",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 522,
+"en": "fortune",
+"pos": "n",
+"he": "הון, עושר; מזל; כסף רב",
+"family": "",
+"meaningEn": "money",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 523,
+"en": "free",
+"pos": "adj, adv",
+"he": "חופשי; חינם; לא מוגבל",
+"family": "",
+"meaningEn": "not limited",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 524,
+"en": "free will",
+"pos": "",
+"he": "רצון חופשי",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 525,
+"en": "frozen",
+"pos": "adj",
+"he": "קפוא",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 526,
+"en": "generous",
+"pos": "adj",
+"he": "נדיב",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 527,
+"en": "get",
+"pos": "v",
+"he": "להשיג, לקבל; לענות (לטלפון/לדלת)",
+"family": "",
+"meaningEn": "answer telephone, door",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 528,
+"en": "get in touch",
+"pos": "",
+"he": "ליצור קשר",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 529,
+"en": "give in/up",
+"pos": "",
+"he": "להיכנע, לוותר",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 530,
+"en": "give up sth or give sth up",
+"pos": "",
+"he": "לוותר על משהו, להפסיק משהו",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 531,
+"en": "go ahead",
+"pos": "",
+"he": "קדימה, תמשיך/י",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 532,
+"en": "grab",
+"pos": "v",
+"he": "לחטוף, לתפוס",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 533,
+"en": "grateful",
+"pos": "adj",
+"he": "אסיר תודה, מודה",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 534,
+"en": "hardware",
+"pos": "n,v",
+"he": "חומרה (מחשב); כלי מתכת",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 535,
+"en": "headquarters",
+"pos": "n",
+"he": "מטה, מפקדה",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 536,
+"en": "here you are/here it is, etc.",
+"pos": "",
+"he": "בבקשה (הנה), הנה זה",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": ""
+},
+{
+"id": 537,
+"en": "hold up / hold up sb/sth or hold sb/sth up",
+"pos": "",
+"he": "לעכב; לשדוד (באיומים)",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 538,
+"en": "honesty",
+"pos": "n",
+"he": "יושר, כנות",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 539,
+"en": "idiom",
+"pos": "n",
+"he": "ביטוי, ניב",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 540,
+"en": "in turn",
+"pos": "",
+"he": "בתורו, בזה אחר זה",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 541,
+"en": "incident",
+"pos": "n",
+"he": "אירוע, תקרית",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 542,
+"en": "laugh",
+"pos": "n",
+"he": "צחוק",
+"family": "laughter",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 543,
+"en": "layer",
+"pos": "n",
+"he": "שכבה",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 544,
+"en": "leave behind sb/sth or leave sb/sth behind",
+"pos": "",
+"he": "להשאיר מאחור, לנטוש",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 545,
+"en": "let out sb/sth or let sb/sth out",
+"pos": "",
+"he": "לשחרר, להוציא",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 546,
+"en": "let sb/sth in / past / through, etc",
+"pos": "",
+"he": "לתת למישהו/משהו להיכנס/לעבור",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 547,
+"en": "light",
+"pos": "v",
+"he": "להדליק, להצית",
+"family": "",
+"meaningEn": "ignite",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 548,
+"en": "lightly",
+"pos": "adv",
+"he": "בקלות, קלות",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 549,
+"en": "liquid",
+"pos": "n, adj",
+"he": "נוזל; נוזלי",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 550,
+"en": "lively",
+"pos": "adj",
+"he": "חי, תוסס, מלא חיים",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 551,
+"en": "load",
+"pos": "v",
+"he": "לטעון, להעמיס; לטעון (מחשב)",
+"family": "download / upload",
+"meaningEn": "computer",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 552,
+"en": "loan",
+"pos": "n, v",
+"he": "הלוואה; להלוות",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 553,
+"en": "log in/on",
+"pos": "",
+"he": "להתחבר, להיכנס (למערכת)",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 554,
+"en": "log off/out",
+"pos": "",
+"he": "להתנתק, לצאת (מהמערכת)",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 555,
+"en": "lonely",
+"pos": "adj",
+"he": "בודד, גלמוד",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 556,
+"en": "look",
+"pos": "n",
+"he": "מבט, מראה, הופעה",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 557,
+"en": "lose interest / patience, etc",
+"pos": "",
+"he": "לאבד עניין/סבלנות וכו'",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 558,
+"en": "maker",
+"pos": "n",
+"he": "יצרן, יוצר",
+"family": "",
+"meaningEn": "manufacturer",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 559,
+"en": "mark",
+"pos": "n",
+"he": "סימן, קו, כתם; ציון",
+"family": "",
+"meaningEn": "line, stain",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 560,
+"en": "marvelous",
+"pos": "adj",
+"he": "נפלא, מופלא",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 561,
+"en": "mayor",
+"pos": "n",
+"he": "ראש עיר",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 562,
+"en": "melt",
+"pos": "v",
+"he": "להמיס, להפשיר",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 563,
+"en": "membership",
+"pos": "n",
+"he": "חברות (במועדון/ארגון)",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 564,
+"en": "message",
+"pos": "n",
+"he": "מסר, הודעה; רעיון חשוב",
+"family": "",
+"meaningEn": "important idea",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 565,
+"en": "might as well",
+"pos": "",
+"he": "לא יזיק גם, אפשר גם",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 566,
+"en": "miss",
+"pos": "n",
+"he": "החטאה, פספוס",
+"family": "",
+"meaningEn": "not a hit",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 567,
+"en": "modest",
+"pos": "adj",
+"he": "צנוע, לא יהיר",
+"family": "",
+"meaningEn": "not proud",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 568,
+"en": "mood",
+"pos": "n",
+"he": "מצב רוח",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 569,
+"en": "name",
+"pos": "n",
+"he": "שם; מוניטין, שם טוב",
+"family": "",
+"meaningEn": "reputation",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 570,
+"en": "off",
+"pos": "adv",
+"he": "כבוי; הנחה במחיר; לא בעבודה",
+"family": "off",
+"meaningEn": "price reduction, not at work",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 571,
+"en": "offense",
+"pos": "n",
+"he": "עבירה; פשע, עוון",
+"family": "",
+"meaningEn": "crime",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 572,
+"en": "(every) once in a while",
+"pos": "",
+"he": "מדי פעם, לעיתים",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 573,
+"en": "or so",
+"pos": "",
+"he": "בערך, או משהו כזה",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 574,
+"en": "organic",
+"pos": "adj",
+"he": "אורגני",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 575,
+"en": "pace",
+"pos": "n",
+"he": "קצב, צעד",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 576,
+"en": "partner",
+"pos": "n",
+"he": "שותף; בן/בת זוג; שותף לעסק/קבוצה",
+"family": "partnership",
+"meaningEn": "business, team member",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 577,
+"en": "pause",
+"pos": "n",
+"he": "הפסקה, השהיה",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 578,
+"en": "peaceful",
+"pos": "adj",
+"he": "שליו, רגוע",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 579,
+"en": "plot",
+"pos": "n",
+"he": "עלילה (של סיפור)",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 580,
+"en": "position",
+"pos": "n",
+"he": "מיקום, עמדה; דרגה; תפקיד (במשחק)",
+"family": "",
+"meaningEn": "rank; part someone plays in game (e.g., football)",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 581,
+"en": "pour",
+"pos": "v",
+"he": "לשפוך; לרדת בחוזקה (גשם)",
+"family": "",
+"meaningEn": "rain",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 582,
+"en": "powder",
+"pos": "n",
+"he": "אבקה",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 583,
+"en": "preposition",
+"pos": "n",
+"he": "מילת יחס (בדקדוק)",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 584,
+"en": "pride",
+"pos": "n",
+"he": "גאווה",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 585,
+"en": "punish",
+"pos": "v",
+"he": "להעניש",
+"family": "punishment",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 586,
+"en": "quarrel",
+"pos": "n, v",
+"he": "מריבה, ויכוח; לריב",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": ""
+},
+{
+"id": 587,
+"en": "quit",
+"pos": "v",
+"he": "להתפטר, לעזוב, להפסיק",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 588,
+"en": "race",
+"pos": "n",
+"he": "גזע, מוצא אתני; מירוץ",
+"family": "racial",
+"meaningEn": "ethnic group",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 589,
+"en": "raw",
+"pos": "adj",
+"he": "גולמי, נא, לא מבושל",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 590,
+"en": "reassure",
+"pos": "v",
+"he": "להרגיע, להפיג חששות",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 591,
+"en": "remain calm/open, etc",
+"pos": "",
+"he": "להישאר רגוע/פתוח וכו'",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 592,
+"en": "reserve",
+"pos": "v",
+"he": "לשמור, להזמין מראש; לשריין",
+"family": "reservation",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 593,
+"en": "server",
+"pos": "n",
+"he": "שרת (במחשוב)",
+"family": "",
+"meaningEn": "computing",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 594,
+"en": "shame",
+"pos": "n",
+"he": "בושה; חרטה, אכזבה; חבל ש-",
+"family": "",
+"meaningEn": "regret, disappointment",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 595,
+"en": "shaming",
+"pos": "n",
+"he": "ביוש, השפלה פומבית",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 596,
+"en": "shelter",
+"pos": "n, v",
+"he": "מקלט, מחסה; להגן, לתת מחסה",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 597,
+"en": "show up",
+"pos": "",
+"he": "להופיע, להגיע (לאירוע)",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 598,
+"en": "side",
+"pos": "n",
+"he": "צד; היבט של משהו/מישהו",
+"family": "",
+"meaningEn": "facet of something or somebody",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 599,
+"en": "sign",
+"pos": "v",
+"he": "לחתום; להסמן",
+"family": "signature",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 600,
+"en": "signal",
+"pos": "n",
+"he": "אות, סימן; רמזור, איתות (תחבורה)",
+"family": "",
+"meaningEn": "traffic, railway etc",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 601,
+"en": "sink",
+"pos": "v",
+"he": "לטבוע, לשקוע",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 602,
+"en": "slip",
+"pos": "v, n",
+"he": "להחליק, למעוד; החלקה, מעידה",
+"family": "",
+"meaningEn": "fall, slide",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 603,
+"en": "smart",
+"pos": "adj",
+"he": "חכם, פיקח; אלגנטי",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 604,
+"en": "smooth",
+"pos": "adj",
+"he": "חלק, חלק",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 605,
+"en": "so did we/so have I/so is mine, etc.",
+"pos": "",
+"he": "גם אנחנו/גם אני וכו' (כך גם)",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 606,
+"en": "some kind of",
+"pos": "",
+"he": "איזשהו, סוג של",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 607,
+"en": "somewhere around / between, etc.",
+"pos": "",
+"he": "בערך סביב/בין וכו'",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 608,
+"en": "sound angry / happy / rude, etc.",
+"pos": "",
+"he": "להישמע כועס/שמח/גס וכו'",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 609,
+"en": "speak about/of sth",
+"pos": "",
+"he": "לדבר על משהו",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 610,
+"en": "special offer",
+"pos": "",
+"he": "מבצע, הצעה מיוחדת",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 611,
+"en": "speed",
+"pos": "n",
+"he": "מהירות",
+"family": "speed limit",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 612,
+"en": "spill",
+"pos": "v",
+"he": "לשפוך (בטעות), לגלוש",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 613,
+"en": "spirit",
+"pos": "n",
+"he": "רוח, נפש; גישה, מורל",
+"family": "",
+"meaningEn": "attitude, morale",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 614,
+"en": "spread",
+"pos": "v, n",
+"he": "להתפשט; להפיץ; מריחה, התפשטות",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 615,
+"en": "stay",
+"pos": "n",
+"he": "שהות, פרק זמן שמבלים במקום",
+"family": "",
+"meaningEn": "period of time you spend in a place",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 616,
+"en": "strengthen",
+"pos": "v",
+"he": "לחזק, להתחזק",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 617,
+"en": "strike",
+"pos": "v, n",
+"he": "להכות; שביתה; לשבות",
+"family": "",
+"meaningEn": "stop work",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 618,
+"en": "strong",
+"pos": "adj",
+"he": "חזק; קשר חזק; נחוש; אישיות חזקה",
+"family": "",
+"meaningEn": "relationship; determined; personality",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 619,
+"en": "struggle",
+"pos": "v, n",
+"he": "להיאבק, להתאמץ; מאבק",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 620,
+"en": "subway",
+"pos": "n",
+"he": "רכבת תחתית, מנהרת מעבר",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 621,
+"en": "suffer from sth",
+"pos": "",
+"he": "לסבול מ-",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 622,
+"en": "super",
+"pos": "adj",
+"he": "מעולה, סופר",
+"family": "superb",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 623,
+"en": "swear",
+"pos": "v",
+"he": "להישבע; להבטיח",
+"family": "",
+"meaningEn": "promise",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 624,
+"en": "suspect",
+"pos": "v, n",
+"he": "לחשוד; חשוד",
+"family": "suspicion / suspicious",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 625,
+"en": "switch",
+"pos": "n",
+"he": "מתג (חשמלי)",
+"family": "",
+"meaningEn": "electrical on-off device",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 626,
+"en": "symbol",
+"pos": "n",
+"he": "סמל",
+"family": "symbolic",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 627,
+"en": "table",
+"pos": "n",
+"he": "שולחן; טבלה, תרשים",
+"family": "",
+"meaningEn": "chart, etc.",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 628,
+"en": "take pleasure/pride/an interest, etc.",
+"pos": "",
+"he": "להפיק הנאה/גאווה/עניין וכו'",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 629,
+"en": "take sb's place",
+"pos": "",
+"he": "לתפוס את מקומו של מישהו",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 630,
+"en": "tear",
+"pos": "v, n",
+"he": "לקרוע; דמעה; קריעה",
+"family": "",
+"meaningEn": "rip",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 631,
+"en": "term",
+"pos": "n",
+"he": "מונח, מושג; תקופה (לימודים); תנאי, כלל",
+"family": "",
+"meaningEn": "rules",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 632,
+"en": "terminal",
+"pos": "n",
+"he": "מסוף, טרמינל",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 633,
+"en": "that kind/sort of thing",
+"pos": "",
+"he": "דברים מסוג זה",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 634,
+"en": "that's it",
+"pos": "",
+"he": "זהו זה, זה הכל",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 635,
+"en": "the following day / morning, etc.",
+"pos": "",
+"he": "ביום/בבוקר שלמחרת",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 636,
+"en": "thief",
+"pos": "n",
+"he": "גנב",
+"family": "theft",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 637,
+"en": "tight",
+"pos": "adj, adv",
+"he": "הדוק, צמוד; בגדים צמודים; מבוקר היטב",
+"family": "",
+"meaningEn": "clothes; firm; controlled",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 638,
+"en": "tip",
+"pos": "n",
+"he": "קצה; עצה, טיפ; תשר",
+"family": "",
+"meaningEn": "piece of advice",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 639,
+"en": "tired of doing sth",
+"pos": "",
+"he": "עייף מלעשות משהו, נמאס לו",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 640,
+"en": "tiring",
+"pos": "adj",
+"he": "מעייף, מתיש",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 641,
+"en": "touch",
+"pos": "n",
+"he": "מגע; מגע; לגעת רגשית",
+"family": "",
+"meaningEn": "act of touching; affect emotionally",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 642,
+"en": "tough",
+"pos": "adj",
+"he": "קשוח, קשה",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 643,
+"en": "trade",
+"pos": "n",
+"he": "מסחר; ענף, מקצוע, אומנות",
+"family": "",
+"meaningEn": "industry, occupation, job",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 644,
+"en": "transfer",
+"pos": "v",
+"he": "להעביר; להעביר (כסף/מקום)",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 645,
+"en": "tribe",
+"pos": "n",
+"he": "שבט",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 646,
+"en": "trick",
+"pos": "n, v",
+"he": "תכסיס, טריק; להערים, לרמות",
+"family": "tricky",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 647,
+"en": "turn (sb/sth) into sb/sth",
+"pos": "",
+"he": "להפוך (מישהו/משהו) ל-",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 648,
+"en": "underline",
+"pos": "v",
+"he": "לקו תחתון; להדגיש",
+"family": "",
+"meaningEn": "emphasize",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 649,
+"en": "union",
+"pos": "n",
+"he": "איגוד, ברית; איגוד עובדים",
+"family": "",
+"meaningEn": "workers",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 650,
+"en": "use",
+"pos": "n, v",
+"he": "שימוש; להשתמש; אופן שימוש במילה",
+"family": "",
+"meaningEn": "the way a word is used; to say or write a particular word",
+"list": "C",
+"rp": ""
+},
+{
+"id": 651,
+"en": "via",
+"pos": "prep",
+"he": "דרך, באמצעות; דרך (מסע); באמצעות",
+"family": "",
+"meaningEn": "journey; using",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 652,
+"en": "victim",
+"pos": "n",
+"he": "קורבן",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 653,
+"en": "warm",
+"pos": "v",
+"he": "לחמם",
+"family": "warmth",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 654,
+"en": "weakness",
+"pos": "n",
+"he": "חולשה, נקודת תורפה",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 655,
+"en": "wear (sth) out or wear out (sth)",
+"pos": "",
+"he": "להתבלות, להישחק",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 656,
+"en": "weather forecast",
+"pos": "",
+"he": "תחזית מזג אוויר",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 657,
+"en": "weigh",
+"pos": "v",
+"he": "לשקול; כובד; לשקול בכובד ראש",
+"family": "",
+"meaningEn": "heaviness; consider carefully",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 658,
+"en": "weird",
+"pos": "adj",
+"he": "מוזר, ביזארי",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 659,
+"en": "whatever",
+"pos": "det, pron",
+"he": "מה שלא יהיה, כל דבר ש-",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 660,
+"en": "Who cares?",
+"pos": "",
+"he": "למי אכפת?; לדאוג לסביבה",
+"family": "care for",
+"meaningEn": "care for the environment",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 661,
+"en": "wise",
+"pos": "adj",
+"he": "חכם, נבון",
+"family": "wisdom",
+"meaningEn": "",
+"list": "C",
+"rp": "Rec"
+},
+{
+"id": 662,
+"en": "wrap",
+"pos": "v",
+"he": "לעטוף; להגן בעטיפה",
+"family": "",
+"meaningEn": "protect",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 663,
+"en": "Yours sincerely",
+"pos": "",
+"he": "בכבוד רב (סיום מכתב)",
+"family": "",
+"meaningEn": "",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 664,
+"en": "will",
+"pos": "n",
+"he": "רצון; כוח רצון, כוח מנטלי; צוואה",
+"family": "",
+"meaningEn": "mental power",
+"list": "C",
+"rp": "Prod"
+},
+{
+"id": 665,
+"en": "a little sth",
+"pos": "",
+"he": "קצת, מעט (משהו)",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 666,
+"en": "aggressive",
+"pos": "adj",
+"he": "תוקפני, אגרסיבי",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 667,
+"en": "air force",
+"pos": "",
+"he": "חיל אוויר",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 668,
+"en": "alarm",
+"pos": "n",
+"he": "אזעקה; שעון מעורר; חרדה",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 669,
+"en": "all is well",
+"pos": "",
+"he": "הכל בסדר",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 670,
+"en": "all over the place",
+"pos": "",
+"he": "בכל מקום, פזור בכל מקום",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 671,
+"en": "ambassador",
+"pos": "n",
+"he": "שגריר",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 672,
+"en": "arrow",
+"pos": "n",
+"he": "חץ; חץ (שלט/סימן)",
+"family": "",
+"meaningEn": "sign",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 673,
+"en": "artistic",
+"pos": "adj",
+"he": "אמנותי",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 674,
+"en": "at fault",
+"pos": "",
+"he": "אשם, באשמה",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 675,
+"en": "bank",
+"pos": "n",
+"he": "גדה (של נהר)",
+"family": "",
+"meaningEn": "river",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 676,
+"en": "bank account",
+"pos": "",
+"he": "חשבון בנק",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 677,
+"en": "bargain",
+"pos": "n",
+"he": "מציאה, עסקה טובה; מקח",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 678,
+"en": "base",
+"pos": "n",
+"he": "בסיס; בסיס (צבאי)",
+"family": "",
+"meaningEn": "military",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 679,
+"en": "bay",
+"pos": "n",
+"he": "מפרץ",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 680,
+"en": "be expecting (a baby)",
+"pos": "",
+"he": "בהיריון (מצפה לתינוק)",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 681,
+"en": "believe it or not",
+"pos": "",
+"he": "תאמין או לא",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 682,
+"en": "bell",
+"pos": "n",
+"he": "פעמון",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 683,
+"en": "bench",
+"pos": "n",
+"he": "ספסל",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 684,
+"en": "blow up (sth/sb) or blow (sth/sb) up",
+"pos": "",
+"he": "לפוצץ; להתפוצץ",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 685,
+"en": "boiled",
+"pos": "adj",
+"he": "מבושל",
+"family": "boiling",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 686,
+"en": "brake",
+"pos": "v, n",
+"he": "לבלום; בלם",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 687,
+"en": "branch",
+"pos": "n",
+"he": "ענף; סניף (של עסק)",
+"family": "",
+"meaningEn": "business",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 688,
+"en": "brick",
+"pos": "n",
+"he": "לבנה",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 689,
+"en": "bucket",
+"pos": "n",
+"he": "דלי",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 690,
+"en": "bug",
+"pos": "n",
+"he": "חרק, באג; חיידק; תקלה (במחשב)",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 691,
+"en": "bull",
+"pos": "n",
+"he": "שור",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 692,
+"en": "bunch",
+"pos": "n",
+"he": "צרור, אשכול, חבורה",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 693,
+"en": "burst into tears",
+"pos": "",
+"he": "לפרוץ בבכי",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 694,
+"en": "bury",
+"pos": "v",
+"he": "לקבור",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 695,
+"en": "butcher",
+"pos": "n",
+"he": "קצב",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 696,
+"en": "cab",
+"pos": "n",
+"he": "מונית",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 697,
+"en": "cabin",
+"pos": "n",
+"he": "בקתה; תא (במטוס/ספינה)",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 698,
+"en": "catalog/catalogue",
+"pos": "n",
+"he": "קטלוג",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 699,
+"en": "cave",
+"pos": "n",
+"he": "מערה",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 700,
+"en": "certificate",
+"pos": "n",
+"he": "תעודה, אישור",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 701,
+"en": "charge",
+"pos": "v",
+"he": "לטעון (חשמל); לגבות תשלום; להאשים",
+"family": "",
+"meaningEn": "energy supply",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 702,
+"en": "check in/check out",
+"pos": "v",
+"he": "להירשם בכניסה/לבצע יציאה (מלון)",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 703,
+"en": "Cheers!",
+"pos": "exclam",
+"he": "לחיים! (הרמת כוסית)",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 704,
+"en": "cold",
+"pos": "adj",
+"he": "קר; קר, לא ידידותי",
+"family": "",
+"meaningEn": "unfriendly",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 705,
+"en": "collar",
+"pos": "n",
+"he": "צווארון",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 706,
+"en": "crash",
+"pos": "v, n",
+"he": "להתרסק, להתנגש; התרסקות, התנגשות",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 707,
+"en": "cross",
+"pos": "n",
+"he": "צלב; סימן איקס",
+"family": "",
+"meaningEn": "symbol",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 708,
+"en": "customs",
+"pos": "n",
+"he": "מכס; מנהגים",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 709,
+"en": "date",
+"pos": "n",
+"he": "תאריך; דייט, פגישה רומנטית",
+"family": "",
+"meaningEn": "going out",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 710,
+"en": "deck",
+"pos": "n",
+"he": "סיפון (של ספינה); חפיסת קלפים",
+"family": "",
+"meaningEn": "floor on ship",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 711,
+"en": "defeat",
+"pos": "v, n",
+"he": "להביס, לנצח; תבוסה",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 712,
+"en": "devil",
+"pos": "n",
+"he": "שטן, שד",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 713,
+"en": "diagram",
+"pos": "n",
+"he": "דיאגרמה, תרשים",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 714,
+"en": "difficult",
+"pos": "adj",
+"he": "קשה; קשה (אופי לא ידידותי)",
+"family": "",
+"meaningEn": "not friendly",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 715,
+"en": "dishonest",
+"pos": "adj",
+"he": "לא ישר, לא הוגן",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 716,
+"en": "disk",
+"pos": "n",
+"he": "דיסק",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 717,
+"en": "divorce",
+"pos": "n",
+"he": "גירושין",
+"family": "divorced",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 718,
+"en": "Don't ask me!",
+"pos": "",
+"he": "אל תשאל אותי! (לא יודע)",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 719,
+"en": "Don't ask!",
+"pos": "",
+"he": "אל תשאל! (היה נורא)",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 720,
+"en": "dreadful",
+"pos": "adj",
+"he": "נורא, איום",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 721,
+"en": "drink",
+"pos": "v",
+"he": "לשתות; לשתות אלכוהול",
+"family": "",
+"meaningEn": "alchohol",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 722,
+"en": "drive",
+"pos": "n",
+"he": "לנהוג; כונן (במחשב)",
+"family": "",
+"meaningEn": "computer",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 723,
+"en": "drop",
+"pos": "n",
+"he": "טיפה (נוזל)",
+"family": "",
+"meaningEn": "liquid",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 724,
+"en": "drunk",
+"pos": "adj",
+"he": "שיכור",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 725,
+"en": "elbow",
+"pos": "n",
+"he": "מרפק",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 726,
+"en": "engagement",
+"pos": "n",
+"he": "אירוסין; התחייבות, מחויבות",
+"family": "engaged",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 727,
+"en": "explode",
+"pos": "v",
+"he": "להתפוצץ, לפוצץ",
+"family": "explosion",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 728,
+"en": "fall in love",
+"pos": "",
+"he": "להתאהב",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 729,
+"en": "fasten",
+"pos": "v",
+"he": "לחגור, לרכוס, להדק",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 730,
+"en": "fly",
+"pos": "n",
+"he": "זבוב (חרק)",
+"family": "",
+"meaningEn": "insect",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 731,
+"en": "folk",
+"pos": "n, adj",
+"he": "עם, פולק; עממי",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 732,
+"en": "fool",
+"pos": "n",
+"he": "טיפש, שוטה",
+"family": "foolish",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 733,
+"en": "for fun or for the fun of it",
+"pos": "",
+"he": "בשביל הכיף, להנאה",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 734,
+"en": "force",
+"pos": "n",
+"he": "כוח; גוף אנשים (כוח, יחידה)",
+"family": "",
+"meaningEn": "group of people",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 735,
+"en": "forehead",
+"pos": "n",
+"he": "מצח",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 736,
+"en": "forgetful",
+"pos": "adj",
+"he": "שכחן, נוטה לשכוח",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 737,
+"en": "garage",
+"pos": "n",
+"he": "מוסך (עסק); חניה",
+"family": "",
+"meaningEn": "business",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 738,
+"en": "gate",
+"pos": "n",
+"he": "שער; שער (בשדה תעופה)",
+"family": "",
+"meaningEn": "airport",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 739,
+"en": "gentleman",
+"pos": "n",
+"he": "ג'נטלמן, איש מהוגן",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 740,
+"en": "get away with sth",
+"pos": "",
+"he": "לצאת מזה ללא עונש, להתחמק מעונש",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 741,
+"en": "get in",
+"pos": "",
+"he": "להיכנס; להגיע",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 742,
+"en": "ghost",
+"pos": "n",
+"he": "רוח רפאים, שד",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 743,
+"en": "giant",
+"pos": "n, adj",
+"he": "ענק; ענק (תואר)",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 744,
+"en": "grow tired/old/calm, etc.",
+"pos": "",
+"he": "להתעייף/להזדקן/להירגע וכו' (להפוך בהדרגה)",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 745,
+"en": "hang about/around",
+"pos": "",
+"he": "להסתובב, להתבטל",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 746,
+"en": "hang out",
+"pos": "",
+"he": "לבלות, להסתובב (עם חברים)",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 747,
+"en": "harbor",
+"pos": "n",
+"he": "נמל",
+"family": "harbour",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 748,
+"en": "heaven",
+"pos": "n",
+"he": "גן עדן, שמיים",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 749,
+"en": "heel",
+"pos": "n",
+"he": "עקב",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 750,
+"en": "hell",
+"pos": "n",
+"he": "גיהינום",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 751,
+"en": "horror",
+"pos": "n",
+"he": "אימה, זוועה",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 752,
+"en": "hunt",
+"pos": "v",
+"he": "לצוד; לרדוף, לחפש",
+"family": "",
+"meaningEn": "chase",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 753,
+"en": "hurry up sb/sth or hurry sb/sth up",
+"pos": "",
+"he": "לזרז מישהו/משהו",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 754,
+"en": "hut",
+"pos": "n",
+"he": "בקתה, צריף",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 755,
+"en": "immoral",
+"pos": "adj",
+"he": "לא מוסרי",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 756,
+"en": "in tears",
+"pos": "",
+"he": "בדמעות, בוכה",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 757,
+"en": "initial",
+"pos": "n",
+"he": "ראשון תיבות; אות (באלפבית)",
+"family": "",
+"meaningEn": "letter of alphabet",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 758,
+"en": "insult",
+"pos": "v",
+"he": "להעליב",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 759,
+"en": "insurance",
+"pos": "n",
+"he": "ביטוח",
+"family": "insure",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 760,
+"en": "iron",
+"pos": "v, n",
+"he": "לגהץ; ברזל; מגהץ",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 761,
+"en": "jog",
+"pos": "v",
+"he": "לרוץ קלות, לעשות ג'וגינג",
+"family": "jogging",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 762,
+"en": "jump",
+"pos": "v",
+"he": "לקפוץ; לקפוץ (מבהלה)",
+"family": "",
+"meaningEn": "to make a sudden movement (in fright)",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 763,
+"en": "jury",
+"pos": "n",
+"he": "חבר מושבעים, חבר שופטים",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 764,
+"en": "knit",
+"pos": "v",
+"he": "לסרוג",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 765,
+"en": "laser",
+"pos": "n",
+"he": "לייזר",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 766,
+"en": "lead",
+"pos": "n",
+"he": "מוביל, מקדימה (בתחרות)",
+"family": "",
+"meaningEn": "winning",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 767,
+"en": "learning",
+"pos": "n",
+"he": "למידה, לימוד",
+"family": "learned",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 768,
+"en": "lightning",
+"pos": "n",
+"he": "ברק",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 769,
+"en": "literary",
+"pos": "adj",
+"he": "ספרותי",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 770,
+"en": "loaf",
+"pos": "n",
+"he": "כיכר לחם",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 771,
+"en": "loose",
+"pos": "adj",
+"he": "רופף, משוחרר; רחב (בגד)",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 772,
+"en": "madam",
+"pos": "n",
+"he": "גברתי (פנייה מנומסת לאישה)",
+"family": "",
+"meaningEn": "polite way of speaking to a woman",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 773,
+"en": "magnificent",
+"pos": "adj",
+"he": "מפואר, נהדר",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 774,
+"en": "make",
+"pos": "v",
+"he": "לעשות; להגיע (בזמן)",
+"family": "",
+"meaningEn": "arrive",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 775,
+"en": "marriage",
+"pos": "n",
+"he": "נישואין",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 776,
+"en": "mask",
+"pos": "n",
+"he": "מסכה",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 777,
+"en": "mate",
+"pos": "n",
+"he": "חבר; בן/בת זוג (חיה)",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 778,
+"en": "mess",
+"pos": "n",
+"he": "בלגן, אי-סדר",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 779,
+"en": "mineral water",
+"pos": "",
+"he": "מים מינרליים",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 780,
+"en": "mix up sb/sth or mix sb/sth up",
+"pos": "",
+"he": "לבלבל, להחליף בטעות",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 781,
+"en": "monster",
+"pos": "n",
+"he": "מפלצת",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 782,
+"en": "moral",
+"pos": "n",
+"he": "מוסר השכל; ערך מוסרי",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 783,
+"en": "naked",
+"pos": "adj",
+"he": "עירום",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 784,
+"en": "nasty",
+"pos": "adj",
+"he": "מרושע, מגעיל; נורא",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 785,
+"en": "navy",
+"pos": "n",
+"he": "חיל הים",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 786,
+"en": "neat",
+"pos": "adj",
+"he": "מסודר, נקי",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 787,
+"en": "next door",
+"pos": "",
+"he": "שכן, ליד",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 788,
+"en": "not believe your eyes/ears",
+"pos": "",
+"he": "לא להאמין למראה עיניך/לשמיעת אוזניך",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 789,
+"en": "nut",
+"pos": "n",
+"he": "אגוז; אום (ברגים); משוגע",
+"family": "peanut",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 790,
+"en": "on a diet",
+"pos": "",
+"he": "בדיאטה",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 791,
+"en": "on board",
+"pos": "",
+"he": "על הסיפון, במטוס/אונייה",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 792,
+"en": "on display",
+"pos": "",
+"he": "מוצג, בתצוגה",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 793,
+"en": "on duty/off duty",
+"pos": "",
+"he": "במשמרת/בתורנות / לא בתורנות",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 794,
+"en": "orchestra",
+"pos": "n",
+"he": "תזמורת",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 795,
+"en": "pack",
+"pos": "n",
+"he": "חבילה; חפיסה; להק, עדר",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 796,
+"en": "painful",
+"pos": "adj",
+"he": "כואב, מכאיב",
+"family": "painless",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 797,
+"en": "pale",
+"pos": "adj",
+"he": "חיוור",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 798,
+"en": "passage",
+"pos": "n",
+"he": "מעבר, מסדרון; קטע (בטקסט)",
+"family": "",
+"meaningEn": "connecting way (e.g., hallway, tunnel)",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 799,
+"en": "pavement",
+"pos": "n",
+"he": "מדרכה",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 800,
+"en": "peak",
+"pos": "n",
+"he": "פסגה, שיא",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 801,
+"en": "penalty",
+"pos": "n",
+"he": "עונש; פנדל, בעיטת עונשין",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 802,
+"en": "pill",
+"pos": "n",
+"he": "כדור (תרופה), גלולה",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 803,
+"en": "pin",
+"pos": "n",
+"he": "סיכה, נעץ",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 804,
+"en": "pity",
+"pos": "n",
+"he": "רחמים, חמלה; חבל ש-",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 805,
+"en": "pray",
+"pos": "v",
+"he": "להתפלל",
+"family": "prayer",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 806,
+"en": "pregnant",
+"pos": "adj",
+"he": "בהיריון, הרה",
+"family": "pregnancy",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 807,
+"en": "priest",
+"pos": "n",
+"he": "כומר, כוהן",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 808,
+"en": "propose",
+"pos": "v",
+"he": "להציע; להציע נישואין",
+"family": "proposal",
+"meaningEn": "suggest marriage",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 809,
+"en": "pump",
+"pos": "n, v",
+"he": "משאבה; לשאוב",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 810,
+"en": "queue",
+"pos": "n",
+"he": "תור, שורה (של אנשים); להמתין בתור",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 811,
+"en": "racket",
+"pos": "n",
+"he": "מחבט (בספורט)",
+"family": "",
+"meaningEn": "sport",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 812,
+"en": "rainbow",
+"pos": "n",
+"he": "קשת בענן",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 813,
+"en": "range",
+"pos": "n",
+"he": "טווח; רכס הרים",
+"family": "",
+"meaningEn": "mountains",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 814,
+"en": "refund",
+"pos": "n, v",
+"he": "החזר כספי; להחזיר כסף",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 815,
+"en": "regards",
+"pos": "n",
+"he": "דרישת שלום, ברכות",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 816,
+"en": "republic",
+"pos": "n",
+"he": "רפובליקה",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 817,
+"en": "resort",
+"pos": "n",
+"he": "אתר נופש; מפלט אחרון",
+"family": "resort",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 818,
+"en": "rob",
+"pos": "v",
+"he": "לשדוד",
+"family": "robber",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 819,
+"en": "romantic",
+"pos": "adj",
+"he": "רומנטי",
+"family": "romance",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 820,
+"en": "rope",
+"pos": "n",
+"he": "חבל",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 821,
+"en": "rub out sth or rub sth out",
+"pos": "",
+"he": "למחוק (במחק)",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 822,
+"en": "rubber",
+"pos": "n",
+"he": "גומי (חומר); מחק",
+"family": "",
+"meaningEn": "substance",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 823,
+"en": "rubbish",
+"pos": "n",
+"he": "זבל, אשפה; באיכות גרועה, שטויות",
+"family": "",
+"meaningEn": "waste; bad quality",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 824,
+"en": "rude",
+"pos": "adj",
+"he": "גס רוח, חצוף",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 825,
+"en": "scandal",
+"pos": "n",
+"he": "שערורייה, שערורייה",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 826,
+"en": "scratch",
+"pos": "n, v",
+"he": "לשרוט; שריטה; לגרד",
+"family": "",
+"meaningEn": "hurt, damage",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 827,
+"en": "sculpture",
+"pos": "n",
+"he": "פסל, פיסול",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 828,
+"en": "see off sb or see sb off",
+"pos": "",
+"he": "ללוות מישהו (בעת פרידה/יציאה)",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 829,
+"en": "selfish",
+"pos": "",
+"he": "אנוכי, אגואיסט",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 830,
+"en": "separate",
+"pos": "v",
+"he": "להיפרד, לחיות בנפרד (זוג)",
+"family": "",
+"meaningEn": "husband/wife",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 831,
+"en": "shade",
+"pos": "n",
+"he": "צל; גוון, צבע",
+"family": "",
+"meaningEn": "no sunlight",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 832,
+"en": "shake your head",
+"pos": "",
+"he": "לנענע את הראש (לסירוב)",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 833,
+"en": "shave",
+"pos": "v, n",
+"he": "להתגלח; גילוח",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 834,
+"en": "shore",
+"pos": "n",
+"he": "חוף, גדה",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 835,
+"en": "show sb around / round",
+"pos": "",
+"he": "להראות למישהו את המקום, לערוך סיור",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 836,
+"en": "shut (sb) up",
+"pos": "",
+"he": "לשתוק, לסתום (פה)",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 837,
+"en": "sidewalk",
+"pos": "n",
+"he": "מדרכה",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 838,
+"en": "sigh",
+"pos": "v, n",
+"he": "לאנוח; אנחה",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 839,
+"en": "silk",
+"pos": "n",
+"he": "משי",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 840,
+"en": "sit up/stand up straight",
+"pos": "",
+"he": "לשבת/לעמוד זקוף",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 841,
+"en": "slave",
+"pos": "n",
+"he": "עבד",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 842,
+"en": "sleeve",
+"pos": "n",
+"he": "שרוול",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 843,
+"en": "sore",
+"pos": "adj",
+"he": "כואב, רגיש (כאב)",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 844,
+"en": "split up",
+"pos": "",
+"he": "להיפרד, להתפצל",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 845,
+"en": "sportsman",
+"pos": "n",
+"he": "ספורטאי",
+"family": "sportswoman",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 846,
+"en": "spot",
+"pos": "v",
+"he": "להבחין, לזהות, לאתר",
+"family": "",
+"meaningEn": "notice",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 847,
+"en": "spy",
+"pos": "n, v",
+"he": "מרגל; לרגל",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 848,
+"en": "squeeze",
+"pos": "v, n",
+"he": "לסחוט, ללחוץ; סחיטה, לחיצה",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 849,
+"en": "stare",
+"pos": "v, n",
+"he": "לבהות; מבט נעוץ",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 850,
+"en": "stay over",
+"pos": "",
+"he": "ללון, להישאר ללינה",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 851,
+"en": "stay up",
+"pos": "",
+"he": "להישאר ער, לא ללכת לישון",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 852,
+"en": "steep",
+"pos": "adj",
+"he": "תלול",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 853,
+"en": "step back / forward / over, etc.",
+"pos": "",
+"he": "לצעוד אחורה/קדימה/מעל וכו'",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 854,
+"en": "step on/in sth",
+"pos": "",
+"he": "לדרוך על/ב- משהו",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 855,
+"en": "stick",
+"pos": "n",
+"he": "מקל, ענף קצר",
+"family": "",
+"meaningEn": "short branch, rod",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 856,
+"en": "strangely enough",
+"pos": "",
+"he": "באופן מוזר, למרבה הפלא",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 857,
+"en": "stream",
+"pos": "n",
+"he": "נחל, פלג",
+"family": "",
+"meaningEn": "small river",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 858,
+"en": "stretch",
+"pos": "v, n",
+"he": "למתוח, להימתח; מתיחה, הרחבה",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 859,
+"en": "strict",
+"pos": "adj",
+"he": "מחמיר, קפדן, נוקשה",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 860,
+"en": "string",
+"pos": "n",
+"he": "חוט; מיתר (כלי נגינה)",
+"family": "",
+"meaningEn": "thin rope; musical instrument",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 861,
+"en": "stripe",
+"pos": "n",
+"he": "פס",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 862,
+"en": "suit",
+"pos": "v",
+"he": "להתאים, להחמיא (בלבוש)",
+"family": "",
+"meaningEn": "look attractive",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 863,
+"en": "swear",
+"pos": "v",
+"he": "לקלל, לגדף",
+"family": "",
+"meaningEn": "curse",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 864,
+"en": "sweep",
+"pos": "v",
+"he": "לטאטא",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 865,
+"en": "sword",
+"pos": "n",
+"he": "חרב",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 866,
+"en": "tail",
+"pos": "n",
+"he": "זנב",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 867,
+"en": "take a risk",
+"pos": "",
+"he": "לקחת סיכון, להסתכן",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 868,
+"en": "take sb out or take out sb",
+"pos": "",
+"he": "להוציא מישהו (לבילוי)",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 869,
+"en": "tap",
+"pos": "n",
+"he": "ברז",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 870,
+"en": "temple",
+"pos": "n",
+"he": "מקדש, מקום פולחן",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 871,
+"en": "territory",
+"pos": "n",
+"he": "שטח, טריטוריה",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 872,
+"en": "terror",
+"pos": "n",
+"he": "טרור, אימה",
+"family": "terrorism / terrorist /",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 873,
+"en": "tie sb/sth up or tie up sb/sth",
+"pos": "",
+"he": "לקשור מישהו/משהו",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 874,
+"en": "tournament",
+"pos": "n",
+"he": "טורניר, אליפות",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 875,
+"en": "track",
+"pos": "n",
+"he": "מסלול (אתלטיקה); שביל",
+"family": "",
+"meaningEn": "athletics",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 876,
+"en": "tragedy",
+"pos": "n",
+"he": "טרגדיה, אסון",
+"family": "tragic",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 877,
+"en": "triangle",
+"pos": "n",
+"he": "משולש",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 878,
+"en": "tube",
+"pos": "n",
+"he": "צינור; שפופרת; הרכבת התחתית (בלונדון)",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 879,
+"en": "undressed",
+"pos": "adj",
+"he": "מופשט, עירום",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 880,
+"en": "unpack",
+"pos": "v",
+"he": "לפרוק (מזוודות)",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 881,
+"en": "van",
+"pos": "n",
+"he": "טנדר, מסחרית",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 882,
+"en": "verse",
+"pos": "n",
+"he": "בית, חרוז (בשיר/שיר); חלק משיר",
+"family": "",
+"meaningEn": "poetry; part of poem, song",
+"list": "D",
+"rp": "Rec"
+},
+{
+"id": 883,
+"en": "weapon",
+"pos": "n",
+"he": "נשק",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 884,
+"en": "web",
+"pos": "n",
+"he": "רשת (קורי עכביש)",
+"family": "",
+"meaningEn": "spider",
+"list": "D",
+"rp": "Prod"
+},
+{
+"id": 885,
+"en": "wheat",
+"pos": "n",
+"he": "חיטה",
+"family": "",
+"meaningEn": "",
+"list": "D",
+"rp": "Prod"
+}
+]
+}
