@@ -68,9 +68,9 @@
 - **Repositories:** `friendly-waddle` · **Environment:** Default · **Trigger:** `Daily` (למשל 06:30).
 - מה היא עושה: יוצרת קטע קריאה אחד באנגלית (~5 דק', רמת בגרות) עם מילון ושאלות, שומרת ל-`readings/` ודוחפת ל-`main`. מופיע בטאב לימוד → אנגלית ככרטיס "קריאת הבוקר".
 
-### שגרה 2 — שיעור פיננסי חדש (שבועי) 💰
-- **Prompt:** `קרא את הקובץ weekly-finance-prompt.md מהריפו ובצע את ההוראות שבו במלואן.`
-- **Repositories:** `friendly-waddle` · **Environment:** Default · **Trigger:** `Weekly` (יום ושעה לבחירתך).
+### שגרה 2 — שיעור פיננסי חדש (יומי) 💰
+- **Prompt:** `קרא את הקובץ daily-finance-prompt.md מהריפו ובצע את ההוראות שבו במלואן.`
+- **Repositories:** `friendly-waddle` · **Environment:** Default · **Trigger:** `Daily` (שעה לבחירתך).
 - מה היא עושה: מוסיפה שיעור פיננסי מתקדם חדש ל-`app/data/finance.json` ודוחפת ל-`main` — כך המסלול גדל ולא חוזר על עצמו.
 
 > שתיהן מוגדרות בדיוק כמו שגרת הבוקר (חלק א'), רק עם ה-Prompt והתדירות שלמעלה.
@@ -78,12 +78,12 @@
 ## קבצים בריפו
 - `daily-briefing-prompt.md` — הוראות שגרת תדריך הבוקר (תוספים/אימון/תזונה).
 - `daily-reading-prompt.md` — הוראות שגרת קריאת הבוקר באנגלית.
-- `weekly-finance-prompt.md` — הוראות שגרת השיעור הפיננסי השבועי.
+- `daily-finance-prompt.md` — הוראות שגרת השיעור הפיננסי היומי.
 - `SETUP.md` — המדריך הזה.
 - `app/` — אפליקציית ה-PWA (האייפון).
 - `briefings/` — תדריכי הבוקר (`<תאריך>.md`) + `index.json`.
 - `readings/` — קריאות הבוקר באנגלית (`<תאריך>.md`) + `index.json`.
-- `app/data/finance.json` — שיעורי המסלול הפיננסי (גדל שבועית).
+- `app/data/finance.json` — שיעורי המסלול הפיננסי (גדל מדי יום).
 - `app/data/vocab.json` — 886 מילים לבגרות (קבוע).
 
 ## תיעוד רשמי
