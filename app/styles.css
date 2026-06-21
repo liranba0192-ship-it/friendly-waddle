@@ -575,3 +575,8 @@ body { background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, 
 .fin-today-cta { margin-top: 10px; text-align: center; font-weight: 700; color: var(--accent); font-size: 14px; }
 .lesson-today { border-color: var(--accent); }
 .lesson-todaytag { font-size: 10px; background: var(--accent); color: var(--accent-ink); border-radius: 6px; padding: 1px 6px; font-weight: 700; }
+/* קריאת הבוקר (אנגלית) */
+.reading-card .fin-today-tag { color: var(--accent); }
+.reading-article { direction: ltr; text-align: left; }
+.reading-article h1, .reading-article h2, .reading-article h3 { text-align: left; }
+.reading-article .glossary, .reading-article blockquote { direction: rtl; text-align: right; }

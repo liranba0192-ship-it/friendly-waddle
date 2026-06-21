@@ -6,7 +6,7 @@ window.App = window.App || {};
 App.learn = (function () {
   const U = App.util, S = App.store;
   let root;
-  let words = [], lessons = [], loaded = false;
+  let words = [], lessons = [], readings = [], loaded = false;
   let section = "en";                 // en | finance
   let view = { kind: "home" };        // home | practice | lesson({id})
   const BATCH = 10;
@@ -34,7 +34,18 @@ App.learn = (function () {
       words = v.words || [];
       lessons = f.lessons || [];
     } catch { words = []; lessons = []; }
+    // קריאת הבוקר (נוצרת ע"י routine יומי) — טעינה נפרדת כדי שכשל לא יפיל את השאר
+    try {
+      const r = await fetch(`../readings/index.json?ts=${Date.now()}`, { cache: "no-cache" });
+      if (r.ok) readings = (await r.json()).readings || [];
+    } catch { readings = []; }
     loaded = true;
+  }
+
+  function todaysReading() {
+    if (!readings.length) return null;
+    const sorted = readings.slice().sort((a, b) => b.date.localeCompare(a.date));
+    return sorted.find((r) => r.date === U.todayISO()) || sorted[0];
   }
 
   function curBatchWords() {
@@ -49,6 +60,7 @@ App.learn = (function () {
 
   function render() {
     if (section === "en" && view.kind === "practice") return renderPractice();
+    if (section === "en" && view.kind === "reading") return renderReading(view.file);
     if (section === "finance" && view.kind === "lesson") return renderLesson(view.id);
     renderHome();
   }
@@ -128,7 +140,22 @@ App.learn = (function () {
 
     const markedCount = list.filter((w) => marks[String(w.id)]).length;
 
+    const rd = todaysReading();
+    const readingCard = rd ? `
+      <button class="card-block fin-today reading-card" data-reading="${U.esc(rd.file)}">
+        <div class="fin-today-tag">📖 קריאת הבוקר · ~5 דק'</div>
+        <div class="fin-today-row">
+          <span class="fin-today-ico">📰</span>
+          <div>
+            <div class="fin-today-title">${U.esc(rd.title || "Daily Reading")}</div>
+            <div class="fin-today-tip">${rd.date === today ? "חדש להיום" : U.prettyDate(rd.date)} · קריאה באנגלית לתרגול</div>
+          </div>
+        </div>
+        <div class="fin-today-cta">קרא עכשיו ←</div>
+      </button>` : "";
+
     return `
+      ${readingCard}
       <div class="card-block learn-intro">
         <h3>🔤 המנה היומית — 10 מילים</h3>
         <p class="section-hint">סמן ✅ אם הבנת, או ❌ אם לא — ואז יופיע התרגום + תרגול. מנה ${batch + 1} מתוך ${totalBatches}.</p>
@@ -173,6 +200,27 @@ App.learn = (function () {
     });
     const pr = root.querySelector("#en-practice");
     if (pr) pr.addEventListener("click", () => { view = { kind: "practice" }; render(); });
+    const rd = root.querySelector("[data-reading]");
+    if (rd) rd.addEventListener("click", () => { view = { kind: "reading", file: rd.dataset.reading }; render(); });
+  }
+
+  // ----- קריאת הבוקר (Markdown מתוך readings/) -----
+  async function renderReading(file) {
+    root.innerHTML = `
+      <button id="rd-back" class="btn-secondary">‹ חזרה</button>
+      <div class="card-block lesson-body reading-article" id="rd-article"><p class="status">טוען…</p></div>`;
+    root.querySelector("#rd-back").addEventListener("click", () => { view = { kind: "home" }; render(); });
+    try {
+      const res = await fetch(`../readings/${file}?ts=${Date.now()}`, { cache: "no-cache" });
+      if (!res.ok) throw new Error();
+      const md = await res.text();
+      const art = root.querySelector("#rd-article");
+      art.innerHTML = window.marked ? window.marked.parse(md) : `<pre>${U.esc(md)}</pre>`;
+      art.querySelectorAll("a[href^='http']").forEach((a) => { a.target = "_blank"; a.rel = "noopener noreferrer"; });
+    } catch {
+      const art = root.querySelector("#rd-article");
+      if (art) art.innerHTML = `<p class="status">לא ניתן לטעון את הקריאה 😕</p>`;
+    }
   }
 
   // ----- practice (multiple choice over the review pool) -----
