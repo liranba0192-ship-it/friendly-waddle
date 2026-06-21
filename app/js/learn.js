@@ -60,7 +60,20 @@ App.learn = (function () {
     </div>`;
   }
 
+  // מתקדם אוטומטית ל-10 הבאות בכל יום קלנדרי חדש — כדי שלא נחזור על אותן מילים מאתמול
+  function ensureDailyBatch() {
+    const d = raw();
+    const today = U.todayISO();
+    if (!d.batchDate) { d.batchDate = today; save(d); return; }
+    if (d.batchDate !== today) {
+      d.batch = (d.batch || 0) + 1;   // יום חדש = מנה חדשה (10 מילים חדשות)
+      d.batchDate = today;
+      save(d);
+    }
+  }
+
   function renderHome() {
+    if (section === "en") ensureDailyBatch();
     root.innerHTML = sectionTabs() + (section === "en" ? enHomeHTML() : financeHomeHTML());
     root.querySelectorAll("#learn-seg button").forEach((b) =>
       b.addEventListener("click", () => { section = b.dataset.sec; view = { kind: "home" }; render(); })
@@ -114,10 +127,12 @@ App.learn = (function () {
       </div>
       <div class="vocab-list">${cards}</div>
       <div class="row-btns">
-        <button id="en-next" class="btn-primary">${doneToday && markedCount === list.length ? "✅ סיימת להיום — ל-10 הבאות" : "➡️ ל-10 הבאות"}</button>
-        ${pool.length ? `<button id="en-practice" class="btn-secondary">🎯 תרגול (${pool.length})</button>` : ""}
+        <button id="en-next" class="btn-secondary">➕ עוד 10 מילים עכשיו</button>
+        ${pool.length ? `<button id="en-practice" class="btn-primary">🎯 תרגול (${pool.length})</button>` : ""}
       </div>
-      ${doneToday ? `<p class="section-hint center">מעולה! השלמת את המנה של היום 🎉 אפשר להמשיך או לחזור מחר.</p>` : ""}
+      ${doneToday && markedCount === list.length
+        ? `<p class="section-hint center">מעולה! סיימת את המנה של היום 🎉 מחר יחכו לך 10 מילים חדשות אוטומטית.</p>`
+        : `<p class="section-hint center">⏭️ מחר תקבל אוטומטית 10 מילים חדשות — בלי חזרה על היום.</p>`}
     `;
   }
 
@@ -137,7 +152,10 @@ App.learn = (function () {
     );
     const next = root.querySelector("#en-next");
     if (next) next.addEventListener("click", () => {
-      const d = raw(); d.batch = (d.batch || 0) + 1; save(d);
+      const d = raw();
+      d.batch = (d.batch || 0) + 1;
+      d.batchDate = U.todayISO(); // עדכון ידני היום → מחר עדיין יתקדם פעם אחת נוספת
+      save(d);
       window.scrollTo(0, 0); renderHome();
     });
     const pr = root.querySelector("#en-practice");
