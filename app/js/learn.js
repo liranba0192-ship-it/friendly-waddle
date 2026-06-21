@@ -72,8 +72,21 @@ App.learn = (function () {
     }
   }
 
+  // שיעור פיננסי יומי — מתקדם אוטומטית בכל יום קלנדרי חדש, בלי לחזור על אתמול
+  function ensureDailyLesson() {
+    const d = raw();
+    const today = U.todayISO();
+    if (!d.finDate) { d.finDay = d.finDay || 0; d.finDate = today; save(d); return; }
+    if (d.finDate !== today) {
+      d.finDay = ((d.finDay || 0) + 1) % Math.max(lessons.length, 1); // יום חדש = שיעור הבא
+      d.finDate = today;
+      save(d);
+    }
+  }
+
   function renderHome() {
     if (section === "en") ensureDailyBatch();
+    if (section === "finance") ensureDailyLesson();
     root.innerHTML = sectionTabs() + (section === "en" ? enHomeHTML() : financeHomeHTML());
     root.querySelectorAll("#learn-seg button").forEach((b) =>
       b.addEventListener("click", () => { section = b.dataset.sec; view = { kind: "home" }; render(); })
@@ -231,27 +244,45 @@ App.learn = (function () {
 
   // ========== FINANCE ==========
   function financeHomeHTML() {
-    const done = raw().doneLessons || [];
+    const d = raw();
+    const done = d.doneLessons || [];
+    const finDay = d.finDay || 0;
+    const todayLesson = lessons[finDay];
     const items = lessons.map((l, i) => {
       const isDone = done.includes(l.id);
+      const isToday = i === finDay;
       return `
-        <button class="list-card lesson-card" data-lesson="${l.id}">
+        <button class="list-card lesson-card${isToday ? " lesson-today" : ""}" data-lesson="${l.id}">
           <div class="lesson-ico">${l.icon}</div>
           <div class="lc-main">
-            <div class="lc-title">${i + 1}. ${U.esc(l.title)} ${isDone ? '<span class="lesson-done">✓</span>' : ""}</div>
+            <div class="lc-title">${i + 1}. ${U.esc(l.title)} ${isDone ? '<span class="lesson-done">✓</span>' : ""}${isToday ? ' <span class="lesson-todaytag">היום</span>' : ""}</div>
             <div class="lc-sub">${U.esc(l.tip || "")}</div>
           </div>
           <span class="lc-chevron">‹</span>
         </button>`;
     }).join("");
     const pct = lessons.length ? Math.round((done.length / lessons.length) * 100) : 0;
+    const todayCard = todayLesson ? `
+      <button class="card-block fin-today" data-lesson="${todayLesson.id}">
+        <div class="fin-today-tag">📅 שיעור היום</div>
+        <div class="fin-today-row">
+          <span class="fin-today-ico">${todayLesson.icon}</span>
+          <div>
+            <div class="fin-today-title">${U.esc(todayLesson.title)}</div>
+            <div class="fin-today-tip">${U.esc(todayLesson.tip || "")}</div>
+          </div>
+        </div>
+        <div class="fin-today-cta">פתח שיעור ←</div>
+      </button>` : "";
     return `
       <div class="card-block learn-intro">
         <h3>💰 ידע פיננסי מהיסוד</h3>
-        <p class="section-hint">מסלול שיעורים קצרים — מהבסיס ועד השקעות ופנסיה. שיעור ביום וכבר אתה חכם יותר עם הכסף.</p>
+        <p class="section-hint">שיעור קצר כל יום — מהבסיס ועד השקעות ופנסיה. מחר יחכה לך השיעור הבא אוטומטית.</p>
         <div class="learn-progress"><div class="lp-bar" style="width:${pct}%"></div></div>
         <div class="learn-stats"><span>✅ הושלמו: <b>${done.length}/${lessons.length}</b></span></div>
       </div>
+      ${todayCard}
+      <p class="section-hint" style="margin:14px 0 6px">כל השיעורים:</p>
       <div class="list-cards">${items}</div>`;
   }
 

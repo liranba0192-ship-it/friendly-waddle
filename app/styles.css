@@ -564,3 +564,14 @@ body { background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, 
 .lesson-body pre { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 10px; overflow-x: auto; }
 .lesson-body pre code { background: none; padding: 0; }
 .lesson-body blockquote { border-right: 3px solid var(--accent); margin: 10px 0; padding: 8px 12px; background: color-mix(in srgb, var(--accent) 8%, transparent); border-radius: 0 10px 10px 0; }
+/* שיעור פיננסי יומי */
+.fin-today { display: block; width: 100%; text-align: right; cursor: pointer; border: 2px solid var(--accent); background: color-mix(in srgb, var(--accent) 7%, var(--surface)); }
+.fin-today:active { transform: scale(.99); }
+.fin-today-tag { font-size: 12px; font-weight: 700; color: var(--accent-2); margin-bottom: 8px; }
+.fin-today-row { display: flex; align-items: center; gap: 12px; }
+.fin-today-ico { font-size: 32px; flex-shrink: 0; }
+.fin-today-title { font-size: 17px; font-weight: 700; color: var(--text); }
+.fin-today-tip { font-size: 13px; color: var(--muted); margin-top: 2px; }
+.fin-today-cta { margin-top: 10px; text-align: center; font-weight: 700; color: var(--accent); font-size: 14px; }
+.lesson-today { border-color: var(--accent); }
+.lesson-todaytag { font-size: 10px; background: var(--accent); color: var(--accent-ink); border-radius: 6px; padding: 1px 6px; font-weight: 700; }
