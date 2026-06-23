@@ -8,7 +8,7 @@ App.more = (function () {
   function reminderTime() { return S.get("reminder.time", "07:30"); }
   function saveReminderTime(v) { S.set("reminder.time", v); }
   function weighTime() { return S.get("reminder.weighTime", "07:00"); }
-  function weighDay() { return S.get("reminder.weighDay", 0); } // 0=ראשון
+  function weighDay() { return S.get("reminder.weighDay", 0); }
 
   const BYDAY = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
   function buildICS({ summary, desc, time, freq, byday }) {
@@ -26,54 +26,11 @@ App.more = (function () {
     ].join("\r\n");
   }
 
-  const SETUP_SQL = `create table if not exists user_data (
-  user_id uuid primary key references auth.users on delete cascade,
-  data jsonb,
-  updated_at timestamptz default now()
-);
-alter table user_data enable row level security;
-create policy "own data" on user_data for all
-  using (auth.uid() = user_id) with check (auth.uid() = user_id);`;
-
-  function syncCard() {
-    const st = App.sync.getState();
-    if (!st.configured) {
-      return `
-        <p class="section-hint">סנכרון אוטומטי דורש חיבור חד-פעמי לחשבון <b>Supabase</b> חינמי (הנתונים שלך, השרת שלך).</p>
-        <label class="field">Project URL <input id="sy-url" type="text" placeholder="https://xxxx.supabase.co" /></label>
-        <label class="field">anon public key <input id="sy-key" type="text" placeholder="eyJhbGci..." /></label>
-        <button id="sy-save" class="btn-primary full">שמור חיבור</button>
-        <details class="muscle-group" style="margin-top:12px">
-          <summary>איך מקימים? (פעם אחת, ~5 דק')</summary>
-          <ol class="setup-steps">
-            <li>היכנס ל-<b>supabase.com</b> → צור פרויקט חינמי.</li>
-            <li>Project Settings → API → העתק <b>Project URL</b> ו-<b>anon public</b>.</li>
-            <li>SQL Editor → הדבק והרץ:<pre>${SETUP_SQL}</pre></li>
-            <li>Authentication → Providers → Email → כבה "Confirm email".</li>
-            <li>חזור לכאן, הדבק URL+key, שמור, והירשם עם אימייל.</li>
-          </ol>
-        </details>`;
-    }
-    if (!st.email) {
-      return `
-        <p class="section-hint">החיבור הוגדר ✅ התחבר או הירשם עם אימייל כדי לסנכרן בין מכשירים:</p>
-        <label class="field">אימייל <input id="sy-email" type="email" autocomplete="email" /></label>
-        <label class="field">סיסמה <input id="sy-pass" type="password" autocomplete="current-password" /></label>
-        <div class="row-btns"><button id="sy-login" class="btn-primary">התחברות</button><button id="sy-signup" class="btn-secondary">הרשמה</button></div>
-        <button id="sy-reset" class="cta-reminder full">החלף חיבור Supabase</button>
-        <p class="section-hint" id="sy-msg"></p>`;
-    }
-    return `
-      <p class="section-hint">מחובר כ: <b>${App.util.esc(st.email)}</b><br>הנתונים מסונכרנים אוטומטית בין כל המכשירים 🔄</p>
-      <button id="sy-now" class="btn-primary full">🔄 סנכרן עכשיו</button>
-      <button id="sy-logout" class="btn-secondary full">התנתק</button>
-      <p class="section-hint" id="sy-msg"></p>`;
-  }
-
   function mount(el) { root = el; render(); }
   function show() { render(); }
 
   function render() {
+    const em = App.sync && App.sync.email();
     root.innerHTML = `
       <div class="card-block">
         <h3>🌅 תזכורת לימוד בוקר (יומי)</h3>
@@ -103,20 +60,6 @@ create policy "own data" on user_data for all
       </div>
 
       <div class="card-block">
-        <h3>☁️ סנכרון בין מכשירים (התחברות)</h3>
-        ${syncCard()}
-      </div>
-
-      <div class="card-block">
-        <h3>💾 גיבוי ושחזור</h3>
-        <p class="section-hint">המידע נשמר במכשיר בלבד. מומלץ לגבות מדי פעם לקובץ.</p>
-        <button id="bk-export" class="btn-secondary full">⬇️ ייצוא גיבוי לקובץ</button>
-        <label class="btn-secondary full file-label">⬆️ שחזור מקובץ
-          <input id="bk-import" type="file" accept="application/json" hidden />
-        </label>
-      </div>
-
-      <div class="card-block">
         <h3>🎨 מראה</h3>
         <p class="section-hint">העיצוב מתאים את עצמו אוטומטית למצב בהיר/כהה של האייפון. אפשר לכפות מצב:</p>
         <div class="seg" id="theme-seg">
@@ -126,48 +69,33 @@ create policy "own data" on user_data for all
         </div>
       </div>
 
+      ${em ? `<div class="card-block">
+        <h3>👤 חשבון</h3>
+        <p class="section-hint">מחובר כ: <b>${U.esc(em)}</b></p>
+        <button id="sy-logout" class="btn-secondary full">🚪 התנתק</button>
+      </div>` : ""}
+
       <div class="card-block">
         <h3>ℹ️ אודות</h3>
-        <p class="section-hint">חלבונינץ — תדריך יומי, מעקב אימונים, יומן תזונה ושקילה. כל הנתונים פרטיים ונשמרים במכשיר שלך.</p>
-        <p class="section-hint">גרסה <b>8</b> · בוט עזרה · תזכורות · גרף שקילה צבעוני · חלוקות אימון 🌿</p>
+        <p class="section-hint">חלבונינץ — תדריך יומי, מעקב אימונים, יומן תזונה, שקילה ולימוד.</p>
+        <p class="section-hint">גרסה <b>13</b> · טאב לימוד (אנגלית לבגרות + 100 שיעורי פיננסים) · קריאת בוקר · טיימר מנוחה · התחברות וסנכרון · בוט עזרה 🌿</p>
       </div>
     `;
 
     root.querySelector("#rm-make").addEventListener("click", makeReminder);
     root.querySelector("#wm-make").addEventListener("click", makeWeighReminder);
 
-    // --- סנכרון ענן ---
-    const byId = (id) => root.querySelector("#" + id);
-    const syMsg = (t) => { const m = byId("sy-msg"); if (m) m.textContent = t; };
-    byId("sy-save") && byId("sy-save").addEventListener("click", () => {
-      const url = byId("sy-url").value, key = byId("sy-key").value;
-      if (!url || !key) { alert("הזן כתובת ומפתח."); return; }
-      App.sync.saveConfig(url, key); render();
-    });
-    byId("sy-reset") && byId("sy-reset").addEventListener("click", () => { App.sync.saveConfig("", ""); render(); });
-    byId("sy-login") && byId("sy-login").addEventListener("click", async () => {
-      try { syMsg("מתחבר…"); await App.sync.signIn(byId("sy-email").value.trim(), byId("sy-pass").value); render(); }
-      catch (e) { syMsg("שגיאה: " + (e.message || e)); }
-    });
-    byId("sy-signup") && byId("sy-signup").addEventListener("click", async () => {
-      try { syMsg("נרשם…"); await App.sync.signUp(byId("sy-email").value.trim(), byId("sy-pass").value); render(); syMsg("נרשמת! אם נדרש אישור אימייל — אשר ואז התחבר."); }
-      catch (e) { syMsg("שגיאה: " + (e.message || e)); }
-    });
-    byId("sy-now") && byId("sy-now").addEventListener("click", async () => {
-      syMsg("מסנכרן…"); try { await App.sync.syncNow(); syMsg("סונכרן ✅"); } catch { syMsg("שגיאת סנכרון"); }
-    });
-    byId("sy-logout") && byId("sy-logout").addEventListener("click", async () => { await App.sync.signOut(); render(); });
-
-    root.querySelector("#bk-export").addEventListener("click", () =>
-      U.download(`backup-${U.todayISO()}.json`, JSON.stringify(S.exportAll(), null, 2), "application/json")
-    );
-    root.querySelector("#bk-import").addEventListener("change", importBackup);
-
     const seg = root.querySelector("#theme-seg");
     const cur = localStorage.getItem("mb.theme") || "light";
     seg.querySelectorAll("button").forEach((b) => {
       if (b.dataset.theme === cur) b.classList.add("active");
       b.addEventListener("click", () => { App.setTheme(b.dataset.theme); render(); });
+    });
+
+    const logoutBtn = root.querySelector("#sy-logout");
+    if (logoutBtn) logoutBtn.addEventListener("click", async () => {
+      if (App.sync) await App.sync.signOut().catch(() => {});
+      location.reload();
     });
   }
 
@@ -197,22 +125,6 @@ create policy "own data" on user_data for all
     const dayName = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"][day];
     root.querySelector("#wm-hint").innerHTML =
       `הקובץ ירד. ב-iOS פתח אותו ולחץ «הוסף הכל» — תזכורת כל יום ${dayName} ב-${time}. ✅`;
-  }
-
-  function importBackup(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        S.importAll(JSON.parse(reader.result));
-        alert("השחזור הושלם! ✅");
-        render();
-      } catch {
-        alert("קובץ גיבוי לא תקין 😕");
-      }
-    };
-    reader.readAsText(file);
   }
 
   return { mount, show };

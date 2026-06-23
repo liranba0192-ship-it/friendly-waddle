@@ -32,6 +32,7 @@
     <section id="view-workout" class="view" hidden></section>
     <section id="view-food" class="view" hidden></section>
     <section id="view-weight" class="view" hidden></section>
+    <section id="view-learn" class="view" hidden></section>
   </main>
 
   <nav id="tabbar" class="tabbar" aria-label="ניווט"></nav>
@@ -48,6 +49,15 @@
     </div>
   </div>
 
+  <!-- מסך כניסה — גלוי עד להתחברות, מוסתר אחריה -->
+  <div id="auth-overlay" class="auth-overlay">
+    <div class="auth-panel">
+      <img class="auth-logo" src="icons/logo-mark.svg" alt="חלבונינץ" />
+      <h1 class="auth-title">חלבונינץ</h1>
+      <div id="auth-body"></div>
+    </div>
+  </div>
+
   <script src="vendor/marked.min.js"></script>
   <script src="js/store.js"></script>
   <script src="js/sync.js"></script>
@@ -58,6 +68,7 @@
   <script src="js/food.js"></script>
   <script src="js/weight.js"></script>
   <script src="js/more.js"></script>
+  <script src="js/learn.js"></script>
   <script src="js/helpbot.js"></script>
   <script src="app.js"></script>
 </body>
