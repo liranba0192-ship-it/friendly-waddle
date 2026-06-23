@@ -28,8 +28,8 @@ App.learn = (function () {
     if (loaded) return;
     try {
       const [v, f] = await Promise.all([
-        fetch(`data/vocab.json?ts=${Date.now()}`, { cache: "force-cache" }).then((r) => r.json()),
-        fetch(`data/finance.json?ts=${Date.now()}`, { cache: "force-cache" }).then((r) => r.json()),
+        fetch(`data/vocab.json`, { cache: "no-cache" }).then((r) => r.json()),
+        fetch(`data/finance.json`, { cache: "no-cache" }).then((r) => r.json()),
       ]);
       words = v.words || [];
       lessons = f.lessons || [];
