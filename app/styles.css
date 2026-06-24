@@ -580,3 +580,18 @@ body { background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, 
 .reading-article { direction: ltr; text-align: left; }
 .reading-article h1, .reading-article h2, .reading-article h3 { text-align: left; }
 .reading-article .glossary, .reading-article blockquote { direction: rtl; text-align: right; }
+
+/* ===== מדריך AI / כותרות רמה + תזכורת שיעור ===== */
+.learn-level-h{
+  font-weight:800; font-size:.95rem; margin:18px 4px 8px;
+  color:var(--accent,#2bb673); letter-spacing:.2px;
+}
+.reminder-card{ margin-top:14px; }
+.reminder-card .rem-title{ font-weight:700; margin-bottom:4px; }
+.rem-btns{ display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+.rem-opt{
+  flex:1; min-width:90px; padding:10px 12px; border-radius:12px;
+  border:1px solid var(--line,#2a3942); background:var(--card2,#16222b);
+  color:inherit; font-size:.9rem; font-weight:600; cursor:pointer;
+}
+.rem-opt:active{ transform:scale(.97); }
