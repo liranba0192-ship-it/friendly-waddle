@@ -7,7 +7,12 @@ App.sync = (function () {
   const S = App.store;
   let client = null, libLoading = null, pushTimer = null;
 
-  function cfg() { return { url: S.get("sync.url", ""), key: S.get("sync.key", "") }; }
+  // פרטי Supabase מוטמעים — כך כל מכשיר רק מתחבר (אין צורך להזין URL/key).
+  // ה-anon/publishable key בטוח להטמעה: ההגנה היא ב-RLS (כל משתמש רואה רק את שלו).
+  const DEFAULT_URL = "https://alyimtdaqkwtxzrfxwml.supabase.co";
+  const DEFAULT_KEY = "sb_publishable_ViaGticdK8xF8S6tbvMWnQ_zVbnC5nc";
+
+  function cfg() { return { url: S.get("sync.url", DEFAULT_URL), key: S.get("sync.key", DEFAULT_KEY) }; }
   function configured() { const c = cfg(); return !!(c.url && c.key); }
   function email() { return S.get("sync.email", null); }
   function getState() { return { configured: configured(), email: email() }; }
