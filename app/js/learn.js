@@ -6,8 +6,8 @@ window.App = window.App || {};
 App.learn = (function () {
   const U = App.util, S = App.store;
   let root;
-  let words = [], lessons = [], readings = [], loaded = false;
-  let section = "en";                 // en | finance
+  let words = [], lessons = [], readings = [], aiLessons = [], loaded = false;
+  let section = "en";                 // en | finance | ai
   let view = { kind: "home" };        // home | practice | lesson({id})
   const BATCH = 10;
 
@@ -34,6 +34,11 @@ App.learn = (function () {
       words = v.words || [];
       lessons = f.lessons || [];
     } catch { words = []; lessons = []; }
+    // מדריך ה-AI — טעינה נפרדת כדי שכשל לא יפיל את השאר
+    try {
+      const a = await fetch(`data/ai-guide.json`, { cache: "no-cache" }).then((r) => r.json());
+      aiLessons = a.lessons || [];
+    } catch { aiLessons = []; }
     // קריאת הבוקר (נוצרת ע"י routine יומי) — טעינה נפרדת כדי שכשל לא יפיל את השאר
     try {
       const r = await fetch(`../readings/index.json?ts=${Date.now()}`, { cache: "no-cache" });
@@ -61,7 +66,7 @@ App.learn = (function () {
   function render() {
     if (section === "en" && view.kind === "practice") return renderPractice();
     if (section === "en" && view.kind === "reading") return renderReading(view.file);
-    if (section === "finance" && view.kind === "lesson") return renderLesson(view.id);
+    if ((section === "finance" || section === "ai") && view.kind === "lesson") return renderLesson(view.id);
     renderHome();
   }
 
@@ -69,6 +74,7 @@ App.learn = (function () {
     return `<div class="seg learn-seg" id="learn-seg">
       <button data-sec="en" class="${section === "en" ? "active" : ""}">🔤 אנגלית</button>
       <button data-sec="finance" class="${section === "finance" ? "active" : ""}">💰 פיננסים</button>
+      <button data-sec="ai" class="${section === "ai" ? "active" : ""}">🤖 AI</button>
     </div>`;
   }
 
@@ -99,11 +105,11 @@ App.learn = (function () {
   function renderHome() {
     if (section === "en") ensureDailyBatch();
     if (section === "finance") ensureDailyLesson();
-    root.innerHTML = sectionTabs() + (section === "en" ? enHomeHTML() : financeHomeHTML());
+    root.innerHTML = sectionTabs() + (section === "en" ? enHomeHTML() : courseHomeHTML(courseCfg()));
     root.querySelectorAll("#learn-seg button").forEach((b) =>
       b.addEventListener("click", () => { section = b.dataset.sec; view = { kind: "home" }; render(); })
     );
-    if (section === "en") wireEnHome(); else wireFinanceHome();
+    if (section === "en") wireEnHome(); else wireCourseHome();
   }
 
   // ========== ENGLISH ==========
@@ -290,82 +296,155 @@ App.learn = (function () {
     );
   }
 
-  // ========== FINANCE ==========
-  function financeHomeHTML() {
+  // ========== COURSES (finance / ai) ==========
+  function courseCfg() {
+    if (section === "ai") return {
+      arr: aiLessons, doneKey: "aiDone", daily: false, levels: true,
+      title: "🤖 לעבוד עם AI — מאפס לרמת המובילים",
+      hint: "מסלול מסודר ב-3 רמות: מאפס למתקדם, רמה בינלאומית, ולהמשך החיים. התקדם לפי הסדר.",
+    };
+    return {
+      arr: lessons, doneKey: "doneLessons", dayKey: "finDay", daily: true, levels: true,
+      title: "💰 ידע פיננסי מהיסוד",
+      hint: "100 שיעורים ב-5 רמות — מיסודות הכסף ועד מסים, נדל\"ן והשקעות. שיעור חדש כל יום.",
+    };
+  }
+
+  function courseHomeHTML(cfg) {
     const d = raw();
-    const done = d.doneLessons || [];
-    const finDay = d.finDay || 0;
-    const todayLesson = lessons[finDay];
-    const items = lessons.map((l, i) => {
+    const done = d[cfg.doneKey] || [];
+    const arr = cfg.arr;
+    if (!arr.length) return `<div class="card-block"><p class="status">התוכן בטעינה… נסה לרענן בעוד רגע.</p></div>`;
+    let featuredIdx;
+    if (cfg.daily) featuredIdx = (d[cfg.dayKey] || 0) % arr.length;
+    else { featuredIdx = arr.findIndex((l) => !done.includes(l.id)); if (featuredIdx < 0) featuredIdx = 0; }
+    const featured = arr[featuredIdx];
+    const pct = arr.length ? Math.round((done.length / arr.length) * 100) : 0;
+
+    const cardFor = (l, i) => {
       const isDone = done.includes(l.id);
-      const isToday = i === finDay;
+      const isFeatured = i === featuredIdx;
+      const tag = cfg.daily ? "היום" : "המשך";
       return `
-        <button class="list-card lesson-card${isToday ? " lesson-today" : ""}" data-lesson="${l.id}">
+        <button class="list-card lesson-card${isFeatured ? " lesson-today" : ""}" data-lesson="${l.id}">
           <div class="lesson-ico">${l.icon}</div>
           <div class="lc-main">
-            <div class="lc-title">${i + 1}. ${U.esc(l.title)} ${isDone ? '<span class="lesson-done">✓</span>' : ""}${isToday ? ' <span class="lesson-todaytag">היום</span>' : ""}</div>
+            <div class="lc-title">${i + 1}. ${U.esc(l.title)} ${isDone ? '<span class="lesson-done">✓</span>' : ""}${isFeatured ? ` <span class="lesson-todaytag">${tag}</span>` : ""}</div>
             <div class="lc-sub">${U.esc(l.tip || "")}</div>
           </div>
           <span class="lc-chevron">‹</span>
         </button>`;
-    }).join("");
-    const pct = lessons.length ? Math.round((done.length / lessons.length) * 100) : 0;
-    const todayCard = todayLesson ? `
-      <button class="card-block fin-today" data-lesson="${todayLesson.id}">
-        <div class="fin-today-tag">📅 שיעור היום</div>
+    };
+
+    let listHTML;
+    if (cfg.levels) {
+      const order = [], groups = {};
+      arr.forEach((l, i) => {
+        const lv = l.level || "שיעורים";
+        if (!groups[lv]) { groups[lv] = []; order.push(lv); }
+        groups[lv].push(cardFor(l, i));
+      });
+      listHTML = order.map((lv) =>
+        `<p class="learn-level-h">${U.esc(lv)}</p><div class="list-cards">${groups[lv].join("")}</div>`
+      ).join("");
+    } else {
+      listHTML = `<div class="list-cards">${arr.map((l, i) => cardFor(l, i)).join("")}</div>`;
+    }
+
+    const featTag = cfg.daily ? "📅 שיעור היום" : (done.length ? "▶️ המשך מכאן" : "▶️ התחל כאן");
+    const featuredCard = featured ? `
+      <button class="card-block fin-today" data-lesson="${featured.id}">
+        <div class="fin-today-tag">${featTag}</div>
         <div class="fin-today-row">
-          <span class="fin-today-ico">${todayLesson.icon}</span>
+          <span class="fin-today-ico">${featured.icon}</span>
           <div>
-            <div class="fin-today-title">${U.esc(todayLesson.title)}</div>
-            <div class="fin-today-tip">${U.esc(todayLesson.tip || "")}</div>
+            <div class="fin-today-title">${U.esc(featured.title)}</div>
+            <div class="fin-today-tip">${U.esc(featured.tip || "")}</div>
           </div>
         </div>
         <div class="fin-today-cta">פתח שיעור ←</div>
       </button>` : "";
+
     return `
       <div class="card-block learn-intro">
-        <h3>💰 ידע פיננסי מהיסוד</h3>
-        <p class="section-hint">שיעור קצר כל יום — מהבסיס ועד השקעות ופנסיה. מחר יחכה לך השיעור הבא אוטומטית.</p>
+        <h3>${cfg.title}</h3>
+        <p class="section-hint">${cfg.hint}</p>
         <div class="learn-progress"><div class="lp-bar" style="width:${pct}%"></div></div>
-        <div class="learn-stats"><span>✅ הושלמו: <b>${done.length}/${lessons.length}</b></span></div>
+        <div class="learn-stats"><span>✅ הושלמו: <b>${done.length}/${arr.length}</b></span></div>
       </div>
-      ${todayCard}
+      ${featuredCard}
       <p class="section-hint" style="margin:14px 0 6px">כל השיעורים:</p>
-      <div class="list-cards">${items}</div>`;
+      ${listHTML}`;
   }
 
-  function wireFinanceHome() {
+  function wireCourseHome() {
     root.querySelectorAll("[data-lesson]").forEach((b) =>
       b.addEventListener("click", () => { view = { kind: "lesson", id: b.dataset.lesson }; render(); })
     );
   }
 
   function renderLesson(id) {
-    const l = lessons.find((x) => x.id === id);
+    const cfg = courseCfg();
+    const arr = cfg.arr;
+    const l = arr.find((x) => x.id === id);
     if (!l) { view = { kind: "home" }; return renderHome(); }
-    const done = raw().doneLessons || [];
+    const done = raw()[cfg.doneKey] || [];
     const isDone = done.includes(id);
-    const idx = lessons.findIndex((x) => x.id === id);
-    const next = lessons[idx + 1];
+    const idx = arr.findIndex((x) => x.id === id);
+    const next = arr[idx + 1];
     const body = window.marked ? window.marked.parse(l.md) : `<pre>${U.esc(l.md)}</pre>`;
     root.innerHTML = `
       <button id="ls-back" class="btn-secondary">‹ חזרה לשיעורים</button>
       <h2 class="view-h2">${l.icon} ${U.esc(l.title)}</h2>
       <div class="card-block lesson-body">${body}</div>
+      <div class="card-block reminder-card">
+        <div class="rem-title">🔔 תזכורת לחזור על השיעור</div>
+        <p class="section-hint">חזרה מרווחת עוזרת לזכור — קבע תזכורת ביומן:</p>
+        <div class="rem-btns">
+          <button class="rem-opt" data-days="1">מחר</button>
+          <button class="rem-opt" data-days="3">בעוד 3 ימים</button>
+          <button class="rem-opt" data-days="7">בעוד שבוע</button>
+        </div>
+        <p class="section-hint" id="rem-hint"></p>
+      </div>
       <button id="ls-done" class="btn-${isDone ? "secondary" : "primary"} full">${isDone ? "✓ הושלם — סמן כלא נלמד" : "✅ סיימתי את השיעור"}</button>
       ${next ? `<button id="ls-next" class="btn-secondary full">לשיעור הבא: ${U.esc(next.title)} ←</button>` : ""}
     `;
     root.querySelector("#ls-back").addEventListener("click", () => { view = { kind: "home" }; render(); });
+    root.querySelectorAll(".rem-opt").forEach((b) =>
+      b.addEventListener("click", () => makeLessonReminder(l, +b.dataset.days))
+    );
     root.querySelector("#ls-done").addEventListener("click", () => {
-      const d = raw(); d.doneLessons = d.doneLessons || [];
-      const i = d.doneLessons.indexOf(id);
-      if (i >= 0) d.doneLessons.splice(i, 1); else d.doneLessons.push(id);
+      const d = raw(); d[cfg.doneKey] = d[cfg.doneKey] || [];
+      const i = d[cfg.doneKey].indexOf(id);
+      if (i >= 0) d[cfg.doneKey].splice(i, 1); else d[cfg.doneKey].push(id);
       save(d);
       if (i < 0 && next) { view = { kind: "lesson", id: next.id }; window.scrollTo(0, 0); }
       render();
     });
     const nx = root.querySelector("#ls-next");
     if (nx) nx.addEventListener("click", () => { view = { kind: "lesson", id: next.id }; window.scrollTo(0, 0); render(); });
+  }
+
+  // תזכורת חד-פעמית לשיעור בודד (חזרה מרווחת) — קובץ ICS להוספה ליומן
+  function makeLessonReminder(l, days) {
+    const now = new Date();
+    const dt = new Date(now.getTime() + days * 86400000);
+    const p2 = (x) => String(x).padStart(2, "0");
+    const dstr = `${dt.getFullYear()}${p2(dt.getMonth() + 1)}${p2(dt.getDate())}T180000`;
+    const stamp = `${now.getUTCFullYear()}${p2(now.getUTCMonth() + 1)}${p2(now.getUTCDate())}T${p2(now.getUTCHours())}${p2(now.getUTCMinutes())}${p2(now.getUTCSeconds())}Z`;
+    const ico = section === "ai" ? "🤖" : "💰";
+    const ics = [
+      "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//halbonintz//HE", "CALSCALE:GREGORIAN",
+      "BEGIN:VEVENT", `UID:halbonintz-${U.uid()}@local`, `DTSTAMP:${stamp}`, `DTSTART:${dstr}`,
+      `SUMMARY:${ico} חזרה על שיעור: ${l.title}`,
+      "DESCRIPTION:זמן לחזור על השיעור באפליקציית חלבונינץ 🌿",
+      "BEGIN:VALARM", "ACTION:DISPLAY", "TRIGGER:-PT0M", "DESCRIPTION:תזכורת", "END:VALARM",
+      "END:VEVENT", "END:VCALENDAR",
+    ].join("\r\n");
+    U.download("lesson-reminder.ics", ics, "text/calendar");
+    const hint = root.querySelector("#rem-hint");
+    if (hint) hint.innerHTML = `הקובץ ירד — פתח אותו ב-iOS ולחץ «הוסף» לתזכורת בעוד ${days === 1 ? "יום" : days + " ימים"}. ✅`;
   }
 
   return { mount, show };
