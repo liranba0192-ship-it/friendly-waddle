@@ -255,8 +255,12 @@ App.food = (function () {
 
       <div class="card-block">
         <h3>כמה אכלת?</h3>
+        <p class="section-hint" style="margin-bottom:8px">בחר כמות מהיר או הקלד בדיוק כמה גרם אכלת:</p>
+        <div class="gram-presets" style="margin-bottom:10px">
+          ${[50,100,150,200,250,300,400,500].map(g => `<button class="gram-btn" data-g="${g}">${g}</button>`).join("")}
+        </div>
         <div class="add-row inline">
-          <input id="fd-qty" type="number" inputmode="decimal" value="${hasUnit ? 1 : 100}" min="0" step="${hasUnit ? 1 : 10}" />
+          <input id="fd-qty" type="number" inputmode="decimal" value="${hasUnit ? 1 : 100}" min="0" step="1" placeholder="הקלד גרמים..." />
           ${hasUnit ? `<select id="fd-mode">
               <option value="unit">${U.esc(food.unit)} (${food.unitGrams} ג')</option>
               <option value="g">גרם</option>
@@ -297,7 +301,7 @@ App.food = (function () {
         mini("שומן", U.round(food.fat * f), "ג'");
     }
     qty.addEventListener("input", upd);
-    if (mode) mode.addEventListener("change", () => { qty.value = mode.value === "unit" ? 1 : 100; qty.step = mode.value === "unit" ? 1 : 10; upd(); });
+    if (mode) mode.addEventListener("change", () => { qty.value = mode.value === "unit" ? 1 : 100; qty.step = 1; upd(); });
     root.querySelectorAll(".gram-btn").forEach((b) =>
       b.addEventListener("click", () => {
         if (mode && mode.value === "unit") { mode.value = "g"; qty.step = 10; }
