@@ -262,6 +262,9 @@ App.food = (function () {
               <option value="g">גרם</option>
             </select>` : `<span style="white-space:nowrap">גרם</span>`}
         </div>
+        <div class="gram-presets">
+          ${[50,100,150,200,250,300].map(g => `<button class="gram-btn" data-g="${g}">${g}ג'</button>`).join("")}
+        </div>
         <div id="fd-detail-totals" class="totals-grid" style="margin-top:12px"></div>
         <button id="fd-confirm" class="btn-primary full">➕ הוסף ליומן</button>
         <button id="fd-edit" class="btn-secondary full">✏️ ערוך ערכים של מאכל זה</button>
@@ -295,6 +298,15 @@ App.food = (function () {
     }
     qty.addEventListener("input", upd);
     if (mode) mode.addEventListener("change", () => { qty.value = mode.value === "unit" ? 1 : 100; qty.step = mode.value === "unit" ? 1 : 10; upd(); });
+    root.querySelectorAll(".gram-btn").forEach((b) =>
+      b.addEventListener("click", () => {
+        if (mode && mode.value === "unit") { mode.value = "g"; qty.step = 10; }
+        qty.value = b.dataset.g;
+        root.querySelectorAll(".gram-btn").forEach((x) => x.classList.remove("active"));
+        b.classList.add("active");
+        upd();
+      })
+    );
     upd();
 
     root.querySelector("#fd-back").addEventListener("click", () => { view = "main"; render(); });

@@ -199,6 +199,9 @@ input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: -1
 .food-item small { color: var(--muted); font-size: 12px; white-space: nowrap; }
 .add-row { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border); }
 .add-row .qty { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+.gram-presets { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.gram-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--text); transition: background .15s; }
+.gram-btn:active, .gram-btn.active { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 .add-row .qty input { width: 90px; flex: none; }
 .add-preview { color: var(--muted); font-size: 13px; margin-top: 8px; }
 
