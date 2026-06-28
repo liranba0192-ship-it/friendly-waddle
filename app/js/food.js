@@ -266,6 +266,9 @@ App.food = (function () {
               <option value="g">גרם</option>
             </select>` : `<span style="white-space:nowrap">גרם</span>`}
         </div>
+        <div class="gram-presets">
+          ${[50,100,150,200,250,300].map(g => `<button class="gram-btn" data-g="${g}">${g}ג'</button>`).join("")}
+        </div>
         <div id="fd-detail-totals" class="totals-grid" style="margin-top:12px"></div>
         <button id="fd-confirm" class="btn-primary full">➕ הוסף ליומן</button>
         <button id="fd-edit" class="btn-secondary full">✏️ ערוך ערכים של מאכל זה</button>
