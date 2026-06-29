@@ -98,6 +98,43 @@ App.state = (function () {
     emit("page:changed", { index: data.activePage, page: getActivePage() });
   }
 
+  function maxSeq(list, prefix) {
+    return list.reduce((m, it) => {
+      const n = parseInt(String(it.id).replace(prefix, ""), 10);
+      return isFinite(n) && n > m ? n : m;
+    }, 0);
+  }
+
+  /**
+   * Replace the ENTIRE project state at once (used when loading a saved
+   * project). `pages` must already contain ready-to-draw bitmaps/images.
+   * Emits every "changed" event so the whole UI + renderer rebuild.
+   */
+  function hydrate(snap) {
+    data.pages.forEach((p) => {
+      if (p.bitmap && typeof p.bitmap.close === "function") p.bitmap.close();
+    });
+    data.pages = snap.pages || [];
+    data.fileName = snap.fileName || "";
+    data.activePage = data.pages.length ? (snap.activePage != null ? snap.activePage : 0) : -1;
+    data.pixelsPerMeter = snap.pixelsPerMeter != null ? snap.pixelsPerMeter : null;
+    data.rooms = snap.rooms || [];
+    data.assets = snap.assets || [];
+    data.routes = snap.routes || [];
+    data.hoveredRoomId = null;
+    data.selectedRoomId = null;
+    // reseed counters so freshly-created items don't reuse loaded ids
+    roomSeq = maxSeq(data.rooms, "room-");
+    assetSeq = maxSeq(data.assets, "asset-");
+    routeSeq = maxSeq(data.routes, "route-");
+    emit("scale:changed", { pixelsPerMeter: data.pixelsPerMeter });
+    emit("rooms:changed", { rooms: data.rooms });
+    emit("assets:changed", { assets: data.assets });
+    emit("routes:changed", { routes: data.routes });
+    emit("page:changed", { index: data.activePage, page: getActivePage() });
+    emit("document:changed", { pages: data.pages, fileName: data.fileName });
+  }
+
   function setActivePage(index) {
     if (index < 0 || index >= data.pages.length || index === data.activePage) return;
     data.activePage = index;
@@ -230,6 +267,7 @@ App.state = (function () {
     getActivePage,
     getActiveIndex,
     setDocument,
+    hydrate,
     setActivePage,
     setTool,
     getTool,

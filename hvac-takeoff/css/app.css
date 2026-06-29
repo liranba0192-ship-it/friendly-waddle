@@ -415,6 +415,25 @@ body {
   transform: translate(-50%, 0);
 }
 
+/* ---- projects manager ---- */
+.project-select {
+  border-radius: 0.625rem;
+  border: 1px solid rgba(63, 63, 70, 0.7);
+  background: rgba(39, 39, 42, 0.6);
+  padding: 0.4rem 0.6rem;
+  font-size: 0.8125rem;
+  color: #e4e4e7;
+  outline: none;
+  transition: border-color 0.12s ease;
+}
+.project-select:focus {
+  border-color: #0ea5e9;
+}
+.project-select option {
+  background: #18181b;
+  color: #e4e4e7;
+}
+
 /* ---- review & estimate overlay ---- */
 .estimate-overlay {
   display: none;
