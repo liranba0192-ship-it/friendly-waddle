@@ -109,6 +109,81 @@ App.renderer = (function () {
     ctx.restore();
   }
 
+  /**
+   * Draw the scale-calibration reference line in SCREEN space (so its width and
+   * handles stay constant and crisp at any zoom). World endpoints are projected
+   * through the viewport each frame, so the line stays anchored to the blueprint
+   * while panning/zooming.
+   */
+  function drawScaleLine() {
+    if (!App.scale) return;
+    const line = App.scale.getLine();
+    if (!line) return;
+    const a = App.viewport.worldToScreen(line.start.x, line.start.y);
+    const b = App.viewport.worldToScreen(line.end.x, line.end.y);
+
+    ctx.save();
+    ctx.lineCap = "round";
+    // soft glow under the line for visibility over busy blueprints
+    ctx.strokeStyle = "rgba(239,68,68,0.35)"; // red-500 @ low alpha
+    ctx.lineWidth = 7;
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.stroke();
+
+    // crisp red vector line
+    ctx.strokeStyle = "#ef4444"; // red-500
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.stroke();
+
+    // endpoint handles
+    [a, b].forEach((p) => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 4.5, 0, Math.PI * 2);
+      ctx.fillStyle = "#fff";
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "#ef4444";
+      ctx.stroke();
+    });
+
+    // live length label at the midpoint
+    const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+    const worldLen = Math.hypot(line.end.x - line.start.x, line.end.y - line.start.y);
+    const ppm = App.state.getPixelsPerMeter();
+    const label = ppm
+      ? (worldLen / ppm).toFixed(2) + " מ׳"
+      : Math.round(worldLen) + " יח׳";
+    ctx.font =
+      "600 12px -apple-system, BlinkMacSystemFont, 'Segoe UI', Heebo, sans-serif";
+    const padX = 6;
+    const tw = ctx.measureText(label).width;
+    const bx = mid.x - tw / 2 - padX;
+    const by = mid.y - 24;
+    ctx.fillStyle = "rgba(17,24,39,0.92)";
+    roundRect(bx, by, tw + padX * 2, 18, 5);
+    ctx.fill();
+    ctx.fillStyle = "#fecaca"; // red-200
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "center";
+    ctx.fillText(label, mid.x, by + 9);
+    ctx.restore();
+  }
+
+  function roundRect(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
   function frame() {
     if (!running) return;
     if (dirty) {
@@ -119,6 +194,7 @@ App.renderer = (function () {
       clear(cssW, cssH);
       drawGrid(cssW, cssH);
       drawPage();
+      drawScaleLine();
     }
     requestAnimationFrame(frame);
   }

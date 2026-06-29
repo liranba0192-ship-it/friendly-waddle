@@ -25,6 +25,11 @@ body {
 #board.is-grabbing {
   cursor: grabbing;
 }
+/* Set Scale tool: crosshair, and never show the grab cursor */
+#board.tool-scale,
+#board.tool-scale.is-grabbing {
+  cursor: crosshair;
+}
 
 /* ---- icon button (zoom, theme) ---- */
 .icon-btn {
@@ -78,6 +83,57 @@ body {
 .tool-btn:disabled {
   opacity: 0.45;
   cursor: not-allowed;
+}
+
+/* ---- Set Scale (wide) tool button ---- */
+.tool-btn-wide:hover {
+  border-color: rgba(239, 68, 68, 0.55); /* red-500 */
+  background: rgba(39, 39, 42, 0.9);
+}
+.tool-btn-wide.is-active {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.12);
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.4), 0 4px 14px rgba(239, 68, 68, 0.15);
+}
+
+/* ---- dynamic scale ruler ---- */
+.ruler-bar {
+  position: relative;
+  height: 8px;
+  min-width: 12px;
+  border-inline: 2px solid #cbd5e1; /* slate-300 end ticks */
+  border-bottom: 2px solid #cbd5e1;
+  transition: width 0.08s linear;
+}
+
+/* ---- calibration modal ---- */
+.modal {
+  display: none;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+.modal.is-open {
+  display: flex;
+  opacity: 1;
+}
+.modal-card {
+  transform: translateY(8px) scale(0.98);
+  transition: transform 0.18s ease;
+}
+.modal.is-open .modal-card {
+  transform: translateY(0) scale(1);
+}
+.scale-error {
+  min-height: 1rem;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.scale-error.is-visible {
+  opacity: 1;
+}
+#scale-input.is-invalid {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.25);
 }
 
 /* ---- page thumbnails ---- */

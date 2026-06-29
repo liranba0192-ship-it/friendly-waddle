@@ -38,11 +38,27 @@ App.input = (function () {
     return Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
   }
 
+  function scaleMode() {
+    return App.state.getTool() === "scale";
+  }
+
   function onPointerDown(e) {
     canvas.setPointerCapture(e.pointerId);
     pointers.set(e.pointerId, toLocal(e));
-    if (pointers.size === 2) lastPinchDist = pinchDist();
-    canvas.classList.add("is-grabbing");
+
+    if (scaleMode() && pointers.size === 1) {
+      // start drawing a calibration reference line (no panning in scale mode)
+      const local = pointers.get(e.pointerId);
+      App.scale.begin(App.viewport.screenToWorld(local.x, local.y));
+      return;
+    }
+    if (pointers.size === 2) {
+      // a pinch overrides any in-progress scale line
+      if (App.scale.isDrawing()) App.scale.cancelDrawing();
+      lastPinchDist = pinchDist();
+    } else {
+      canvas.classList.add("is-grabbing");
+    }
   }
 
   function onPointerMove(e) {
@@ -51,7 +67,14 @@ App.input = (function () {
     const cur = toLocal(e);
     pointers.set(e.pointerId, cur);
 
+    if (App.scale.isDrawing() && pointers.size === 1) {
+      App.scale.update(App.viewport.screenToWorld(cur.x, cur.y));
+      return;
+    }
+
     if (pointers.size === 1) {
+      // panning is disabled while the Set Scale tool is active
+      if (scaleMode()) return;
       // pan by the movement of the single pointer
       App.viewport.panBy(cur.x - prev.x, cur.y - prev.y);
     } else if (pointers.size === 2) {
@@ -69,9 +92,13 @@ App.input = (function () {
     if (canvas.hasPointerCapture && canvas.hasPointerCapture(e.pointerId)) {
       canvas.releasePointerCapture(e.pointerId);
     }
+    const wasDrawing = App.scale.isDrawing();
     pointers.delete(e.pointerId);
     if (pointers.size < 2) lastPinchDist = 0;
     if (pointers.size === 0) canvas.classList.remove("is-grabbing");
+
+    // finish the calibration line once the (last) pointer lifts
+    if (wasDrawing && pointers.size === 0) App.scale.finish();
   }
 
   function onWheel(e) {

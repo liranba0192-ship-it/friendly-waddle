@@ -117,6 +117,15 @@
           <button id="zoom-fit" class="icon-btn text-base" title="התאם למסך" aria-label="התאם למסך">⤢</button>
         </div>
 
+        <!-- dynamic scale ruler (bottom-left); hidden until calibrated -->
+        <div
+          id="ruler"
+          class="pointer-events-none absolute bottom-4 left-4 hidden select-none flex-col items-center gap-1 rounded-lg border border-zinc-700/60 bg-zinc-900/70 px-3 py-2 shadow-lg backdrop-blur"
+        >
+          <span id="ruler-label" class="font-mono text-xs tabular-nums text-zinc-300">1 מ׳</span>
+          <div class="ruler-bar" id="ruler-bar"></div>
+        </div>
+
         <!-- loading veil -->
         <div
           class="loading-veil pointer-events-none absolute inset-0 flex items-center justify-center bg-zinc-950/60 opacity-0 transition-opacity"
@@ -175,6 +184,29 @@
               <span class="text-lg">📏</span><span>מדידה</span>
             </button>
           </div>
+
+          <!-- prominent Set Scale tool -->
+          <button
+            id="tool-scale"
+            data-tool="scale"
+            class="tool-btn-wide mt-2 flex w-full items-center gap-3 rounded-xl border border-zinc-700/70 bg-zinc-800/60 px-3 py-2.5 text-start transition active:scale-[0.99]"
+          >
+            <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-red-500/15 text-lg text-red-400">📐</span>
+            <span class="min-w-0">
+              <span class="block text-sm font-medium text-zinc-100">הגדר קנה מידה</span>
+              <span class="block truncate text-[11px] text-zinc-500">סמן מידה ידועה על השרטוט</span>
+            </span>
+          </button>
+
+          <!-- calibration status -->
+          <div id="scale-status" class="mt-3 flex items-center justify-between gap-2 rounded-lg bg-zinc-800/50 px-3 py-2 text-xs">
+            <span class="text-zinc-400">קנה מידה</span>
+            <span class="flex items-center gap-2">
+              <span id="scale-value" class="font-mono tabular-nums text-zinc-300">לא מכויל</span>
+              <button id="scale-reset" class="hidden rounded-md px-1.5 py-0.5 text-zinc-500 transition hover:bg-zinc-700 hover:text-zinc-200" title="אפס קנה מידה">✕</button>
+            </span>
+          </div>
+
           <p class="mt-2 text-[11px] leading-relaxed text-zinc-600">
             כלי המדידה, חישוב ה‑BTU ורשימת החומרים יתווספו בשלבים הבאים.
           </p>
@@ -188,6 +220,51 @@
       </aside>
     </div>
 
+    <!-- scale-calibration modal -->
+    <div
+      id="scale-modal"
+      class="modal fixed inset-0 z-40 items-center justify-center bg-zinc-950/70 p-4 backdrop-blur-sm"
+    >
+      <div class="modal-card w-full max-w-sm rounded-2xl border border-zinc-700/70 bg-zinc-900 p-6 shadow-2xl">
+        <div class="mb-1 flex items-center gap-2">
+          <span class="grid h-9 w-9 place-items-center rounded-lg bg-red-500/15 text-lg text-red-400">📐</span>
+          <h3 class="text-lg font-semibold text-zinc-100">כמה מטרים שווה הקו שסומן?</h3>
+        </div>
+        <p id="scale-length" class="mb-4 text-xs text-zinc-500">אורך הקו: 0 יח׳</p>
+
+        <label class="block">
+          <span class="mb-1 block text-xs text-zinc-400">אורך במטרים</span>
+          <div class="flex items-center gap-2">
+            <input
+              id="scale-input"
+              type="text"
+              inputmode="decimal"
+              dir="ltr"
+              placeholder="לדוגמה: 3.5"
+              class="w-full rounded-xl border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-center font-mono text-base text-zinc-100 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30"
+            />
+            <span class="shrink-0 text-sm text-zinc-400">מ׳</span>
+          </div>
+        </label>
+        <p id="scale-error" class="scale-error mt-1.5 text-xs text-red-400"></p>
+
+        <div class="mt-5 flex gap-2">
+          <button
+            id="scale-cancel"
+            class="flex-1 rounded-xl border border-zinc-700 bg-transparent px-4 py-2.5 font-medium text-zinc-300 transition hover:bg-zinc-800 active:scale-[0.98]"
+          >
+            ביטול
+          </button>
+          <button
+            id="scale-confirm"
+            class="flex-1 rounded-xl bg-brand-500 px-4 py-2.5 font-medium text-white shadow-lg transition hover:bg-brand-600 active:scale-[0.98]"
+          >
+            אישור
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- toast -->
     <div
       id="toast"
@@ -198,6 +275,7 @@
     <script src="js/state.js"></script>
     <script src="js/viewport.js"></script>
     <script src="js/renderer.js"></script>
+    <script src="js/scale.js"></script>
     <script src="js/ingest.js"></script>
     <script src="js/input.js"></script>
     <script src="js/ui.js"></script>
