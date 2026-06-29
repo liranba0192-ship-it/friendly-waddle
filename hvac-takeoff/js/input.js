@@ -65,10 +65,12 @@ App.input = (function () {
 
     if (tool() === "scale") {
       App.scale.begin(worldOf(local));
+    } else if (tool() === "route") {
+      App.routing.beginDrag(worldOf(local)); // grab a handle if one is under us
     } else if (tool() === "pan") {
       canvas.classList.add("is-grabbing");
     }
-    // "room": vertices are added on release (click), preview follows the move
+    // "room"/"asset": acted on release (click); "room" preview follows the move
   }
 
   // ---- move ----
@@ -97,6 +99,10 @@ App.input = (function () {
     }
 
     // single-pointer drag
+    if (App.routing.isDragging()) {
+      App.routing.dragTo(worldOf(cur)); // move a route handle (manual override)
+      return;
+    }
     if (App.scale.isDrawing()) {
       App.scale.update(worldOf(cur));
       return;
@@ -130,6 +136,7 @@ App.input = (function () {
       canvas.releasePointerCapture(e.pointerId);
     }
     const wasDrawing = App.scale.isDrawing();
+    const wasDraggingHandle = App.routing.isDragging();
     pointers.delete(e.pointerId);
     if (pointers.size < 2) lastPinchDist = 0;
     if (pointers.size === 0) canvas.classList.remove("is-grabbing");
@@ -143,6 +150,11 @@ App.input = (function () {
       App.scale.finish();
       return;
     }
+    // end a route-handle drag (whether or not it actually moved)
+    if (wasDraggingHandle && pointers.size === 0) {
+      App.routing.endDrag();
+      return;
+    }
 
     if (!wasClick || pointers.size !== 0) return;
 
@@ -151,6 +163,10 @@ App.input = (function () {
     const world = worldOf(local);
     if (tool() === "room") {
       App.rooms.addPoint(world);
+    } else if (tool() === "asset") {
+      App.routing.placeAsset(world);
+    } else if (tool() === "route") {
+      App.routing.connectTap(world);
     } else if (tool() === "pan") {
       const r = App.rooms.roomAt(world);
       App.state.setSelectedRoom(r ? r.id : null);
@@ -169,6 +185,7 @@ App.input = (function () {
   function onKeyDown(e) {
     if (e.key === "Escape") {
       if (App.rooms.isActive()) App.rooms.cancelDraft();
+      App.routing.cancel();
     }
   }
 
