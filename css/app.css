@@ -1,0 +1,149 @@
+/* HVAC Takeoff Pro — styles Tailwind can't express inline:
+   canvas cursors, custom controls, micro-interactions, scrollbars, safe areas. */
+
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overscroll-behavior: none; /* stop pull-to-refresh / rubber-banding over the canvas */
+}
+
+/* respect device notches on the floating top strip */
+#stage > .pointer-events-none.absolute.inset-x-0.top-0 {
+  padding-top: calc(0.75rem + var(--safe-top));
+}
+
+/* ---- canvas interaction cursors ---- */
+#board {
+  cursor: grab;
+}
+#board.is-grabbing {
+  cursor: grabbing;
+}
+
+/* ---- icon button (zoom, theme) ---- */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.625rem;
+  font-size: 1.125rem;
+  line-height: 1;
+  color: #d4d4d8; /* zinc-300 */
+  transition: background-color 0.15s ease, transform 0.1s ease, color 0.15s ease;
+}
+.icon-btn:hover {
+  background: rgba(63, 63, 70, 0.7); /* zinc-700 */
+  color: #fff;
+}
+.icon-btn:active {
+  transform: scale(0.92);
+}
+
+/* ---- tool button ---- */
+.tool-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.625rem 0.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(63, 63, 70, 0.7);
+  background: rgba(39, 39, 42, 0.6); /* zinc-800 */
+  color: #d4d4d8;
+  font-size: 0.8125rem;
+  transition: border-color 0.15s ease, background-color 0.15s ease,
+    transform 0.1s ease, box-shadow 0.15s ease;
+}
+.tool-btn:not(:disabled):hover {
+  border-color: rgba(14, 165, 233, 0.6); /* brand-500 */
+  background: rgba(39, 39, 42, 0.9);
+}
+.tool-btn:not(:disabled):active {
+  transform: scale(0.96);
+}
+.tool-btn.is-active {
+  border-color: #0ea5e9;
+  background: rgba(14, 165, 233, 0.15);
+  color: #e0f2fe;
+  box-shadow: 0 0 0 1px rgba(14, 165, 233, 0.4), 0 4px 14px rgba(14, 165, 233, 0.15);
+}
+.tool-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ---- page thumbnails ---- */
+.page-thumb.is-active {
+  border-color: #0ea5e9 !important;
+  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.5);
+}
+
+/* ---- drop target highlight ---- */
+#stage.is-dropping::after {
+  content: "";
+  position: absolute;
+  inset: 0.75rem;
+  border: 2px dashed rgba(56, 189, 248, 0.7);
+  border-radius: 1rem;
+  background: rgba(14, 165, 233, 0.06);
+  pointer-events: none;
+}
+
+/* ---- loading veil ---- */
+#stage.is-loading .loading-veil {
+  opacity: 1;
+}
+.spinner {
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 50%;
+  border: 2px solid rgba(148, 163, 184, 0.35);
+  border-top-color: #38bdf8;
+  animation: hvac-spin 0.7s linear infinite;
+}
+@keyframes hvac-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---- toast ---- */
+.toast {
+  opacity: 0;
+  transform: translate(-50%, 0.5rem);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.toast.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* ---- slim scrollbar for the page list ---- */
+#page-list {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(113, 113, 122, 0.6) transparent;
+}
+#page-list::-webkit-scrollbar {
+  width: 8px;
+}
+#page-list::-webkit-scrollbar-thumb {
+  background: rgba(113, 113, 122, 0.5);
+  border-radius: 8px;
+}
+#page-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(113, 113, 122, 0.8);
+}
+
+/* ---- light theme overrides (default is dark) ---- */
+html:not(.dark) body {
+  background: #f1f5f9;
+  color: #0f172a;
+}

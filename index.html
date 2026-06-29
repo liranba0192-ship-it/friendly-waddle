@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"
+    />
+    <title>HVAC Takeoff Pro</title>
+    <meta name="description" content="כלי תכנון התקנות מיזוג — מדידה, חישוב BTU ורשימת חומרים על גבי שרטוט." />
+
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="theme-color" content="#0b0f17" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="HVAC Takeoff" />
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <link rel="icon" href="icons/icon-192.png" />
+
+    <!-- Tailwind (Play CDN) with inline theme config -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                50: "#eff6ff",
+                400: "#38bdf8",
+                500: "#0ea5e9",
+                600: "#0284c7",
+              },
+            },
+            fontFamily: {
+              sans: [
+                "-apple-system",
+                "BlinkMacSystemFont",
+                "Segoe UI",
+                "Heebo",
+                "Arial Hebrew",
+                "system-ui",
+                "sans-serif",
+              ],
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- pdf.js (UMD global: window.pdfjsLib) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+    <link rel="stylesheet" href="css/app.css" />
+  </head>
+
+  <body class="font-sans bg-zinc-950 text-zinc-100 antialiased overflow-hidden">
+    <div class="flex h-[100dvh] w-screen overflow-hidden">
+      <!-- ===== Canvas stage (main area) ===== -->
+      <main id="stage" class="relative flex-1 min-w-0 bg-[#0b0f17]">
+        <canvas id="board" class="absolute inset-0 h-full w-full touch-none select-none"></canvas>
+
+        <!-- floating top strip -->
+        <div
+          class="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-between gap-3 p-3"
+        >
+          <div
+            class="pointer-events-auto flex items-center gap-2 rounded-xl border border-zinc-700/60 bg-zinc-900/70 px-3 py-1.5 text-sm shadow-lg backdrop-blur"
+          >
+            <span class="text-brand-400">📐</span>
+            <span id="doc-name" class="max-w-[40vw] truncate text-zinc-300">אין קובץ טעון</span>
+            <span class="text-zinc-600">·</span>
+            <span id="page-indicator" class="tabular-nums text-zinc-400">—</span>
+          </div>
+
+          <div
+            id="coords"
+            class="pointer-events-auto rounded-xl border border-zinc-700/60 bg-zinc-900/70 px-3 py-1.5 font-mono text-xs tabular-nums text-zinc-400 shadow-lg backdrop-blur"
+          >
+            X 0  Y 0
+          </div>
+        </div>
+
+        <!-- empty-state hint -->
+        <div
+          id="empty-hint"
+          class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-4 text-center"
+        >
+          <div class="text-6xl opacity-40">🗂️</div>
+          <p class="text-lg font-medium text-zinc-300">טען שרטוט כדי להתחיל</p>
+          <p class="max-w-xs text-sm text-zinc-500">
+            גרור לכאן קובץ PDF או תמונה, או לחץ על הכפתור
+          </p>
+          <button
+            id="open-file-empty"
+            class="pointer-events-auto rounded-xl bg-brand-500 px-5 py-2.5 font-medium text-white shadow-lg transition hover:bg-brand-600 active:scale-95"
+          >
+            פתח קובץ
+          </button>
+        </div>
+
+        <!-- floating zoom controls (bottom-start) -->
+        <div
+          class="absolute bottom-4 start-4 flex items-center gap-1 rounded-xl border border-zinc-700/60 bg-zinc-900/70 p-1 shadow-lg backdrop-blur"
+        >
+          <button id="zoom-out" class="icon-btn" title="התרחקות" aria-label="התרחקות">−</button>
+          <button
+            id="zoom-level"
+            class="min-w-[3.5rem] rounded-lg px-2 py-1 text-center text-sm tabular-nums text-zinc-300 transition hover:bg-zinc-800"
+            title="התאם למסך"
+          >
+            100%
+          </button>
+          <button id="zoom-in" class="icon-btn" title="התקרבות" aria-label="התקרבות">+</button>
+          <span class="mx-1 h-5 w-px bg-zinc-700"></span>
+          <button id="zoom-fit" class="icon-btn text-base" title="התאם למסך" aria-label="התאם למסך">⤢</button>
+        </div>
+
+        <!-- loading veil -->
+        <div
+          class="loading-veil pointer-events-none absolute inset-0 flex items-center justify-center bg-zinc-950/60 opacity-0 transition-opacity"
+        >
+          <div class="flex items-center gap-3 rounded-xl bg-zinc-900/90 px-5 py-3 shadow-xl">
+            <span class="spinner"></span>
+            <span class="text-sm text-zinc-200">מעבד קובץ…</span>
+          </div>
+        </div>
+      </main>
+
+      <!-- ===== Sidebar (right, RTL natural) ===== -->
+      <aside
+        class="flex w-72 shrink-0 flex-col border-s border-zinc-800 bg-zinc-900/80 backdrop-blur"
+      >
+        <!-- brand header -->
+        <header class="flex items-center gap-3 border-b border-zinc-800 px-4 py-4">
+          <div
+            class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-400 to-brand-600 text-lg shadow-inner"
+          >
+            ❄️
+          </div>
+          <div class="min-w-0">
+            <h1 class="truncate text-base font-semibold leading-tight">HVAC Takeoff Pro</h1>
+            <p class="truncate text-xs text-zinc-500">תכנון התקנות מיזוג</p>
+          </div>
+          <button
+            id="theme-toggle"
+            class="icon-btn ms-auto"
+            title="החלף ערכת נושא"
+            aria-label="החלף ערכת נושא"
+          >
+            ◐
+          </button>
+        </header>
+
+        <!-- file actions -->
+        <section class="border-b border-zinc-800 p-4">
+          <button
+            id="open-file"
+            class="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 font-medium text-white shadow-lg transition hover:bg-brand-600 active:scale-[0.98]"
+          >
+            <span>📂</span> פתח שרטוט
+          </button>
+          <input id="file-input" type="file" accept=".pdf,.png,.jpg,.jpeg,.webp,image/*,application/pdf" class="hidden" />
+        </section>
+
+        <!-- tools -->
+        <section class="border-b border-zinc-800 p-4">
+          <h2 class="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">כלים</h2>
+          <div class="grid grid-cols-2 gap-2">
+            <button class="tool-btn is-active" data-tool="pan">
+              <span class="text-lg">✋</span><span>הזזה</span>
+            </button>
+            <button class="tool-btn" data-tool="measure" disabled>
+              <span class="text-lg">📏</span><span>מדידה</span>
+            </button>
+          </div>
+          <p class="mt-2 text-[11px] leading-relaxed text-zinc-600">
+            כלי המדידה, חישוב ה‑BTU ורשימת החומרים יתווספו בשלבים הבאים.
+          </p>
+        </section>
+
+        <!-- pages -->
+        <section class="flex min-h-0 flex-1 flex-col p-4">
+          <h2 class="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">עמודים</h2>
+          <div id="page-list" class="grid min-h-0 flex-1 content-start gap-2 overflow-y-auto pe-1"></div>
+        </section>
+      </aside>
+    </div>
+
+    <!-- toast -->
+    <div
+      id="toast"
+      class="toast pointer-events-none fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-xl bg-zinc-800 px-4 py-2 text-sm text-zinc-100 shadow-2xl"
+    ></div>
+
+    <!-- app modules (order matters: dependencies first) -->
+    <script src="js/state.js"></script>
+    <script src="js/viewport.js"></script>
+    <script src="js/renderer.js"></script>
+    <script src="js/ingest.js"></script>
+    <script src="js/input.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>
