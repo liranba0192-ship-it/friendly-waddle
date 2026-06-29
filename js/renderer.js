@@ -217,6 +217,164 @@ App.renderer = (function () {
     ctx.restore();
   }
 
+  // ---- HVAC assets & routes (STEP 4) -------------------------------------
+  function pill(text, sx, sy, fg, bg) {
+    ctx.font = "600 11px -apple-system, BlinkMacSystemFont, 'Segoe UI', Heebo, sans-serif";
+    const padX = 6;
+    const tw = ctx.measureText(text).width;
+    ctx.fillStyle = bg;
+    roundRect(sx - tw / 2 - padX, sy - 9, tw + padX * 2, 18, 5);
+    ctx.fill();
+    ctx.fillStyle = fg;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(text, sx, sy);
+  }
+
+  /** Draw a single asset symbol centered at screen (sx,sy) within a size box. */
+  function drawAssetSymbol(type, sx, sy, size, color, highlight) {
+    const h = size / 2;
+    ctx.save();
+    ctx.translate(sx, sy);
+
+    // badge backdrop
+    ctx.beginPath();
+    roundRect(-h, -h, size, size, 7);
+    ctx.fillStyle = highlight ? "rgba(15,23,42,0.98)" : "rgba(15,23,42,0.92)";
+    ctx.fill();
+    ctx.lineWidth = highlight ? 2.5 : 1.5;
+    ctx.strokeStyle = color;
+    ctx.stroke();
+
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = 1.6;
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
+    const u = size * 0.3; // symbol half-extent
+
+    if (type === "condenser") {
+      // outdoor unit: box + fan circle
+      ctx.strokeRect(-u, -u * 0.75, u * 2, u * 1.5);
+      ctx.beginPath();
+      ctx.arc(0, 0, u * 0.62, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      for (let i = 0; i < 4; i++) {
+        const a = (i / 4) * Math.PI * 2 + 0.4;
+        ctx.moveTo(0, 0);
+        ctx.lineTo(Math.cos(a) * u * 0.6, Math.sin(a) * u * 0.6);
+      }
+      ctx.stroke();
+    } else if (type === "hiwall") {
+      // indoor hi-wall: rounded bar + louver line
+      roundRect(-u, -u * 0.5, u * 2, u, u * 0.5);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(-u * 0.7, u * 0.25);
+      ctx.lineTo(u * 0.7, u * 0.25);
+      ctx.stroke();
+    } else if (type === "mini_central") {
+      // ducted mini-central: box + two duct arrows
+      ctx.strokeRect(-u, -u * 0.6, u * 2, u * 1.2);
+      ctx.beginPath();
+      ctx.moveTo(-u * 0.4, u * 0.6);
+      ctx.lineTo(-u * 0.4, u * 1.05);
+      ctx.moveTo(u * 0.4, u * 0.6);
+      ctx.lineTo(u * 0.4, u * 1.05);
+      ctx.stroke();
+    } else if (type === "vrf_box") {
+      // VRF branch box: square + branch stubs
+      ctx.strokeRect(-u * 0.8, -u * 0.8, u * 1.6, u * 1.6);
+      ctx.beginPath();
+      ctx.moveTo(0, u * 0.8);
+      ctx.lineTo(0, u * 1.1);
+      ctx.moveTo(-u * 0.4, u * 1.1);
+      ctx.lineTo(u * 0.4, u * 1.1);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawAssets() {
+    if (!App.routing) return;
+    const assets = App.state.getAssets();
+    const size = App.routing.assetSize();
+    const startId = App.routing.getStartAssetId();
+    assets.forEach((a) => {
+      const def = App.routing.getAssetDef(a.type) || { color: "#94a3b8" };
+      const s = App.viewport.worldToScreen(a.x, a.y);
+      const isStart = a.id === startId;
+      if (isStart) {
+        // selection ring for the route's first endpoint
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, size * 0.82, 0, Math.PI * 2);
+        ctx.strokeStyle = "#22d3ee";
+        ctx.lineWidth = 2;
+        ctx.setLineDash([4, 3]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+      drawAssetSymbol(a.type, s.x, s.y, size, def.color, isStart);
+    });
+  }
+
+  function drawRoutes() {
+    if (!App.routing) return;
+    const routes = App.state.getRoutes();
+    routes.forEach((r) => {
+      if (r.points.length < 2) return;
+      const def = App.routing.getLineDef(r.lineType);
+      const pts = r.points.map((p) => App.viewport.worldToScreen(p.x, p.y));
+
+      // subtle dark casing for contrast over busy blueprints
+      ctx.lineJoin = "round";
+      ctx.lineCap = "round";
+      ctx.setLineDash([]);
+      ctx.strokeStyle = "rgba(8,11,17,0.5)";
+      ctx.lineWidth = def.width + 3;
+      ctx.beginPath();
+      pts.forEach((s, i) => (i === 0 ? ctx.moveTo(s.x, s.y) : ctx.lineTo(s.x, s.y)));
+      ctx.stroke();
+
+      // the typed line
+      ctx.strokeStyle = def.color;
+      ctx.lineWidth = def.width;
+      ctx.setLineDash(def.dash || []);
+      ctx.beginPath();
+      pts.forEach((s, i) => (i === 0 ? ctx.moveTo(s.x, s.y) : ctx.lineTo(s.x, s.y)));
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // real-time length badge
+      const m = App.viewport.worldToScreen(
+        App.routing.midpoint(r.points).x,
+        App.routing.midpoint(r.points).y
+      );
+      const meters = App.routing.lengthMeters(r);
+      const label = meters != null ? meters.toFixed(2) + " מ׳" : "כייל קנה מידה";
+      pill(label, m.x, m.y - 14, "#e5e7eb", "rgba(17,24,39,0.92)");
+    });
+  }
+
+  function drawRouteHandles() {
+    if (!App.routing) return;
+    const routes = App.state.getRoutes();
+    routes.forEach((r) => {
+      const def = App.routing.getLineDef(r.lineType);
+      r.points.forEach((p) => {
+        const s = App.viewport.worldToScreen(p.x, p.y);
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, 5, 0, Math.PI * 2);
+        ctx.fillStyle = "#fff";
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = def.color;
+        ctx.stroke();
+      });
+    });
+  }
+
   /**
    * Draw the scale-calibration reference line in SCREEN space (so its width and
    * handles stay constant and crisp at any zoom). World endpoints are projected
@@ -303,6 +461,9 @@ App.renderer = (function () {
       drawGrid(cssW, cssH);
       drawPage();
       drawRooms();
+      drawRoutes();
+      drawAssets();
+      drawRouteHandles();
       drawScaleLine();
     }
     requestAnimationFrame(frame);
@@ -317,7 +478,9 @@ App.renderer = (function () {
     App.state.on("rooms:changed", markDirty);
     App.state.on("roomhover:changed", markDirty);
     App.state.on("roomselect:changed", markDirty);
-    App.state.on("scale:changed", markDirty); // area labels switch to m²
+    App.state.on("scale:changed", markDirty); // area / length labels switch to m
+    App.state.on("assets:changed", markDirty);
+    App.state.on("routes:changed", markDirty);
 
     // keep the backing store sized to the element
     if (window.ResizeObserver) {

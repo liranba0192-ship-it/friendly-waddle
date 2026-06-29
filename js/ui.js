@@ -73,12 +73,17 @@ App.ui = (function () {
       el.toolButtons.forEach((btn) =>
         btn.classList.toggle("is-active", btn.dataset.tool === tool)
       );
-      // crosshair + no panning for the drawing tools
+      // crosshair + no panning for the drawing/placement tools
       el.canvas.classList.toggle("tool-scale", tool === "scale");
       el.canvas.classList.toggle("tool-room", tool === "room");
+      el.canvas.classList.toggle("tool-asset", tool === "asset");
+      el.canvas.classList.toggle("tool-route", tool === "route");
       // begin a fresh polygon draft when entering the room tool; drop it on exit
       if (tool === "room") App.rooms.start();
       else App.rooms.cancelDraft();
+      // keep asset/route transient selections consistent
+      App.routing.syncTool(tool);
+      reflectSystemTool(tool);
     });
   }
 
@@ -122,6 +127,86 @@ App.ui = (function () {
       el.scaleValue.classList.remove("text-brand-400");
       el.scaleReset.classList.add("hidden");
     }
+  }
+
+  // --- HVAC assets & routing (STEP 4) --------------------------------------
+  function setupSystem() {
+    el.assetButtons.forEach((btn) =>
+      btn.addEventListener("click", () => {
+        if (!App.state.getActivePage()) return toast("טען שרטוט קודם");
+        App.routing.armAsset(btn.dataset.asset);
+      })
+    );
+    el.lineChips.forEach((chip) =>
+      chip.addEventListener("click", () => {
+        if (!App.state.getActivePage()) return toast("טען שרטוט קודם");
+        App.routing.setLineType(chip.dataset.line);
+      })
+    );
+    App.state.on("assets:changed", renderSystem);
+    App.state.on("routes:changed", renderSystem);
+    App.state.on("scale:changed", renderSystem); // lengths switch to meters
+    renderSystem();
+  }
+
+  /** Highlight the armed asset / line-type chip based on the active tool. */
+  function reflectSystemTool(tool) {
+    const pending = App.routing.getPendingAssetType();
+    el.assetButtons.forEach((b) =>
+      b.classList.toggle("is-active", tool === "asset" && b.dataset.asset === pending)
+    );
+    const line = App.routing.getLineType();
+    el.lineChips.forEach((c) =>
+      c.classList.toggle("is-active", tool === "route" && c.dataset.line === line)
+    );
+  }
+
+  function renderSystem() {
+    const assets = App.state.getAssets();
+    const routes = App.state.getRoutes();
+    const defs = App.routing.getAssetDefs();
+    el.systemEmpty.classList.toggle("hidden", assets.length + routes.length > 0);
+
+    el.assetList.innerHTML = "";
+    assets.forEach((a) => {
+      const def = defs[a.type] || { label: a.type, color: "#94a3b8" };
+      const row = document.createElement("div");
+      row.className = "room-row";
+      row.innerHTML =
+        `<span class="room-dot" style="background:${def.color}"></span>` +
+        `<span class="room-meta"><span class="room-name">${escapeHtml(def.label)}</span></span>`;
+      const del = mkDelete(() => App.state.removeAsset(a.id));
+      row.appendChild(del);
+      el.assetList.appendChild(row);
+    });
+
+    el.routeList.innerHTML = "";
+    routes.forEach((r) => {
+      const def = App.routing.getLineDef(r.lineType);
+      const meters = App.routing.lengthMeters(r);
+      const lenText = meters != null ? meters.toFixed(2) + " מ׳" : "— מ׳";
+      const row = document.createElement("div");
+      row.className = "room-row";
+      row.innerHTML =
+        `<span class="room-dot" style="background:${def.color}"></span>` +
+        `<span class="room-meta"><span class="room-name">${escapeHtml(def.label)}</span>` +
+        `<span class="room-area">${lenText}</span></span>`;
+      row.appendChild(mkDelete(() => App.state.removeRoute(r.id)));
+      el.routeList.appendChild(row);
+    });
+  }
+
+  function mkDelete(onClick) {
+    const del = document.createElement("button");
+    del.type = "button";
+    del.className = "room-del";
+    del.title = "מחק";
+    del.textContent = "🗑";
+    del.addEventListener("click", (e) => {
+      e.stopPropagation();
+      onClick();
+    });
+    return del;
   }
 
   // --- zone registry (rooms list) -----------------------------------------
@@ -298,6 +383,11 @@ App.ui = (function () {
     el.scaleReset = $("scale-reset");
     el.roomList = $("room-list");
     el.roomEmpty = $("room-empty");
+    el.assetButtons = [...document.querySelectorAll("[data-asset]")];
+    el.lineChips = [...document.querySelectorAll("[data-line]")];
+    el.assetList = $("asset-list");
+    el.routeList = $("route-list");
+    el.systemEmpty = $("system-empty");
 
     el.openBtn.addEventListener("click", openFileDialog);
     el.openBtnEmpty.addEventListener("click", openFileDialog);
@@ -310,6 +400,7 @@ App.ui = (function () {
     setupTheme();
     setupScale();
     setupRooms();
+    setupSystem();
 
     App.state.on("document:changed", renderPages);
     App.state.on("page:changed", ({ index }) => highlightActivePage(index));

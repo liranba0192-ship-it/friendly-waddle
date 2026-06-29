@@ -34,9 +34,16 @@ App.state = (function () {
     rooms: [],
     hoveredRoomId: null,
     selectedRoomId: null,
+    /** Placed physical assets: { id, type, x, y } (world coords, anchor center). */
+    assets: [],
+    /** Orthogonal pipe/duct routes: { id, lineType, points:[{x,y}...],
+     *  fromAssetId, toAssetId } with points in world coordinates. */
+    routes: [],
   };
 
   let roomSeq = 0;
+  let assetSeq = 0;
+  let routeSeq = 0;
 
   // --- pub/sub -------------------------------------------------------------
   const listeners = new Map(); // event -> Set<fn>
@@ -81,8 +88,12 @@ App.state = (function () {
     data.rooms = [];
     data.hoveredRoomId = null;
     data.selectedRoomId = null;
+    data.assets = [];
+    data.routes = [];
     emit("scale:changed", { pixelsPerMeter: null });
     emit("rooms:changed", { rooms: data.rooms });
+    emit("assets:changed", { assets: data.assets });
+    emit("routes:changed", { routes: data.routes });
     emit("document:changed", { pages, fileName: data.fileName });
     emit("page:changed", { index: data.activePage, page: getActivePage() });
   }
@@ -171,6 +182,47 @@ App.state = (function () {
     return data.selectedRoomId;
   }
 
+  // --- assets --------------------------------------------------------------
+  function getAssets() {
+    return data.assets;
+  }
+  function getAsset(id) {
+    return data.assets.find((a) => a.id === id) || null;
+  }
+  function addAsset(asset) {
+    const full = Object.assign({ id: "asset-" + ++assetSeq }, asset);
+    data.assets.push(full);
+    emit("assets:changed", { assets: data.assets });
+    return full;
+  }
+  function removeAsset(id) {
+    const i = data.assets.findIndex((a) => a.id === id);
+    if (i < 0) return;
+    data.assets.splice(i, 1);
+    emit("assets:changed", { assets: data.assets });
+  }
+
+  // --- routes --------------------------------------------------------------
+  function getRoutes() {
+    return data.routes;
+  }
+  function addRoute(route) {
+    const full = Object.assign({ id: "route-" + ++routeSeq }, route);
+    data.routes.push(full);
+    emit("routes:changed", { routes: data.routes });
+    return full;
+  }
+  function removeRoute(id) {
+    const i = data.routes.findIndex((r) => r.id === id);
+    if (i < 0) return;
+    data.routes.splice(i, 1);
+    emit("routes:changed", { routes: data.routes });
+  }
+  /** Notify listeners a route's geometry changed (e.g. a handle was dragged). */
+  function touchRoutes() {
+    emit("routes:changed", { routes: data.routes });
+  }
+
   return {
     on,
     emit,
@@ -194,5 +246,13 @@ App.state = (function () {
     getHoveredRoom,
     setSelectedRoom,
     getSelectedRoom,
+    getAssets,
+    getAsset,
+    addAsset,
+    removeAsset,
+    getRoutes,
+    addRoute,
+    removeRoute,
+    touchRoutes,
   };
 })();

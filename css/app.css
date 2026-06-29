@@ -29,8 +29,14 @@ body {
 #board.tool-scale,
 #board.tool-scale.is-grabbing,
 #board.tool-room,
-#board.tool-room.is-grabbing {
+#board.tool-room.is-grabbing,
+#board.tool-asset,
+#board.tool-asset.is-grabbing {
   cursor: crosshair;
+}
+#board.tool-route,
+#board.tool-route.is-grabbing {
+  cursor: cell;
 }
 
 /* ---- icon button (zoom, theme) ---- */
@@ -195,6 +201,80 @@ body {
   border-color: var(--zone);
   background: color-mix(in srgb, var(--zone) 18%, transparent);
   color: #f4f4f5;
+}
+
+/* ---- asset tray buttons ---- */
+.asset-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.6rem 0.4rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(63, 63, 70, 0.7);
+  background: rgba(39, 39, 42, 0.6);
+  color: #d4d4d8;
+  font-size: 0.72rem;
+  transition: border-color 0.15s ease, background-color 0.15s ease,
+    transform 0.1s ease, box-shadow 0.15s ease, color 0.15s ease;
+}
+.asset-btn svg {
+  width: 26px;
+  height: 26px;
+  color: var(--c);
+}
+.asset-btn:hover {
+  border-color: color-mix(in srgb, var(--c) 55%, transparent);
+  background: rgba(39, 39, 42, 0.9);
+}
+.asset-btn:active {
+  transform: scale(0.96);
+}
+.asset-btn.is-active {
+  border-color: var(--c);
+  background: color-mix(in srgb, var(--c) 14%, transparent);
+  color: #f4f4f5;
+  box-shadow: 0 0 0 1px var(--c), 0 4px 14px color-mix(in srgb, var(--c) 25%, transparent);
+}
+
+/* ---- routing line chips ---- */
+.line-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: 0.625rem;
+  border: 1px solid rgba(63, 63, 70, 0.7);
+  background: rgba(39, 39, 42, 0.6);
+  color: #d4d4d8;
+  font-size: 0.8125rem;
+  transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.1s ease;
+}
+.line-chip:hover {
+  border-color: color-mix(in srgb, var(--c) 55%, transparent);
+  background: rgba(39, 39, 42, 0.9);
+}
+.line-chip:active {
+  transform: scale(0.98);
+}
+.line-chip.is-active {
+  border-color: var(--c);
+  background: color-mix(in srgb, var(--c) 14%, transparent);
+  color: #f4f4f5;
+}
+.line-swatch {
+  width: 28px;
+  height: 0;
+  flex-shrink: 0;
+  border-top: 3px solid var(--c);
+  border-radius: 2px;
+}
+.line-swatch--dash {
+  border-top-style: dashed;
+}
+.line-swatch--flex {
+  border-top-width: 5px;
+  border-top-style: dotted;
 }
 
 /* ---- room-naming popup ---- */
