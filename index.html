@@ -200,6 +200,20 @@
           <input id="file-input" type="file" accept=".pdf,.png,.jpg,.jpeg,.webp,image/*,application/pdf" class="hidden" />
         </section>
 
+        <!-- projects manager -->
+        <section class="border-b border-zinc-800 p-4">
+          <h2 class="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">ניהול פרויקטים</h2>
+          <div class="grid grid-cols-2 gap-2">
+            <button id="project-save" class="rounded-xl border border-zinc-700/70 bg-zinc-800/60 px-3 py-2 text-sm text-zinc-200 transition hover:border-brand-500/60 hover:bg-zinc-800 active:scale-[0.98]">💾 שמור פרויקט</button>
+            <button id="project-new" class="rounded-xl border border-zinc-700/70 bg-zinc-800/60 px-3 py-2 text-sm text-zinc-200 transition hover:border-brand-500/60 hover:bg-zinc-800 active:scale-[0.98]">＋ פרויקט חדש</button>
+          </div>
+          <div class="mt-2 flex gap-2">
+            <select id="project-select" class="project-select min-w-0 flex-1"><option value="">פרויקטים שמורים…</option></select>
+            <button id="project-delete" class="icon-btn shrink-0 border border-zinc-700/70" title="מחק פרויקט נבחר" aria-label="מחק פרויקט נבחר">🗑</button>
+          </div>
+          <p id="project-status" class="mt-1.5 text-[11px] text-zinc-600"></p>
+        </section>
+
         <!-- tools -->
         <section class="border-b border-zinc-800 p-4">
           <h2 class="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">כלים</h2>
@@ -442,6 +456,7 @@
     <script src="js/rooms.js"></script>
     <script src="js/routing.js"></script>
     <script src="js/estimate.js"></script>
+    <script src="js/projects.js"></script>
     <script src="js/ingest.js"></script>
     <script src="js/input.js"></script>
     <script src="js/ui.js"></script>
