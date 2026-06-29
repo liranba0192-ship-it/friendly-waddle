@@ -96,21 +96,22 @@ App.learn = (function () {
     }
   }
 
-  // שיעור פיננסי יומי — מתקדם אוטומטית בכל יום קלנדרי חדש, בלי לחזור על אתמול
-  function ensureDailyLesson() {
+  // שיעור יומי מתקדם אוטומטית בכל יום קלנדרי חדש, בלי לחזור על אתמול (פיננסי / שיעור יומי)
+  function ensureDailyAdvance(dayKey, dateKey, len) {
     const d = raw();
     const today = U.todayISO();
-    if (!d.finDate) { d.finDay = d.finDay || 0; d.finDate = today; save(d); return; }
-    if (d.finDate !== today) {
-      d.finDay = ((d.finDay || 0) + 1) % Math.max(lessons.length, 1); // יום חדש = שיעור הבא
-      d.finDate = today;
+    if (!d[dateKey]) { d[dayKey] = d[dayKey] || 0; d[dateKey] = today; save(d); return; }
+    if (d[dateKey] !== today) {
+      d[dayKey] = ((d[dayKey] || 0) + 1) % Math.max(len, 1); // יום חדש = השיעור הבא
+      d[dateKey] = today;
       save(d);
     }
   }
 
   function renderHome() {
     if (section === "en") ensureDailyBatch();
-    if (section === "finance") ensureDailyLesson();
+    if (section === "finance") ensureDailyAdvance("finDay", "finDate", lessons.length);
+    if (section === "daily") ensureDailyAdvance("dailyDay", "dailyDate", dailyLessons.length);
     root.innerHTML = sectionTabs() + (section === "en" ? enHomeHTML() : courseHomeHTML(courseCfg()));
     root.querySelectorAll("#learn-seg button").forEach((b) =>
       b.addEventListener("click", () => { section = b.dataset.sec; view = { kind: "home" }; render(); })
@@ -305,9 +306,9 @@ App.learn = (function () {
   // ========== COURSES (finance / ai) ==========
   function courseCfg() {
     if (section === "daily") return {
-      arr: dailyLessons, doneKey: "dailyDone", daily: false, levels: false, newestFirst: true,
+      arr: dailyLessons, doneKey: "dailyDone", dayKey: "dailyDay", daily: true, levels: true,
       title: "📅 השיעור היומי — כושר, תזונה ובריאות",
-      hint: "שיעור חדש כל בוקר, מבוסס מחקר, בלי לחזור על עצמו. השיעור של היום למעלה — והישנים נשמרים תמיד.",
+      hint: "100 שיעורים ב-5 רמות — תזונה, אימון, תוספים ובריאות. שיעור חדש כל יום, אוטומטית.",
     };
     if (section === "ai") return {
       arr: aiLessons, doneKey: "aiDone", daily: false, levels: true,
