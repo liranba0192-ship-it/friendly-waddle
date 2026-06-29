@@ -141,8 +141,10 @@ App.ui = (function () {
       chip.addEventListener("click", () => {
         if (!App.state.getActivePage()) return toast("טען שרטוט קודם");
         App.routing.setLineType(chip.dataset.line);
+        updateLineSizeUI();
       })
     );
+    el.lineSize.addEventListener("change", () => App.routing.setLineSize(el.lineSize.value));
     App.state.on("assets:changed", renderSystem);
     App.state.on("routes:changed", renderSystem);
     App.state.on("scale:changed", renderSystem); // lengths switch to meters
@@ -159,6 +161,23 @@ App.ui = (function () {
     el.lineChips.forEach((c) =>
       c.classList.toggle("is-active", tool === "route" && c.dataset.line === line)
     );
+    updateLineSizeUI();
+  }
+
+  /** Show the diameter dropdown only for sized line types while routing. */
+  function updateLineSizeUI() {
+    const type = App.routing.getLineType();
+    const dias = App.routing.getDiameters(type);
+    if (App.state.getTool() === "route" && dias) {
+      // the inch-mark (") must be entity-escaped or it terminates the attribute
+      el.lineSize.innerHTML = dias
+        .map((d) => `<option value="${d.replace(/"/g, "&quot;")}">${d}</option>`)
+        .join("");
+      el.lineSize.value = App.routing.getLineSize();
+      el.lineSizeWrap.classList.remove("hidden");
+    } else {
+      el.lineSizeWrap.classList.add("hidden");
+    }
   }
 
   function renderSystem() {
@@ -189,7 +208,7 @@ App.ui = (function () {
       row.className = "room-row";
       row.innerHTML =
         `<span class="room-dot" style="background:${def.color}"></span>` +
-        `<span class="room-meta"><span class="room-name">${escapeHtml(def.label)}</span>` +
+        `<span class="room-meta"><span class="room-name">${escapeHtml(App.routing.routeLabel(r))}</span>` +
         `<span class="room-area">${lenText}</span></span>`;
       row.appendChild(mkDelete(() => App.state.removeRoute(r.id)));
       el.routeList.appendChild(row);
@@ -404,6 +423,8 @@ App.ui = (function () {
     el.assetList = $("asset-list");
     el.routeList = $("route-list");
     el.systemEmpty = $("system-empty");
+    el.lineSize = $("line-size-select");
+    el.lineSizeWrap = $("line-size-wrap");
 
     el.openBtn.addEventListener("click", openFileDialog);
     el.openBtnEmpty.addEventListener("click", openFileDialog);

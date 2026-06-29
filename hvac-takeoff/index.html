@@ -214,6 +214,25 @@
           <p id="project-status" class="mt-1.5 text-[11px] text-zinc-600"></p>
         </section>
 
+        <!-- my business details (white-label branding) -->
+        <section class="border-b border-zinc-800 p-4">
+          <h2 class="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">פרטי העסק שלי</h2>
+          <div class="flex flex-col gap-2">
+            <input id="biz-name" type="text" placeholder="שם העסק" class="biz-input" />
+            <input id="biz-phone" type="tel" inputmode="tel" placeholder="טלפון" class="biz-input" />
+            <input id="biz-email" type="email" inputmode="email" dir="ltr" placeholder='דוא"ל' class="biz-input" />
+            <div class="flex items-center gap-2">
+              <label class="biz-logo-btn">
+                העלה לוגו
+                <input id="biz-logo" type="file" accept="image/*" class="hidden" />
+              </label>
+              <img id="biz-logo-preview" alt="לוגו" class="biz-logo-preview hidden" />
+              <button id="biz-logo-clear" class="hidden rounded-md px-1.5 py-0.5 text-zinc-500 transition hover:bg-zinc-700 hover:text-zinc-200" title="הסר לוגו">✕</button>
+            </div>
+          </div>
+          <p class="mt-1.5 text-[11px] leading-relaxed text-zinc-600">יופיעו בכותרת הצעת המחיר ב‑PDF. נשמרים במכשיר.</p>
+        </section>
+
         <!-- tools -->
         <section class="border-b border-zinc-800 p-4">
           <h2 class="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">כלים</h2>
@@ -324,6 +343,10 @@
             <button class="line-chip" data-line="flex" style="--c:#cbd5e1">
               <span class="line-swatch line-swatch--flex"></span><span class="flex-1 text-start">תעלה גמישה</span>
             </button>
+          </div>
+          <div id="line-size-wrap" class="mt-2 hidden">
+            <label class="mb-1 block text-[11px] text-zinc-400">קוטר צינור</label>
+            <select id="line-size-select" class="project-select w-full"></select>
           </div>
           <p class="mt-2 text-[11px] leading-relaxed text-zinc-600">בחר סוג קו, ואז הקש על רכיב מקור ויעד לחיבור אוטומטי ב‑90°.</p>
         </section>
@@ -456,6 +479,7 @@
     <script src="js/rooms.js"></script>
     <script src="js/routing.js"></script>
     <script src="js/estimate.js"></script>
+    <script src="js/business.js"></script>
     <script src="js/projects.js"></script>
     <script src="js/ingest.js"></script>
     <script src="js/input.js"></script>

@@ -434,6 +434,48 @@ body {
   color: #e4e4e7;
 }
 
+/* ---- my business details ---- */
+.biz-input {
+  width: 100%;
+  border-radius: 0.625rem;
+  border: 1px solid rgba(63, 63, 70, 0.7);
+  background: rgba(39, 39, 42, 0.6);
+  padding: 0.45rem 0.6rem;
+  font-size: 0.8125rem;
+  color: #e4e4e7;
+  outline: none;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+.biz-input::placeholder {
+  color: #52525b;
+}
+.biz-input:focus {
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.22);
+}
+.biz-logo-btn {
+  cursor: pointer;
+  border-radius: 0.625rem;
+  border: 1px dashed rgba(113, 113, 122, 0.7);
+  background: rgba(39, 39, 42, 0.5);
+  padding: 0.4rem 0.7rem;
+  font-size: 0.75rem;
+  color: #d4d4d8;
+  transition: border-color 0.12s ease, background-color 0.12s ease;
+}
+.biz-logo-btn:hover {
+  border-color: #0ea5e9;
+  background: rgba(39, 39, 42, 0.9);
+}
+.biz-logo-preview {
+  height: 2.25rem;
+  max-width: 6rem;
+  object-fit: contain;
+  border-radius: 0.375rem;
+  background: #fff;
+  padding: 2px;
+}
+
 /* ---- review & estimate overlay ---- */
 .estimate-overlay {
   display: none;
