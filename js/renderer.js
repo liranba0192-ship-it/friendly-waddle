@@ -109,6 +109,114 @@ App.renderer = (function () {
     ctx.restore();
   }
 
+  function hexToRgba(hex, alpha) {
+    const h = hex.replace("#", "");
+    const r = parseInt(h.slice(0, 2), 16);
+    const g = parseInt(h.slice(2, 4), 16);
+    const b = parseInt(h.slice(4, 6), 16);
+    return `rgba(${r},${g},${b},${alpha})`;
+  }
+
+  function polyPath(points) {
+    ctx.beginPath();
+    points.forEach((wp, i) => {
+      const s = App.viewport.worldToScreen(wp.x, wp.y);
+      if (i === 0) ctx.moveTo(s.x, s.y);
+      else ctx.lineTo(s.x, s.y);
+    });
+  }
+
+  /** Centered name + area label for a finalized room. */
+  function drawRoomLabel(room) {
+    const c = App.rooms.centroid(room.points);
+    const s = App.viewport.worldToScreen(c.x, c.y);
+    const area = App.rooms.areaM2(room);
+    const areaText = area != null ? area.toFixed(1) + " מ²" : "כייל קנה מידה";
+
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = "600 13px -apple-system, BlinkMacSystemFont, 'Segoe UI', Heebo, sans-serif";
+    ctx.lineJoin = "round";
+    // outlined text for legibility over any fill
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = "rgba(8,11,17,0.85)";
+    ctx.strokeText(room.name, s.x, s.y - 8);
+    ctx.fillStyle = "#f8fafc";
+    ctx.fillText(room.name, s.x, s.y - 8);
+
+    ctx.font = "500 11px -apple-system, BlinkMacSystemFont, 'Segoe UI', Heebo, sans-serif";
+    ctx.lineWidth = 3;
+    ctx.strokeText(areaText, s.x, s.y + 9);
+    ctx.fillStyle = area != null ? "#cbd5e1" : "#fca5a5";
+    ctx.fillText(areaText, s.x, s.y + 9);
+  }
+
+  /** Draw all finalized rooms, the pending (closed, unnamed) polygon, and the
+   *  in-progress draft polyline. Rendered in screen space. */
+  function drawRooms() {
+    if (!App.rooms) return;
+    const rooms = App.state.getRooms();
+    const hovered = App.state.getHoveredRoom();
+    const selected = App.state.getSelectedRoom();
+
+    ctx.save();
+    rooms.forEach((room) => {
+      if (room.points.length < 3) return;
+      const active = room.id === hovered || room.id === selected;
+      polyPath(room.points);
+      ctx.closePath();
+      ctx.fillStyle = hexToRgba(room.color, active ? 0.35 : 0.2);
+      ctx.fill();
+      ctx.strokeStyle = room.color;
+      ctx.lineWidth = room.id === selected ? 3 : 1.75;
+      ctx.stroke();
+      drawRoomLabel(room);
+    });
+
+    // pending closed polygon (awaiting a name)
+    const pending = App.rooms.getPending();
+    if (pending && pending.points.length >= 3) {
+      polyPath(pending.points);
+      ctx.closePath();
+      ctx.fillStyle = hexToRgba(pending.color, 0.28);
+      ctx.fill();
+      ctx.strokeStyle = pending.color;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    // in-progress draft polyline + rubber band
+    const draft = App.rooms.getDraft();
+    if (draft && draft.points.length) {
+      const pts = draft.points.map((wp) => App.viewport.worldToScreen(wp.x, wp.y));
+      ctx.beginPath();
+      pts.forEach((s, i) => (i === 0 ? ctx.moveTo(s.x, s.y) : ctx.lineTo(s.x, s.y)));
+      if (draft.preview) {
+        const pv = App.viewport.worldToScreen(draft.preview.x, draft.preview.y);
+        ctx.setLineDash([6, 4]);
+        ctx.lineTo(pv.x, pv.y);
+      }
+      ctx.strokeStyle = "#38bdf8";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // vertices; highlight the start when a click would close the polygon
+      pts.forEach((s, i) => {
+        const isStart = i === 0;
+        const r = isStart && draft.nearStart ? 7 : 4;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, r, 0, Math.PI * 2);
+        ctx.fillStyle = isStart && draft.nearStart ? "#22d3ee" : "#fff";
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "#0ea5e9";
+        ctx.stroke();
+      });
+    }
+    ctx.restore();
+  }
+
   /**
    * Draw the scale-calibration reference line in SCREEN space (so its width and
    * handles stay constant and crisp at any zoom). World endpoints are projected
@@ -194,6 +302,7 @@ App.renderer = (function () {
       clear(cssW, cssH);
       drawGrid(cssW, cssH);
       drawPage();
+      drawRooms();
       drawScaleLine();
     }
     requestAnimationFrame(frame);
@@ -205,6 +314,10 @@ App.renderer = (function () {
     App.viewport.addChangeListener(markDirty);
     App.state.on("page:changed", markDirty);
     App.state.on("document:changed", markDirty);
+    App.state.on("rooms:changed", markDirty);
+    App.state.on("roomhover:changed", markDirty);
+    App.state.on("roomselect:changed", markDirty);
+    App.state.on("scale:changed", markDirty); // area labels switch to m²
 
     // keep the backing store sized to the element
     if (window.ResizeObserver) {

@@ -27,7 +27,16 @@ App.state = (function () {
      * calibrates with the "Set Scale" tool. Stored per document.
      */
     pixelsPerMeter: null,
+    /**
+     * Mapped rooms (zones). Each: { id, name, zoneId, color, points:[{x,y}...] }
+     * with points in blueprint world coordinates. Stored per document.
+     */
+    rooms: [],
+    hoveredRoomId: null,
+    selectedRoomId: null,
   };
+
+  let roomSeq = 0;
 
   // --- pub/sub -------------------------------------------------------------
   const listeners = new Map(); // event -> Set<fn>
@@ -67,9 +76,13 @@ App.state = (function () {
     data.pages = pages;
     data.fileName = fileName || "";
     data.activePage = pages.length ? 0 : -1;
-    // a new blueprint invalidates any previous calibration
+    // a new blueprint invalidates any previous calibration + room map
     data.pixelsPerMeter = null;
+    data.rooms = [];
+    data.hoveredRoomId = null;
+    data.selectedRoomId = null;
     emit("scale:changed", { pixelsPerMeter: null });
+    emit("rooms:changed", { rooms: data.rooms });
     emit("document:changed", { pages, fileName: data.fileName });
     emit("page:changed", { index: data.activePage, page: getActivePage() });
   }
@@ -113,6 +126,51 @@ App.state = (function () {
     return data.pixelsPerMeter != null;
   }
 
+  // --- rooms ---------------------------------------------------------------
+  function getRooms() {
+    return data.rooms;
+  }
+
+  function addRoom(room) {
+    const full = Object.assign({ id: "room-" + ++roomSeq }, room);
+    data.rooms.push(full);
+    emit("rooms:changed", { rooms: data.rooms });
+    return full;
+  }
+
+  function removeRoom(id) {
+    const i = data.rooms.findIndex((r) => r.id === id);
+    if (i < 0) return;
+    data.rooms.splice(i, 1);
+    if (data.hoveredRoomId === id) data.hoveredRoomId = null;
+    if (data.selectedRoomId === id) data.selectedRoomId = null;
+    emit("rooms:changed", { rooms: data.rooms });
+  }
+
+  function getRoom(id) {
+    return data.rooms.find((r) => r.id === id) || null;
+  }
+
+  function setHoveredRoom(id) {
+    if (data.hoveredRoomId === id) return;
+    data.hoveredRoomId = id;
+    emit("roomhover:changed", { id });
+  }
+
+  function getHoveredRoom() {
+    return data.hoveredRoomId;
+  }
+
+  function setSelectedRoom(id) {
+    if (data.selectedRoomId === id) return;
+    data.selectedRoomId = id;
+    emit("roomselect:changed", { id });
+  }
+
+  function getSelectedRoom() {
+    return data.selectedRoomId;
+  }
+
   return {
     on,
     emit,
@@ -128,5 +186,13 @@ App.state = (function () {
     setPixelsPerMeter,
     getPixelsPerMeter,
     isCalibrated,
+    getRooms,
+    addRoom,
+    removeRoom,
+    getRoom,
+    setHoveredRoom,
+    getHoveredRoom,
+    setSelectedRoom,
+    getSelectedRoom,
   };
 })();
