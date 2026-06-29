@@ -1,93 +1,130 @@
 "use strict";
 /*
- * App.input — pointer/wheel/touch handling for pan & zoom.
+ * App.input — pointer/wheel/touch handling, tool-aware.
  *
- * Uses Pointer Events so mouse, pen and touch share one code path:
- *   - one active pointer dragging  -> pan
- *   - two active pointers          -> pinch zoom about the gesture midpoint
- *   - wheel / trackpad             -> zoom toward the cursor (ctrl/⌘ = pinch on
- *                                     trackpads; plain wheel also zooms here,
- *                                     which is the expected feel for a canvas)
+ * Pointer Events unify mouse, pen and touch. Behaviour depends on the active
+ * tool (App.state.getTool()):
+ *   - "pan"   : drag pans; a click (no drag) selects/deselects a room; moving
+ *               with no button hovers-highlights rooms.
+ *   - "scale" : drag draws the calibration reference line (no panning).
+ *   - "room"  : moving updates the rubber-band preview; a click adds a polygon
+ *               vertex (or snap-closes near the start).
+ * Two pointers always pinch-zoom; the wheel/trackpad always zooms to cursor.
  *
- * All coordinates are converted to canvas CSS pixels (clientX - rect.left)
- * before being handed to the viewport, so mapping stays correct no matter where
- * the canvas sits or what the zoom/pan currently is.
+ * Coordinates are converted to canvas CSS pixels (clientX - rect.left) before
+ * being handed to the viewport, so mapping stays correct at any zoom/pan.
  */
 window.App = window.App || {};
 
 App.input = (function () {
+  const CLICK_SLOP = 6; // px of movement below which a press counts as a click
+
   let canvas = null;
   const pointers = new Map(); // pointerId -> { x, y } in canvas CSS px
   let lastPinchDist = 0;
+  // primary press tracking for click-vs-drag discrimination
+  let press = null; // { id, x, y, moved }
+
+  function tool() {
+    return App.state.getTool();
+  }
 
   function toLocal(e) {
     const rect = canvas.getBoundingClientRect();
     return { x: e.clientX - rect.left, y: e.clientY - rect.top };
   }
+  function worldOf(local) {
+    return App.viewport.screenToWorld(local.x, local.y);
+  }
 
   function pinchMid() {
     const pts = [...pointers.values()];
-    return {
-      x: (pts[0].x + pts[1].x) / 2,
-      y: (pts[0].y + pts[1].y) / 2,
-    };
+    return { x: (pts[0].x + pts[1].x) / 2, y: (pts[0].y + pts[1].y) / 2 };
   }
-
   function pinchDist() {
     const pts = [...pointers.values()];
     return Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
   }
 
-  function scaleMode() {
-    return App.state.getTool() === "scale";
-  }
-
+  // ---- press (button down) ----
   function onPointerDown(e) {
     canvas.setPointerCapture(e.pointerId);
-    pointers.set(e.pointerId, toLocal(e));
+    const local = toLocal(e);
+    pointers.set(e.pointerId, local);
 
-    if (scaleMode() && pointers.size === 1) {
-      // start drawing a calibration reference line (no panning in scale mode)
-      const local = pointers.get(e.pointerId);
-      App.scale.begin(App.viewport.screenToWorld(local.x, local.y));
+    if (pointers.size === 2) {
+      // a second finger starts a pinch; cancel any single-pointer gesture
+      if (App.scale.isDrawing()) App.scale.cancelDrawing();
+      if (press) press.moved = true; // don't treat as a click on release
+      lastPinchDist = pinchDist();
+      canvas.classList.remove("is-grabbing");
       return;
     }
-    if (pointers.size === 2) {
-      // a pinch overrides any in-progress scale line
-      if (App.scale.isDrawing()) App.scale.cancelDrawing();
-      lastPinchDist = pinchDist();
-    } else {
+
+    press = { id: e.pointerId, x: local.x, y: local.y, moved: false };
+
+    if (tool() === "scale") {
+      App.scale.begin(worldOf(local));
+    } else if (tool() === "pan") {
       canvas.classList.add("is-grabbing");
     }
+    // "room": vertices are added on release (click), preview follows the move
   }
 
+  // ---- move ----
   function onPointerMove(e) {
-    if (!pointers.has(e.pointerId)) return;
-    const prev = pointers.get(e.pointerId);
     const cur = toLocal(e);
-    pointers.set(e.pointerId, cur);
 
-    if (App.scale.isDrawing() && pointers.size === 1) {
-      App.scale.update(App.viewport.screenToWorld(cur.x, cur.y));
+    // hovering (no button captured for this pointer)
+    if (!pointers.has(e.pointerId)) {
+      handleHover(cur);
       return;
     }
 
-    if (pointers.size === 1) {
-      // panning is disabled while the Set Scale tool is active
-      if (scaleMode()) return;
-      // pan by the movement of the single pointer
-      App.viewport.panBy(cur.x - prev.x, cur.y - prev.y);
-    } else if (pointers.size === 2) {
-      // pinch zoom about the midpoint
+    const prev = pointers.get(e.pointerId);
+    pointers.set(e.pointerId, cur);
+
+    // track movement for click-vs-drag
+    if (press && press.id === e.pointerId) {
+      if (Math.hypot(cur.x - press.x, cur.y - press.y) > CLICK_SLOP) press.moved = true;
+    }
+
+    if (pointers.size === 2) {
       const dist = pinchDist();
-      if (lastPinchDist > 0) {
-        const mid = pinchMid();
-        App.viewport.zoomAt(mid.x, mid.y, dist / lastPinchDist);
-      }
+      if (lastPinchDist > 0) App.viewport.zoomAt(pinchMid().x, pinchMid().y, dist / lastPinchDist);
       lastPinchDist = dist;
+      return;
+    }
+
+    // single-pointer drag
+    if (App.scale.isDrawing()) {
+      App.scale.update(worldOf(cur));
+      return;
+    }
+    if (tool() === "room" && App.rooms.isActive()) {
+      App.rooms.updatePreview(worldOf(cur)); // preview follows touch/drag too
+      return;
+    }
+    if (tool() === "pan") {
+      App.state.setHoveredRoom(null); // not hovering while dragging the canvas
+      App.viewport.panBy(cur.x - prev.x, cur.y - prev.y);
     }
   }
 
+  /** Mouse hover with no button: update room highlight or room-tool preview. */
+  function handleHover(local) {
+    const world = worldOf(local);
+    if (tool() === "room" && App.rooms.isActive()) {
+      App.rooms.updatePreview(world);
+      return;
+    }
+    if (tool() === "pan") {
+      const r = App.rooms.roomAt(world);
+      App.state.setHoveredRoom(r ? r.id : null);
+    }
+  }
+
+  // ---- release ----
   function endPointer(e) {
     if (canvas.hasPointerCapture && canvas.hasPointerCapture(e.pointerId)) {
       canvas.releasePointerCapture(e.pointerId);
@@ -97,19 +134,42 @@ App.input = (function () {
     if (pointers.size < 2) lastPinchDist = 0;
     if (pointers.size === 0) canvas.classList.remove("is-grabbing");
 
+    const isPrimary = press && press.id === e.pointerId;
+    const wasClick = isPrimary && !press.moved;
+    if (isPrimary) press = null;
+
     // finish the calibration line once the (last) pointer lifts
-    if (wasDrawing && pointers.size === 0) App.scale.finish();
+    if (wasDrawing && pointers.size === 0) {
+      App.scale.finish();
+      return;
+    }
+
+    if (!wasClick || pointers.size !== 0) return;
+
+    // a clean click (no drag): tool-specific action
+    const local = toLocal(e);
+    const world = worldOf(local);
+    if (tool() === "room") {
+      App.rooms.addPoint(world);
+    } else if (tool() === "pan") {
+      const r = App.rooms.roomAt(world);
+      App.state.setSelectedRoom(r ? r.id : null);
+    }
   }
 
   function onWheel(e) {
     e.preventDefault();
     const { x, y } = toLocal(e);
-    // normalize deltaMode (lines vs pixels) and keep zoom feel consistent
     const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 100 : 1;
-    const delta = e.deltaY * unit;
-    // exponential mapping → smooth, symmetric zoom in/out
-    const factor = Math.exp(-delta * 0.0015);
+    const factor = Math.exp(-e.deltaY * unit * 0.0015);
     App.viewport.zoomAt(x, y, factor);
+  }
+
+  // ---- keyboard: Escape cancels an in-progress room/scale gesture ----
+  function onKeyDown(e) {
+    if (e.key === "Escape") {
+      if (App.rooms.isActive()) App.rooms.cancelDraft();
+    }
   }
 
   function init(canvasEl) {
@@ -118,9 +178,8 @@ App.input = (function () {
     canvas.addEventListener("pointermove", onPointerMove);
     canvas.addEventListener("pointerup", endPointer);
     canvas.addEventListener("pointercancel", endPointer);
-    canvas.addEventListener("pointerleave", endPointer);
-    // passive:false so preventDefault stops the page from scrolling/zooming
     canvas.addEventListener("wheel", onWheel, { passive: false });
+    window.addEventListener("keydown", onKeyDown);
   }
 
   return { init };

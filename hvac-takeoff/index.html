@@ -135,6 +135,24 @@
             <span class="text-sm text-zinc-200">מעבד קובץ…</span>
           </div>
         </div>
+
+        <!-- inline room-naming popup (positioned at the polygon centroid) -->
+        <div id="room-popup" class="room-popup absolute z-30 w-[248px] rounded-xl border border-zinc-700 bg-zinc-900/95 p-3 shadow-2xl backdrop-blur">
+          <label class="mb-2 block">
+            <span class="mb-1 block text-[11px] text-zinc-400">שם החדר / האזור</span>
+            <input
+              id="room-name-input"
+              type="text"
+              placeholder='לדוגמה: סלון, ממ"ד, חדר הורים'
+              class="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-2.5 py-2 text-sm text-zinc-100 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/30"
+            />
+          </label>
+          <div id="room-zone-chips" class="mb-3 flex flex-wrap gap-1"></div>
+          <div class="flex gap-2">
+            <button id="room-cancel" class="flex-1 rounded-lg border border-zinc-700 px-3 py-1.5 text-sm text-zinc-300 transition hover:bg-zinc-800 active:scale-[0.98]">ביטול</button>
+            <button id="room-confirm" class="flex-1 rounded-lg bg-emerald-500 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-emerald-600 active:scale-[0.98]">שמור</button>
+          </div>
+        </div>
       </main>
 
       <!-- ===== Sidebar (right, RTL natural) ===== -->
@@ -198,6 +216,19 @@
             </span>
           </button>
 
+          <!-- prominent Add Room tool -->
+          <button
+            id="tool-room"
+            data-tool="room"
+            class="tool-btn-room mt-2 flex w-full items-center gap-3 rounded-xl border border-zinc-700/70 bg-zinc-800/60 px-3 py-2.5 text-start transition active:scale-[0.99]"
+          >
+            <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-emerald-500/15 text-lg text-emerald-400">⬠</span>
+            <span class="min-w-0">
+              <span class="block text-sm font-medium text-zinc-100">הוסף חדר</span>
+              <span class="block truncate text-[11px] text-zinc-500">סמן מתאר חדר נקודה‑נקודה</span>
+            </span>
+          </button>
+
           <!-- calibration status -->
           <div id="scale-status" class="mt-3 flex items-center justify-between gap-2 rounded-lg bg-zinc-800/50 px-3 py-2 text-xs">
             <span class="text-zinc-400">קנה מידה</span>
@@ -206,10 +237,15 @@
               <button id="scale-reset" class="hidden rounded-md px-1.5 py-0.5 text-zinc-500 transition hover:bg-zinc-700 hover:text-zinc-200" title="אפס קנה מידה">✕</button>
             </span>
           </div>
+        </section>
 
-          <p class="mt-2 text-[11px] leading-relaxed text-zinc-600">
-            כלי המדידה, חישוב ה‑BTU ורשימת החומרים יתווספו בשלבים הבאים.
-          </p>
+        <!-- zone registry -->
+        <section class="flex min-h-0 flex-col border-b border-zinc-800 p-4">
+          <h2 class="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">חדרים ושטחים</h2>
+          <div id="room-empty" class="rounded-lg border border-dashed border-zinc-800 px-3 py-3 text-center text-[11px] text-zinc-600">
+            אין חדרים מסומנים עדיין
+          </div>
+          <div id="room-list" class="flex max-h-48 flex-col gap-1 overflow-y-auto"></div>
         </section>
 
         <!-- pages -->
@@ -276,6 +312,7 @@
     <script src="js/viewport.js"></script>
     <script src="js/renderer.js"></script>
     <script src="js/scale.js"></script>
+    <script src="js/rooms.js"></script>
     <script src="js/ingest.js"></script>
     <script src="js/input.js"></script>
     <script src="js/ui.js"></script>

@@ -60,20 +60,25 @@ App.ui = (function () {
     el.toolButtons.forEach((btn) => {
       btn.addEventListener("click", () => {
         if (btn.disabled) return;
-        // calibrating without a blueprint loaded is meaningless — guide the user
-        if (btn.dataset.tool === "scale" && !App.state.getActivePage()) {
-          toast("טען שרטוט לפני הגדרת קנה מידה");
+        const t = btn.dataset.tool;
+        // scale / room calibration & mapping need a blueprint loaded
+        if ((t === "scale" || t === "room") && !App.state.getActivePage()) {
+          toast("טען שרטוט קודם");
           return;
         }
-        App.state.setTool(btn.dataset.tool);
+        App.state.setTool(t);
       });
     });
     App.state.on("tool:changed", ({ tool }) => {
       el.toolButtons.forEach((btn) =>
         btn.classList.toggle("is-active", btn.dataset.tool === tool)
       );
-      // crosshair cursor + no panning while the Set Scale tool is active
+      // crosshair + no panning for the drawing tools
       el.canvas.classList.toggle("tool-scale", tool === "scale");
+      el.canvas.classList.toggle("tool-room", tool === "room");
+      // begin a fresh polygon draft when entering the room tool; drop it on exit
+      if (tool === "room") App.rooms.start();
+      else App.rooms.cancelDraft();
     });
   }
 
@@ -117,6 +122,72 @@ App.ui = (function () {
       el.scaleValue.classList.remove("text-brand-400");
       el.scaleReset.classList.add("hidden");
     }
+  }
+
+  // --- zone registry (rooms list) -----------------------------------------
+  function setupRooms() {
+    App.state.on("rooms:changed", renderRooms);
+    App.state.on("roomhover:changed", reflectRoomActive);
+    App.state.on("roomselect:changed", reflectRoomActive);
+    App.state.on("scale:changed", renderRooms); // areas switch to m²
+    renderRooms();
+  }
+
+  function renderRooms() {
+    const rooms = App.state.getRooms();
+    el.roomList.innerHTML = "";
+    el.roomEmpty.classList.toggle("hidden", rooms.length > 0);
+
+    rooms.forEach((room) => {
+      const area = App.rooms.areaM2(room);
+      const areaText = area != null ? area.toFixed(1) + " מ²" : "— מ²";
+
+      const row = document.createElement("div");
+      row.className = "room-row";
+      row.dataset.id = room.id;
+
+      const dot = document.createElement("span");
+      dot.className = "room-dot";
+      dot.style.background = room.color;
+
+      const meta = document.createElement("span");
+      meta.className = "room-meta";
+      meta.innerHTML =
+        `<span class="room-name">${escapeHtml(room.name)}</span>` +
+        `<span class="room-area">${areaText}</span>`;
+
+      const del = document.createElement("button");
+      del.type = "button";
+      del.className = "room-del";
+      del.title = "מחק חדר";
+      del.textContent = "🗑";
+      del.addEventListener("click", (e) => {
+        e.stopPropagation();
+        App.state.removeRoom(room.id);
+      });
+
+      row.append(dot, meta, del);
+      row.addEventListener("mouseenter", () => App.state.setHoveredRoom(room.id));
+      row.addEventListener("mouseleave", () => App.state.setHoveredRoom(null));
+      row.addEventListener("click", () => App.state.setSelectedRoom(room.id));
+      el.roomList.appendChild(row);
+    });
+    reflectRoomActive();
+  }
+
+  function reflectRoomActive() {
+    const hovered = App.state.getHoveredRoom();
+    const selected = App.state.getSelectedRoom();
+    [...el.roomList.children].forEach((row) => {
+      row.classList.toggle("is-hover", row.dataset.id === hovered);
+      row.classList.toggle("is-selected", row.dataset.id === selected);
+    });
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])
+    );
   }
 
   function updateRuler() {
@@ -225,6 +296,8 @@ App.ui = (function () {
     el.rulerLabel = $("ruler-label");
     el.scaleValue = $("scale-value");
     el.scaleReset = $("scale-reset");
+    el.roomList = $("room-list");
+    el.roomEmpty = $("room-empty");
 
     el.openBtn.addEventListener("click", openFileDialog);
     el.openBtnEmpty.addEventListener("click", openFileDialog);
@@ -236,6 +309,7 @@ App.ui = (function () {
     setupReadout();
     setupTheme();
     setupScale();
+    setupRooms();
 
     App.state.on("document:changed", renderPages);
     App.state.on("page:changed", ({ index }) => highlightActivePage(index));
