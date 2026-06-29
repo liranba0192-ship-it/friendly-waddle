@@ -58,12 +58,22 @@ App.ui = (function () {
   // --- tools ---------------------------------------------------------------
   function setupTools() {
     el.toolButtons.forEach((btn) => {
-      btn.addEventListener("click", () => App.state.setTool(btn.dataset.tool));
+      btn.addEventListener("click", () => {
+        if (btn.disabled) return;
+        // calibrating without a blueprint loaded is meaningless — guide the user
+        if (btn.dataset.tool === "scale" && !App.state.getActivePage()) {
+          toast("טען שרטוט לפני הגדרת קנה מידה");
+          return;
+        }
+        App.state.setTool(btn.dataset.tool);
+      });
     });
     App.state.on("tool:changed", ({ tool }) => {
       el.toolButtons.forEach((btn) =>
         btn.classList.toggle("is-active", btn.dataset.tool === tool)
       );
+      // crosshair cursor + no panning while the Set Scale tool is active
+      el.canvas.classList.toggle("tool-scale", tool === "scale");
     });
   }
 
@@ -72,10 +82,54 @@ App.ui = (function () {
     el.zoomIn.addEventListener("click", () => App.viewport.zoomToCenter(1.25));
     el.zoomOut.addEventListener("click", () => App.viewport.zoomToCenter(0.8));
     el.zoomFit.addEventListener("click", () => App.viewport.fitToScreen());
-    // reflect the live zoom level whenever the camera changes
+    // reflect the live zoom level + ruler whenever the camera changes
     App.viewport.addChangeListener(() => {
       el.zoomLevel.textContent = Math.round(App.viewport.getScale() * 100) + "%";
+      updateRuler();
     });
+  }
+
+  // --- calibration status + dynamic ruler ----------------------------------
+  function setupScale() {
+    el.scaleReset.addEventListener("click", () => {
+      App.state.setPixelsPerMeter(null);
+      App.scale.reset();
+      toast("קנה המידה אופס");
+    });
+    App.state.on("scale:changed", () => {
+      updateScaleStatus();
+      updateRuler();
+    });
+    updateScaleStatus();
+    updateRuler();
+  }
+
+  function updateScaleStatus() {
+    const ppm = App.state.getPixelsPerMeter();
+    if (ppm) {
+      el.scaleValue.textContent = Math.round(ppm) + " יח׳/מ׳";
+      el.scaleValue.classList.add("text-brand-400");
+      el.scaleValue.classList.remove("text-zinc-300");
+      el.scaleReset.classList.remove("hidden");
+    } else {
+      el.scaleValue.textContent = "לא מכויל";
+      el.scaleValue.classList.add("text-zinc-300");
+      el.scaleValue.classList.remove("text-brand-400");
+      el.scaleReset.classList.add("hidden");
+    }
+  }
+
+  function updateRuler() {
+    const info = App.scale.computeRuler(App.viewport.getScale());
+    if (!info) {
+      el.ruler.classList.add("hidden");
+      el.ruler.classList.remove("flex");
+      return;
+    }
+    el.ruler.classList.remove("hidden");
+    el.ruler.classList.add("flex");
+    el.rulerLabel.textContent = info.label;
+    el.rulerBar.style.width = info.widthPx + "px";
   }
 
   // --- pages ---------------------------------------------------------------
@@ -166,6 +220,11 @@ App.ui = (function () {
     el.coords = $("coords");
     el.toast = $("toast");
     el.themeToggle = $("theme-toggle");
+    el.ruler = $("ruler");
+    el.rulerBar = $("ruler-bar");
+    el.rulerLabel = $("ruler-label");
+    el.scaleValue = $("scale-value");
+    el.scaleReset = $("scale-reset");
 
     el.openBtn.addEventListener("click", openFileDialog);
     el.openBtnEmpty.addEventListener("click", openFileDialog);
@@ -176,6 +235,7 @@ App.ui = (function () {
     setupZoom();
     setupReadout();
     setupTheme();
+    setupScale();
 
     App.state.on("document:changed", renderPages);
     App.state.on("page:changed", ({ index }) => highlightActivePage(index));

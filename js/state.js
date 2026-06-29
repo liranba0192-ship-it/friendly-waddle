@@ -21,6 +21,12 @@ App.state = (function () {
     tool: "pan",
     /** true while a file is being parsed/rendered */
     loading: false,
+    /**
+     * Calibration ratio: blueprint world-units (the page's own pixel/point
+     * space, independent of zoom) per real-world meter. null until the user
+     * calibrates with the "Set Scale" tool. Stored per document.
+     */
+    pixelsPerMeter: null,
   };
 
   // --- pub/sub -------------------------------------------------------------
@@ -61,6 +67,9 @@ App.state = (function () {
     data.pages = pages;
     data.fileName = fileName || "";
     data.activePage = pages.length ? 0 : -1;
+    // a new blueprint invalidates any previous calibration
+    data.pixelsPerMeter = null;
+    emit("scale:changed", { pixelsPerMeter: null });
     emit("document:changed", { pages, fileName: data.fileName });
     emit("page:changed", { index: data.activePage, page: getActivePage() });
   }
@@ -90,6 +99,20 @@ App.state = (function () {
     return data.fileName;
   }
 
+  /** Store the calibration ratio (world-units per meter). Pass null to clear. */
+  function setPixelsPerMeter(value) {
+    data.pixelsPerMeter = value && isFinite(value) && value > 0 ? value : null;
+    emit("scale:changed", { pixelsPerMeter: data.pixelsPerMeter });
+  }
+
+  function getPixelsPerMeter() {
+    return data.pixelsPerMeter;
+  }
+
+  function isCalibrated() {
+    return data.pixelsPerMeter != null;
+  }
+
   return {
     on,
     emit,
@@ -102,5 +125,8 @@ App.state = (function () {
     getTool,
     setLoading,
     getFileName,
+    setPixelsPerMeter,
+    getPixelsPerMeter,
+    isCalibrated,
   };
 })();
