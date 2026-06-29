@@ -346,6 +346,9 @@ App.renderer = (function () {
       ctx.stroke();
       ctx.setLineDash([]);
 
+      // diameter indicator along the longest segment (subtle, rotated)
+      if (r.size) drawSizeTag(pts, r.size, def.color);
+
       // real-time length badge
       const m = App.viewport.worldToScreen(
         App.routing.midpoint(r.points).x,
@@ -355,6 +358,34 @@ App.renderer = (function () {
       const label = meters != null ? meters.toFixed(2) + " מ׳" : "כייל קנה מידה";
       pill(label, m.x, m.y - 14, "#e5e7eb", "rgba(17,24,39,0.92)");
     });
+  }
+
+  /** Pipe-size label drawn along the longest screen segment of a route. */
+  function drawSizeTag(pts, size, color) {
+    let li = 1, lmax = 0;
+    for (let i = 1; i < pts.length; i++) {
+      const d = Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y);
+      if (d > lmax) { lmax = d; li = i; }
+    }
+    if (lmax < 34) return; // too short to label legibly
+    const a = pts[li - 1], b = pts[li];
+    const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+    let ang = Math.atan2(b.y - a.y, b.x - a.x);
+    if (ang > Math.PI / 2 || ang < -Math.PI / 2) ang += Math.PI; // keep upright
+
+    ctx.save();
+    ctx.translate(mx, my);
+    ctx.rotate(ang);
+    ctx.font = "700 10px -apple-system, BlinkMacSystemFont, 'Segoe UI', Heebo, sans-serif";
+    const tw = ctx.measureText(size).width;
+    ctx.fillStyle = "rgba(8,11,17,0.78)";
+    roundRect(-tw / 2 - 4, -11 - 9, tw + 8, 15, 4); // offset above the line
+    ctx.fill();
+    ctx.fillStyle = color;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(size, 0, -11 - 1);
+    ctx.restore();
   }
 
   function drawRouteHandles() {

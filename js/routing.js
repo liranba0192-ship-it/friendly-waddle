@@ -38,6 +38,14 @@ App.routing = (function () {
     flex: { label: "תעלה גמישה", color: "#cbd5e1", width: 6, dash: [2, 7] },
   };
 
+  // Standard copper-pipe diameters per refrigerant line (liquid vs. suction/gas).
+  const DIAMETERS = {
+    liquid: ['1/4"', '3/8"'],
+    suction: ['1/2"', '5/8"', '3/4"'],
+  };
+  // currently-selected diameter per sized line type
+  const sizeByType = { liquid: '3/8"', suction: '5/8"' };
+
   let pendingAssetType = null; // armed for placement
   let lineType = "liquid"; // armed route line type
   let startAssetId = null; // first asset chosen for a route
@@ -83,6 +91,33 @@ App.routing = (function () {
   }
   function getStartAssetId() {
     return startAssetId;
+  }
+
+  // ---- pipe diameters -----------------------------------------------------
+  function getDiameters(type) {
+    return DIAMETERS[type] || null;
+  }
+  /** Selected diameter for the active line type, or null for unsized types. */
+  function getLineSize() {
+    return DIAMETERS[lineType] ? sizeByType[lineType] : null;
+  }
+  function setLineSize(size) {
+    if (DIAMETERS[lineType] && DIAMETERS[lineType].includes(size)) {
+      sizeByType[lineType] = size;
+      App.renderer.markDirty();
+    }
+  }
+
+  /** BOM/registry label, distinguishing copper pipes by gas/liquid + diameter. */
+  function routeLabel(route) {
+    const def = getLineDef(route.lineType);
+    if (route.lineType === "liquid") return 'צינור נחושת ' + route.size + ' (נוזל)';
+    if (route.lineType === "suction") return 'צינור נחושת ' + route.size + ' (גז)';
+    return def.label; // drain / flex — unsized
+  }
+  /** Stable aggregation key grouping by line type AND diameter. */
+  function routeKey(route) {
+    return "route:" + route.lineType + (route.size ? ":" + route.size : "");
   }
 
   /** Keep transient selections consistent when the active tool changes. */
@@ -162,6 +197,7 @@ App.routing = (function () {
       const points = manhattanPath(from, to);
       App.state.addRoute({
         lineType,
+        size: getLineSize(), // null for drain/flex
         points,
         fromAssetId: from.id,
         toAssetId: to.id,
@@ -252,6 +288,11 @@ App.routing = (function () {
     setLineType,
     getLineType,
     getStartAssetId,
+    getDiameters,
+    getLineSize,
+    setLineSize,
+    routeLabel,
+    routeKey,
     syncTool,
     cancel,
     assetAt,

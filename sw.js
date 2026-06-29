@@ -1,7 +1,7 @@
 // Service Worker — "network first": always fetch the freshest version when
 // online, fall back to cache only when offline, so the app never gets stuck on
 // a stale build. CDN assets (Tailwind, pdf.js) are cached opaquely on first use.
-const CACHE = "hvac-takeoff-v7";
+const CACHE = "hvac-takeoff-v8";
 const SHELL = [
   ".",
   "index.html",
@@ -14,6 +14,7 @@ const SHELL = [
   "js/rooms.js",
   "js/routing.js",
   "js/estimate.js",
+  "js/business.js",
   "js/projects.js",
   "js/ingest.js",
   "js/input.js",

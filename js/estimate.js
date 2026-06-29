@@ -46,22 +46,29 @@ App.estimate = (function () {
       unit: "יח׳",
     }));
 
-    // piping/ducts: sum meters per line type (needs calibration)
-    const meters = {};
+    // piping/ducts: sum meters per line type AND diameter (needs calibration)
+    const agg = {}; // key -> { label, color, meters }
     routes.forEach((r) => {
       const m = App.routing.lengthMeters(r);
-      if (m != null) meters[r.lineType] = (meters[r.lineType] || 0) + m;
+      if (m == null) return;
+      const key = App.routing.routeKey(r);
+      if (!agg[key]) {
+        agg[key] = {
+          key,
+          label: App.routing.routeLabel(r),
+          color: App.routing.getLineDef(r.lineType).color,
+          meters: 0,
+        };
+      }
+      agg[key].meters += m;
     });
-    const piping = Object.keys(meters).map((lt) => {
-      const def = App.routing.getLineDef(lt);
-      return {
-        key: "route:" + lt,
-        label: def.label,
-        color: def.color,
-        qty: Math.round(meters[lt] * 100) / 100,
-        unit: "מ׳",
-      };
-    });
+    const piping = Object.values(agg).map((g) => ({
+      key: g.key,
+      label: g.label,
+      color: g.color,
+      qty: Math.round(g.meters * 100) / 100,
+      unit: "מ׳",
+    }));
 
     const groups = [];
     if (equip.length) groups.push({ title: "יחידות מיזוג", rows: equip });
@@ -186,15 +193,46 @@ App.estimate = (function () {
     return page;
   }
 
+  function biz() {
+    return (App.business && App.business.get()) || { name: "", phone: "", email: "", logo: "" };
+  }
+
   function pageHeader(subtitle) {
     const today = new Date().toLocaleDateString("he-IL");
+    const title = biz().name || "HVAC Takeoff Pro";
     return (
       `<div style="display:flex;justify-content:space-between;align-items:flex-end;` +
       `border-bottom:3px solid #0ea5e9;padding-bottom:14px;margin-bottom:24px;">` +
-      `<div><div style="font-size:24px;font-weight:800;color:#0b1220;">HVAC Takeoff Pro</div>` +
+      `<div><div style="font-size:24px;font-weight:800;color:#0b1220;">${escapeHtml(title)}</div>` +
       `<div style="font-size:14px;color:#64748b;margin-top:2px;">${subtitle}</div></div>` +
       `<div style="text-align:left;font-size:12px;color:#64748b;">` +
       `<div>${escapeHtml(App.state.getFileName() || "פרויקט")}</div><div>${today}</div></div></div>`
+    );
+  }
+
+  /** Corporate invoice header for page 2: contractor logo (top-right in RTL)
+   *  + business details, with the quotation title/date on the left. */
+  function quoteHeader() {
+    const b = biz();
+    const today = new Date().toLocaleDateString("he-IL");
+    const logo = b.logo
+      ? `<img src="${b.logo}" style="max-height:66px;max-width:170px;object-fit:contain;display:block;">`
+      : `<div style="font-size:22px;font-weight:800;color:#0b1220;">${escapeHtml(b.name || "HVAC Takeoff Pro")}</div>`;
+    const contactLines = [];
+    if (b.logo && b.name) contactLines.push(`<div style="font-size:16px;font-weight:700;color:#0b1220;">${escapeHtml(b.name)}</div>`);
+    if (b.phone) contactLines.push(`טלפון: ${escapeHtml(b.phone)}`);
+    if (b.email) contactLines.push(`דוא"ל: ${escapeHtml(b.email)}`);
+    const contact = contactLines.length
+      ? `<div style="font-size:12px;color:#475569;margin-top:4px;line-height:1.7;">${contactLines.join("<br>")}</div>`
+      : "";
+    return (
+      `<div style="display:flex;justify-content:space-between;align-items:flex-start;` +
+      `border-bottom:3px solid #0ea5e9;padding-bottom:16px;margin-bottom:22px;">` +
+      `<div>${logo}${contact}</div>` +
+      `<div style="text-align:left;">` +
+      `<div style="font-size:22px;font-weight:800;color:#0ea5e9;">הצעת מחיר</div>` +
+      `<div style="font-size:12px;color:#64748b;margin-top:6px;line-height:1.7;">` +
+      `${escapeHtml(App.state.getFileName() || "פרויקט")}<br>תאריך: ${today}</div></div></div>`
     );
   }
 
@@ -228,7 +266,7 @@ App.estimate = (function () {
       // ---- Page 2: quotation table ----
       doc.addPage();
       const p2 = makePage();
-      p2.innerHTML = pageHeader("הצעת מחיר — כתב כמויות") + buildQuoteTable();
+      p2.innerHTML = quoteHeader() + buildQuoteTable();
       const c2 = await window.html2canvas(p2, { scale: 2, backgroundColor: "#ffffff", logging: false });
       document.body.removeChild(p2);
       // fit the table image within margins, preserving aspect ratio

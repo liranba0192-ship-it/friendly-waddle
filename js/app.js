@@ -24,6 +24,7 @@ window.App = window.App || {};
     App.renderer.init(canvas);
     App.input.init(canvas);
     App.ui.init();
+    App.business.init();
     App.projects.init();
 
     // register the service worker (PWA shell), non-blocking
