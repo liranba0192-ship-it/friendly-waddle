@@ -104,6 +104,14 @@ App.viewport = (function () {
     return { scale, tx, ty };
   }
 
+  /** Restore a previously captured camera (used around the PDF snapshot). */
+  function setTransform(t) {
+    scale = clampScale(t.scale);
+    tx = t.tx;
+    ty = t.ty;
+    onChange();
+  }
+
   /**
    * Fit a world-space rectangle (e.g. the active page bounds) into the
    * viewport with a margin, and center it.
@@ -137,6 +145,7 @@ App.viewport = (function () {
     fitToScreen,
     getScale,
     getTransform,
+    setTransform,
     MIN_SCALE,
     MAX_SCALE,
   };
