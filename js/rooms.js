@@ -89,6 +89,45 @@ App.rooms = (function () {
     return polygonArea(room.points) / (ppm * ppm);
   }
 
+  // ---- cooling-load (BTU) estimation -------------------------------------
+  // Residential baseline for Israel's climate: ~650 BTU/h per m² (≈180 W/m²).
+  const BTU_PER_M2 = 650;
+  // Israeli "כוח סוס" (כ"ס) AC rating ≈ 2,000 kcal/h ≈ 7,931 BTU/h.
+  const BTU_PER_HP = 7931;
+  // Above this load a single hi-wall is undersized → recommend a mini-central.
+  const MINI_CENTRAL_BTU = 24000;
+
+  /** Recommended cooling for an area (m²): { btu, hp, unitType } or null. */
+  function coolingFor(area) {
+    if (area == null || !isFinite(area) || area <= 0) return null;
+    const btu = Math.round((area * BTU_PER_M2) / 50) * 50; // nearest 50 BTU
+    const hp = btu / BTU_PER_HP;
+    const unitType = btu >= MINI_CENTRAL_BTU ? "mini_central" : "hiwall";
+    return { btu, hp, unitType };
+  }
+
+  /** Human-readable recommendation, e.g. '7,800 BTU / 1.0 כ"ס', or null. */
+  function coolingText(area) {
+    const c = coolingFor(area);
+    if (!c) return null;
+    return c.btu.toLocaleString("he-IL") + ' BTU / ' + c.hp.toFixed(1) + ' כ"ס';
+  }
+
+  function recommendedUnitType(area) {
+    const c = coolingFor(area);
+    return c ? c.unitType : "hiwall";
+  }
+
+  /** Arm (highlight) the recommended indoor unit in the asset tray. */
+  function applyRecommendedUnit(area) {
+    const type = recommendedUnitType(area);
+    App.routing.armAsset(type);
+    const def = App.routing.getAssetDef(type);
+    App.ui && App.ui.toast && App.ui.toast(
+      "יחידה מומלצת: " + (def ? def.label : type) + " — הקש על השרטוט למיקום"
+    );
+  }
+
   /** Topmost room (last drawn) whose polygon contains the world point. */
   function roomAt(world) {
     const rooms = App.state.getRooms();
@@ -183,6 +222,15 @@ App.rooms = (function () {
     p.chips = document.getElementById("room-zone-chips");
     p.confirm = document.getElementById("room-confirm");
     p.cancel = document.getElementById("room-cancel");
+    p.reco = document.getElementById("room-reco");
+    p.recoText = document.getElementById("room-reco-text");
+    p.applyUnit = document.getElementById("room-apply-unit");
+
+    p.applyUnit.addEventListener("click", () => {
+      const area = pending ? areaM2({ points: pending.points }) : null;
+      confirmPopup(); // save the room first (current/default name), then arm the unit
+      applyRecommendedUnit(area);
+    });
 
     // build zone chips once
     ZONES.forEach((z) => {
@@ -230,9 +278,24 @@ App.rooms = (function () {
     cachePopup();
     p.input.value = "";
     selectZone(pending.zoneId);
+    updateReco();
     positionPopup();
     p.root.classList.add("is-open");
     requestAnimationFrame(() => p.input.focus());
+  }
+
+  /** Refresh the cooling-load recommendation shown inside the popup. */
+  function updateReco() {
+    const area = areaM2({ points: pending.points });
+    const text = coolingText(area);
+    if (area != null && text) {
+      p.recoText.innerHTML =
+        'שטח: <b>' + area.toFixed(1) + ' מ"ר</b> · תפוקה מומלצת: <b>' + text + "</b>";
+      p.applyUnit.classList.remove("hidden");
+    } else {
+      p.recoText.textContent = 'כייל קנה מידה לחישוב התפוקה המומלצת';
+      p.applyUnit.classList.add("hidden");
+    }
   }
 
   function confirmPopup() {
@@ -278,5 +341,10 @@ App.rooms = (function () {
     pointInPolygon,
     areaM2,
     roomAt,
+    // cooling-load estimation
+    coolingFor,
+    coolingText,
+    recommendedUnitType,
+    applyRecommendedUnit,
   };
 })();

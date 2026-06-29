@@ -162,8 +162,47 @@ body {
   font-variant-numeric: tabular-nums;
   color: #9ca3af;
 }
+/* registry meta column (zone rows carry an extra cooling-load line) */
+.zone-meta {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+.zone-meta .room-name {
+  white-space: normal;
+}
+.room-detail {
+  font-size: 0.6875rem;
+  line-height: 1.35;
+  color: #9ca3af;
+}
+.room-detail b {
+  color: #7dd3fc; /* sky-300 — the BTU/כ"ס recommendation */
+  font-weight: 600;
+}
+.room-apply {
+  margin-top: 0.3rem;
+  align-self: flex-start;
+  border-radius: 0.375rem;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  background: rgba(56, 189, 248, 0.12);
+  padding: 0.15rem 0.45rem;
+  font-size: 0.6875rem;
+  color: #bae6fd;
+  transition: background-color 0.12s ease, transform 0.1s ease;
+}
+.room-apply:hover {
+  background: rgba(56, 189, 248, 0.22);
+}
+.room-apply:active {
+  transform: scale(0.96);
+}
+
 .room-del {
   flex-shrink: 0;
+  align-self: flex-start;
   border-radius: 0.375rem;
   padding: 0.1rem 0.3rem;
   font-size: 0.8rem;

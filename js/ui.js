@@ -225,7 +225,8 @@ App.ui = (function () {
 
     rooms.forEach((room) => {
       const area = App.rooms.areaM2(room);
-      const areaText = area != null ? area.toFixed(1) + " מ²" : "— מ²";
+      const areaText = area != null ? area.toFixed(1) + ' מ"ר' : '— מ"ר';
+      const cooling = App.rooms.coolingText(area);
 
       const row = document.createElement("div");
       row.className = "room-row";
@@ -236,10 +237,25 @@ App.ui = (function () {
       dot.style.background = room.color;
 
       const meta = document.createElement("span");
-      meta.className = "room-meta";
+      meta.className = "zone-meta";
       meta.innerHTML =
         `<span class="room-name">${escapeHtml(room.name)}</span>` +
-        `<span class="room-area">${areaText}</span>`;
+        `<span class="room-detail">שטח: ${areaText}` +
+        (cooling ? ` · תפוקה מומלצת: <b>${cooling}</b>` : "") +
+        `</span>`;
+      // quick-apply the recommended indoor unit (only when calibrated)
+      if (area != null) {
+        const apply = document.createElement("button");
+        apply.type = "button";
+        apply.className = "room-apply";
+        apply.textContent = "⚡ החל יחידה";
+        apply.title = "סמן את היחידה הפנימית המומלצת מהמגש";
+        apply.addEventListener("click", (e) => {
+          e.stopPropagation();
+          App.rooms.applyRecommendedUnit(area);
+        });
+        meta.appendChild(apply);
+      }
 
       const del = document.createElement("button");
       del.type = "button";
