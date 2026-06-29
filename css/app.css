@@ -376,6 +376,104 @@ body {
   transform: translate(-50%, 0);
 }
 
+/* ---- review & estimate overlay ---- */
+.estimate-overlay {
+  display: none;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+.estimate-overlay.is-open {
+  display: block;
+  opacity: 1;
+}
+.estimate-panel {
+  transform: translateY(10px) scale(0.99);
+  transition: transform 0.18s ease;
+}
+.estimate-overlay.is-open .estimate-panel {
+  transform: translateY(0) scale(1);
+}
+.estimate-table th {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #71717a;
+  border-bottom: 1px solid #3f3f46;
+  white-space: nowrap;
+}
+.estimate-table td {
+  padding: 0.55rem 0.75rem;
+  font-size: 0.875rem;
+  border-bottom: 1px solid rgba(63, 63, 70, 0.5);
+  vertical-align: middle;
+}
+.estimate-table tr.est-group td {
+  padding-top: 1rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #38bdf8;
+  border-bottom: none;
+}
+.est-item {
+  color: #e4e4e7;
+}
+.est-dot {
+  display: inline-block;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  margin-inline-start: 0.4rem;
+  vertical-align: middle;
+}
+.est-num {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  color: #d4d4d8;
+}
+.est-unit {
+  font-size: 0.7rem;
+  color: #71717a;
+}
+.est-sub {
+  text-align: end;
+  font-weight: 600;
+  color: #f4f4f5;
+}
+.est-input {
+  width: 100%;
+  min-width: 5rem;
+  border-radius: 0.5rem;
+  border: 1px solid #3f3f46;
+  background: #18181b;
+  padding: 0.4rem 0.55rem;
+  text-align: center;
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  color: #f4f4f5;
+  outline: none;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+.est-input::placeholder {
+  color: #52525b;
+}
+.est-input:focus {
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.25);
+}
+/* hide number-spinner arrows for a cleaner sheet */
+.est-input::-webkit-outer-spin-button,
+.est-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.est-input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
 /* ---- slim scrollbar for the page list ---- */
 #page-list {
   scrollbar-width: thin;

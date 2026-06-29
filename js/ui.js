@@ -392,6 +392,7 @@ App.ui = (function () {
     el.openBtn.addEventListener("click", openFileDialog);
     el.openBtnEmpty.addEventListener("click", openFileDialog);
     el.fileInput.addEventListener("change", onFilePicked);
+    $("open-estimate").addEventListener("click", () => App.estimate.open());
 
     setupDragDrop();
     setupTools();

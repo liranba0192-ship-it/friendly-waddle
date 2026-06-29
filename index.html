@@ -51,6 +51,9 @@
 
     <!-- pdf.js (UMD global: window.pdfjsLib) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <!-- PDF export: jsPDF (window.jspdf) + html2canvas (window.html2canvas) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <link rel="stylesheet" href="css/app.css" />
   </head>
@@ -320,6 +323,16 @@
           <h2 class="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">עמודים</h2>
           <div id="page-list" class="grid max-h-44 content-start gap-2 overflow-y-auto pe-1"></div>
         </section>
+
+        <!-- review & estimate -->
+        <section class="sticky bottom-0 mt-auto border-t border-zinc-800 bg-zinc-900/95 p-4 backdrop-blur">
+          <button
+            id="open-estimate"
+            class="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-l from-brand-500 to-brand-600 px-4 py-3 font-semibold text-white shadow-lg transition hover:from-brand-400 hover:to-brand-500 active:scale-[0.98]"
+          >
+            <span>🧾</span> סיכום ותמחור
+          </button>
+        </section>
       </aside>
     </div>
 
@@ -368,6 +381,47 @@
       </div>
     </div>
 
+    <!-- review & estimate full-screen overlay -->
+    <div id="estimate-overlay" class="estimate-overlay fixed inset-0 z-40 bg-zinc-950/80 p-4 backdrop-blur-sm sm:p-8">
+      <div class="estimate-panel mx-auto flex h-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-zinc-700 bg-zinc-900 shadow-2xl">
+        <header class="flex items-center justify-between gap-3 border-b border-zinc-800 px-6 py-4">
+          <div>
+            <h2 class="text-lg font-semibold text-zinc-100">סיכום ותמחור</h2>
+            <p class="text-xs text-zinc-500">כתב כמויות אוטומטי — מלא מחירים להצעה ללקוח</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="estimate-export" class="rounded-xl bg-brand-500 px-4 py-2 text-sm font-medium text-white shadow-lg transition hover:bg-brand-600 active:scale-[0.98]">
+              ייצוא PDF לפרויקט
+            </button>
+            <button id="estimate-close" class="icon-btn" title="סגור" aria-label="סגור">✕</button>
+          </div>
+        </header>
+
+        <div class="min-h-0 flex-1 overflow-y-auto px-6 py-4">
+          <div id="estimate-empty" class="hidden rounded-xl border border-dashed border-zinc-800 px-4 py-10 text-center text-sm text-zinc-500">
+            עדיין אין רכיבים או מסלולים לתמחור. הוסף ציוד ומסלולי צנרת תחילה.
+          </div>
+          <table class="estimate-table w-full border-collapse">
+            <thead>
+              <tr>
+                <th class="text-start">פריט</th>
+                <th>כמות</th>
+                <th>מחיר יחידה</th>
+                <th>עלות עבודה</th>
+                <th class="text-end">סה"כ שורה</th>
+              </tr>
+            </thead>
+            <tbody id="estimate-body"></tbody>
+          </table>
+        </div>
+
+        <footer class="estimate-foot flex items-center justify-between gap-3 border-t border-zinc-800 px-6 py-4">
+          <span class="text-sm font-medium text-zinc-400">סה"כ כללי</span>
+          <span id="estimate-grand" class="text-2xl font-bold text-brand-400">₪ 0.00</span>
+        </footer>
+      </div>
+    </div>
+
     <!-- toast -->
     <div
       id="toast"
@@ -381,6 +435,7 @@
     <script src="js/scale.js"></script>
     <script src="js/rooms.js"></script>
     <script src="js/routing.js"></script>
+    <script src="js/estimate.js"></script>
     <script src="js/ingest.js"></script>
     <script src="js/input.js"></script>
     <script src="js/ui.js"></script>
