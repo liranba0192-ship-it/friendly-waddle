@@ -255,19 +255,20 @@ App.food = (function () {
 
       <div class="card-block">
         <h3>כמה אכלת?</h3>
-        <p class="section-hint" style="margin-bottom:8px">בחר כמות מהיר או הקלד בדיוק כמה גרם אכלת:</p>
+        ${hasUnit ? `
+        <p class="section-hint">ביחידות:</p>
+        <div class="add-row inline" style="margin-bottom:14px">
+          <input id="fd-qty-u" type="number" inputmode="decimal" value="1" min="0" step="0.5" />
+          <span style="white-space:nowrap;font-weight:600">${U.esc(food.unit)} <small style="font-weight:400;color:var(--muted)">(${food.unitGrams} ג' ליחידה)</small></span>
+        </div>
+        <p class="section-hint">— או גרמים מדויקים —</p>` :
+        `<p class="section-hint" style="margin-bottom:8px">בחר כמות:</p>`}
         <div class="gram-presets" style="margin-bottom:10px">
-          ${[50,100,150,200,250,300,400,500].map(g => `<button class="gram-btn" data-g="${g}">${g}</button>`).join("")}
+          ${[50,100,150,200,250,300,400,500].map(g => `<button class="gram-btn" data-g="${g}">${g}ג'</button>`).join("")}
         </div>
         <div class="add-row inline">
-          <input id="fd-qty" type="number" inputmode="decimal" value="${hasUnit ? 1 : 100}" min="0" step="1" placeholder="הקלד גרמים..." />
-          ${hasUnit ? `<select id="fd-mode">
-              <option value="unit">${U.esc(food.unit)} (${food.unitGrams} ג')</option>
-              <option value="g">גרם</option>
-            </select>` : `<span style="white-space:nowrap">גרם</span>`}
-        </div>
-        <div class="gram-presets">
-          ${[50,100,150,200,250,300].map(g => `<button class="gram-btn" data-g="${g}">${g}ג'</button>`).join("")}
+          <input id="fd-qty-g" type="number" inputmode="decimal" value="${hasUnit ? "" : 100}" min="0" step="1" placeholder="${hasUnit ? "הקלד גרמים מדויקים..." : ""}" />
+          <span style="white-space:nowrap">גרם</span>
         </div>
         <div id="fd-detail-totals" class="totals-grid" style="margin-top:12px"></div>
         <button id="fd-confirm" class="btn-primary full">➕ הוסף ליומן</button>
@@ -275,22 +276,24 @@ App.food = (function () {
       </div>
     `;
 
-    const qty = root.querySelector("#fd-qty");
-    const mode = root.querySelector("#fd-mode");
+    const qtyU = hasUnit ? root.querySelector("#fd-qty-u") : null;
+    const qtyG = root.querySelector("#fd-qty-g");
     const totalsEl = root.querySelector("#fd-detail-totals");
+    let lastUsed = hasUnit ? "unit" : "g";
 
     function gramsNow() {
-      const q = parseFloat(qty.value) || 0;
-      return hasUnit && (!mode || mode.value === "unit") ? q * food.unitGrams : q;
+      if (lastUsed === "unit" && hasUnit) return (parseFloat(qtyU.value) || 0) * food.unitGrams;
+      return parseFloat(qtyG.value) || 0;
     }
     function label() {
-      const q = parseFloat(qty.value) || 0;
-      return hasUnit && (!mode || mode.value === "unit")
-        ? `${U.round(q)} ${food.unit} (${Math.round(gramsNow())} ג')`
-        : `${Math.round(gramsNow())} ג'`;
+      if (lastUsed === "unit" && hasUnit) {
+        const q = parseFloat(qtyU.value) || 0;
+        return `${U.round(q)} ${food.unit} (${Math.round(gramsNow())} ג')`;
+      }
+      return `${Math.round(gramsNow())} ג'`;
     }
-    function mini(label, val, unit) {
-      return `<div class="stat-card mini"><div class="stat-label">${label}</div><div class="stat-value">${val}<small> ${unit}</small></div></div>`;
+    function mini(lbl, val, unit) {
+      return `<div class="stat-card mini"><div class="stat-label">${lbl}</div><div class="stat-value">${val}<small> ${unit}</small></div></div>`;
     }
     function upd() {
       const f = gramsNow() / 100;
@@ -300,12 +303,11 @@ App.food = (function () {
         mini("פחמימות", U.round(food.carbs * f), "ג'") +
         mini("שומן", U.round(food.fat * f), "ג'");
     }
-    qty.addEventListener("input", upd);
-    if (mode) mode.addEventListener("change", () => { qty.value = mode.value === "unit" ? 1 : 100; qty.step = 1; upd(); });
+    if (qtyU) qtyU.addEventListener("input", () => { lastUsed = "unit"; upd(); });
+    qtyG.addEventListener("input", () => { lastUsed = "g"; upd(); });
     root.querySelectorAll(".gram-btn").forEach((b) =>
       b.addEventListener("click", () => {
-        if (mode && mode.value === "unit") { mode.value = "g"; qty.step = 10; }
-        qty.value = b.dataset.g;
+        qtyG.value = b.dataset.g; lastUsed = "g";
         root.querySelectorAll(".gram-btn").forEach((x) => x.classList.remove("active"));
         b.classList.add("active");
         upd();
