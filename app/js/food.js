@@ -40,13 +40,13 @@ App.food = (function () {
     renderMain();
   }
 
-  // ---------- מחרוזת ימים אחרונים ----------
+  // ---------- מחרוזת ימים: 7 אחרונים + היום + 7 קדימה (14 בסה"כ) ----------
   function dateStrip() {
     const today = U.todayISO();
     const cur = curDate();
     const days = [];
     const base = new Date();
-    for (let i = 6; i >= 0; i--) {
+    for (let i = 6; i >= -7; i--) {            // today-6 ... today ... today+7  → 14 ימים
       const d = new Date(base); d.setDate(base.getDate() - i);
       const p2 = (x) => String(x).padStart(2, "0");
       const iso = `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`;
@@ -54,13 +54,13 @@ App.food = (function () {
     }
     const cells = days.map((iso) => {
       const [, , dd] = iso.split("-");
-      const isSel = iso === cur, isToday = iso === today;
-      return `<button class="day-cell${isSel ? " sel" : ""}" data-day="${iso}">
+      const isSel = iso === cur, isToday = iso === today, isFuture = iso > today;
+      return `<button class="day-cell${isSel ? " sel" : ""}${isFuture ? " future" : ""}${isToday ? " today" : ""}" data-day="${iso}">
         <span class="day-name">${isToday ? "היום" : "יום " + U.dayName(iso)}</span>
         <span class="day-num">${+dd}</span>
       </button>`;
     }).join("");
-    return `<div class="date-strip">${cells}</div>`;
+    return `<div class="date-strip" id="date-strip">${cells}</div>`;
   }
 
   // טבעת קלוריות (נצרך מול יעד)
@@ -159,6 +159,10 @@ App.food = (function () {
     root.querySelectorAll("[data-day]").forEach((b) =>
       b.addEventListener("click", () => { selDate = b.dataset.day; render(); })
     );
+    // גלילה כך שהיום הנבחר יהיה במרכז הרצועה (תומך RTL)
+    const strip = root.querySelector("#date-strip");
+    const selCell = strip && strip.querySelector(".day-cell.sel");
+    if (selCell) selCell.scrollIntoView({ inline: "center", block: "nearest" });
     // water
     root.querySelector("#w-plus").addEventListener("click", () => { setWater(d, wMl + 250); render(); });
     root.querySelector("#w-minus").addEventListener("click", () => { setWater(d, wMl - 250); render(); });
@@ -398,5 +402,14 @@ App.food = (function () {
     );
   }
 
-  return { mount, show };
+  // חיפוש מהיר לפי ברקוד — קודם במאגר המקומי (גם מותאמים וגם סרוקים שנשמרו)
+  function findByBarcode(code) {
+    if (!code) return null;
+    const c = String(code).trim();
+    return allFoods().find((f) => f.barcode && String(f.barcode).trim() === c) || null;
+  }
+  // פתיחת מאכל ישירות בדף הפרטים (לסורק)
+  function openFood(food) { selectedFood = food; view = "detail"; if (root) render(); }
+
+  return { mount, show, findByBarcode, openFood };
 })();

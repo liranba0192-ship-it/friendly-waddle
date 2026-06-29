@@ -74,6 +74,11 @@ App.scanner = (function () {
 
   async function handle(code) {
     busy = true; stop();
+    // 1) חיפוש מהיר במאגר המקומי — נמצא מיידית גם בלי אינטרנט
+    if (App.food && App.food.findByBarcode) {
+      const local = App.food.findByBarcode(code);
+      if (local) { setStatus(`נמצא: ${local.name} ✅`); close(); onFound && onFound(local); return; }
+    }
     setStatus(`מחפש מוצר (${code})…`);
     try {
       const url = `https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(code)}.json?fields=product_name,product_name_he,brands,nutriments`;
