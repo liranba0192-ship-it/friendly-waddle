@@ -127,6 +127,7 @@ App.scale = (function () {
     m.input.value = "";
     // contextual readout of the drawn length in world units
     m.length.textContent = "אורך הקו: " + Math.round(worldLength()) + " יח׳";
+    m.root.hidden = false;
     m.root.classList.add("is-open");
     // focus after the open transition starts
     requestAnimationFrame(() => m.input.focus());
@@ -135,6 +136,7 @@ App.scale = (function () {
   function closeModal() {
     if (!m.root) return;
     m.root.classList.remove("is-open");
+    m.root.hidden = true;
     // discard the uncalibrated reference line if the user backed out
     if (!App.state.isCalibrated()) reset();
     else {
@@ -173,6 +175,7 @@ App.scale = (function () {
     }
     App.state.setPixelsPerMeter(len / meters);
     m.root.classList.remove("is-open");
+    m.root.hidden = true;
     committed = false; // drop the transient red line; ruler now reflects scale
     App.renderer.markDirty();
     App.ui && App.ui.toast && App.ui.toast("קנה המידה הוגדר ✓");

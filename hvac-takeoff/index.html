@@ -140,7 +140,7 @@
         </div>
 
         <!-- inline room-naming popup (positioned at the polygon centroid) -->
-        <div id="room-popup" class="room-popup absolute z-30 w-[248px] rounded-xl border border-zinc-700 bg-zinc-900/95 p-3 shadow-2xl backdrop-blur">
+        <div id="room-popup" hidden class="room-popup absolute z-30 w-[248px] rounded-xl border border-zinc-700 bg-zinc-900/95 p-3 shadow-2xl backdrop-blur">
           <label class="mb-2 block">
             <span class="mb-1 block text-[11px] text-zinc-400">שם החדר / האזור</span>
             <input
@@ -382,6 +382,7 @@
     <!-- scale-calibration modal -->
     <div
       id="scale-modal"
+      hidden
       class="modal fixed inset-0 z-40 items-center justify-center bg-zinc-950/70 p-4 backdrop-blur-sm"
     >
       <div class="modal-card w-full max-w-sm rounded-2xl border border-zinc-700/70 bg-zinc-900 p-6 shadow-2xl">
@@ -425,7 +426,7 @@
     </div>
 
     <!-- review & estimate full-screen overlay -->
-    <div id="estimate-overlay" class="estimate-overlay fixed inset-0 z-40 bg-zinc-950/80 p-4 backdrop-blur-sm sm:p-8">
+    <div id="estimate-overlay" hidden class="estimate-overlay fixed inset-0 z-40 bg-zinc-950/80 p-4 backdrop-blur-sm sm:p-8">
       <div class="estimate-panel mx-auto flex h-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-zinc-700 bg-zinc-900 shadow-2xl">
         <header class="flex items-center justify-between gap-3 border-b border-zinc-800 px-6 py-4">
           <div>
