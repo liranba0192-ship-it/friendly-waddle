@@ -280,6 +280,7 @@ App.rooms = (function () {
     selectZone(pending.zoneId);
     updateReco();
     positionPopup();
+    p.root.hidden = false;
     p.root.classList.add("is-open");
     requestAnimationFrame(() => p.input.focus());
   }
@@ -312,6 +313,7 @@ App.rooms = (function () {
     });
     pending = null;
     p.root.classList.remove("is-open");
+    p.root.hidden = true;
     App.state.setSelectedRoom(room.id);
     // stay in the room tool — begin a fresh draft so the next room can be drawn
     if (App.state.getTool() === "room") start();
@@ -320,7 +322,10 @@ App.rooms = (function () {
 
   function cancelPopup() {
     pending = null;
-    if (p.root) p.root.classList.remove("is-open");
+    if (p.root) {
+      p.root.classList.remove("is-open");
+      p.root.hidden = true;
+    }
     // keep mapping: restart a draft if still in the room tool
     if (App.state.getTool() === "room") start();
     else App.renderer.markDirty();

@@ -89,10 +89,14 @@ App.estimate = (function () {
       return;
     }
     renderTable();
+    el.overlay.hidden = false;
     el.overlay.classList.add("is-open");
   }
   function close() {
-    if (el.overlay) el.overlay.classList.remove("is-open");
+    if (el.overlay) {
+      el.overlay.classList.remove("is-open");
+      el.overlay.hidden = true;
+    }
   }
 
   function cache() {

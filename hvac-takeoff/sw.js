@@ -1,7 +1,7 @@
 // Service Worker — "network first": always fetch the freshest version when
 // online, fall back to cache only when offline, so the app never gets stuck on
 // a stale build. CDN assets (Tailwind, pdf.js) are cached opaquely on first use.
-const CACHE = "hvac-takeoff-v8";
+const CACHE = "hvac-takeoff-v9";
 const SHELL = [
   ".",
   "index.html",
@@ -55,6 +55,15 @@ self.addEventListener("fetch", (e) => {
         }
         return res;
       })
-      .catch(() => caches.match(e.request).then((r) => r || caches.match("index.html")))
+      .catch(() =>
+        caches.match(e.request).then((r) => {
+          if (r) return r;
+          // Only navigations may fall back to the app shell. Never return
+          // index.html for CSS/JS/asset requests — serving HTML as a stylesheet
+          // or script silently breaks the page.
+          if (e.request.mode === "navigate") return caches.match("index.html");
+          return Response.error();
+        })
+      )
   );
 });
