@@ -6,8 +6,8 @@ window.App = window.App || {};
 App.learn = (function () {
   const U = App.util, S = App.store;
   let root;
-  let words = [], lessons = [], readings = [], aiLessons = [], dailyLessons = [], loaded = false;
-  let section = "en";                 // en | daily | finance | ai
+  let words = [], lessons = [], readings = [], aiLessons = [], loaded = false;
+  let section = "en";                 // en | finance | ai
   let view = { kind: "home" };        // home | practice | lesson({id})
   const BATCH = 10;
 
@@ -39,11 +39,6 @@ App.learn = (function () {
       const a = await fetch(`data/ai-guide.json`, { cache: "no-cache" }).then((r) => r.json());
       aiLessons = a.lessons || [];
     } catch { aiLessons = []; }
-    // השיעור היומי (נוצר ע"י routine יומי) — newest-first, טעינה נפרדת
-    try {
-      const dl = await fetch(`data/daily-lessons.json?ts=${Date.now()}`, { cache: "no-cache" }).then((r) => r.json());
-      dailyLessons = dl.lessons || [];
-    } catch { dailyLessons = []; }
     // קריאת הבוקר (נוצרת ע"י routine יומי) — טעינה נפרדת כדי שכשל לא יפיל את השאר
     try {
       const r = await fetch(`../readings/index.json?ts=${Date.now()}`, { cache: "no-cache" });
@@ -71,13 +66,12 @@ App.learn = (function () {
   function render() {
     if (section === "en" && view.kind === "practice") return renderPractice();
     if (section === "en" && view.kind === "reading") return renderReading(view.file);
-    if ((section === "finance" || section === "ai" || section === "daily") && view.kind === "lesson") return renderLesson(view.id);
+    if ((section === "finance" || section === "ai") && view.kind === "lesson") return renderLesson(view.id);
     renderHome();
   }
 
   function sectionTabs() {
     return `<div class="seg learn-seg" id="learn-seg">
-      <button data-sec="daily" class="${section === "daily" ? "active" : ""}">📅 שיעור יומי</button>
       <button data-sec="en" class="${section === "en" ? "active" : ""}">🔤 אנגלית</button>
       <button data-sec="finance" class="${section === "finance" ? "active" : ""}">💰 פיננסים</button>
       <button data-sec="ai" class="${section === "ai" ? "active" : ""}">🤖 AI</button>
@@ -304,11 +298,6 @@ App.learn = (function () {
 
   // ========== COURSES (finance / ai) ==========
   function courseCfg() {
-    if (section === "daily") return {
-      arr: dailyLessons, doneKey: "dailyDone", levels: false, newestFirst: true,
-      title: "📅 השיעור היומי — כושר, תזונה ובריאות",
-      hint: "שיעור חדש כל בוקר, מבוסס מחקר, בלי לחזור על עצמו. השיעור של היום למעלה — והישנים נשמרים תמיד.",
-    };
     if (section === "ai") return {
       arr: aiLessons, doneKey: "aiDone", daily: false, levels: true,
       title: "🤖 לעבוד עם AI — מאפס לרמת המובילים",
@@ -325,10 +314,9 @@ App.learn = (function () {
     const d = raw();
     const done = d[cfg.doneKey] || [];
     const arr = cfg.arr;
-    if (!arr.length) return `<div class="card-block"><p class="status">${cfg.newestFirst ? "עדיין אין שיעורים כאן — השיעור הראשון יגיע עם ההרצה הבאה של השגרה היומית 🌅" : "התוכן בטעינה… נסה לרענן בעוד רגע."}</p></div>`;
+    if (!arr.length) return `<div class="card-block"><p class="status">התוכן בטעינה… נסה לרענן בעוד רגע.</p></div>`;
     let featuredIdx;
-    if (cfg.newestFirst) featuredIdx = 0;                                  // השיעור החדש ביותr = היום
-    else if (cfg.daily) featuredIdx = (d[cfg.dayKey] || 0) % arr.length;
+    if (cfg.daily) featuredIdx = (d[cfg.dayKey] || 0) % arr.length;
     else { featuredIdx = arr.findIndex((l) => !done.includes(l.id)); if (featuredIdx < 0) featuredIdx = 0; }
     const featured = arr[featuredIdx];
     const pct = arr.length ? Math.round((done.length / arr.length) * 100) : 0;
@@ -336,7 +324,7 @@ App.learn = (function () {
     const cardFor = (l, i) => {
       const isDone = done.includes(l.id);
       const isFeatured = i === featuredIdx;
-      const tag = (cfg.daily || cfg.newestFirst) ? "היום" : "המשך";
+      const tag = cfg.daily ? "היום" : "המשך";
       return `
         <button class="list-card lesson-card${isFeatured ? " lesson-today" : ""}" data-lesson="${l.id}">
           <div class="lesson-ico">${l.icon}</div>
@@ -363,7 +351,7 @@ App.learn = (function () {
       listHTML = `<div class="list-cards">${arr.map((l, i) => cardFor(l, i)).join("")}</div>`;
     }
 
-    const featTag = (cfg.daily || cfg.newestFirst) ? "📅 שיעור היום" : (done.length ? "▶️ המשך מכאן" : "▶️ התחל כאן");
+    const featTag = cfg.daily ? "📅 שיעור היום" : (done.length ? "▶️ המשך מכאן" : "▶️ התחל כאן");
     const featuredCard = featured ? `
       <button class="card-block fin-today" data-lesson="${featured.id}">
         <div class="fin-today-tag">${featTag}</div>
@@ -445,7 +433,7 @@ App.learn = (function () {
     const p2 = (x) => String(x).padStart(2, "0");
     const dstr = `${dt.getFullYear()}${p2(dt.getMonth() + 1)}${p2(dt.getDate())}T180000`;
     const stamp = `${now.getUTCFullYear()}${p2(now.getUTCMonth() + 1)}${p2(now.getUTCDate())}T${p2(now.getUTCHours())}${p2(now.getUTCMinutes())}${p2(now.getUTCSeconds())}Z`;
-    const ico = section === "ai" ? "🤖" : section === "daily" ? "📅" : "💰";
+    const ico = section === "ai" ? "🤖" : "💰";
     const ics = [
       "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//halbonintz//HE", "CALSCALE:GREGORIAN",
       "BEGIN:VEVENT", `UID:halbonintz-${U.uid()}@local`, `DTSTAMP:${stamp}`, `DTSTART:${dstr}`,
