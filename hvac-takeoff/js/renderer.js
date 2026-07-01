@@ -44,8 +44,8 @@ App.renderer = (function () {
   }
 
   function clear(cssW, cssH) {
-    // dark slate workspace backdrop
-    ctx.fillStyle = "#0b0f17";
+    // dark workspace backdrop (matches the app's --surface-0 token)
+    ctx.fillStyle = "#08090b";
     ctx.fillRect(0, 0, cssW, cssH);
   }
 
