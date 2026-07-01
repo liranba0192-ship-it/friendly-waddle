@@ -4,6 +4,8 @@ window.App = window.App || {};
 App.food = (function () {
   const U = App.util, S = App.store, N = App.nutrition;
   let root, db = [], loaded = false, view = "main", selectedFood = null, selDate = null, editPrefill = null;
+  let editEntryId = null;    // מזהה שורת יומן בעריכה (עריכת כמות)
+  let lastQuery = "";        // מילת החיפוש האחרונה — כדי לחזור אליה מדף מאכל
 
   function entries() { return S.get("food.entries", []); }   // [{id,date,name,grams,kcal,protein,carbs,fat}]
   function custom() { return S.get("food.custom", []); }     // user foods (per 100g, optional unit)
@@ -101,12 +103,25 @@ App.food = (function () {
     const tg = N.targets();
     const wMl = waterFor(d), wGoal = waterGoal();
 
-    const rows = list.map((e) => `
+    const rows = list.map((e) => {
+      if (e.id === editEntryId) {
+        return `
+        <div class="log-row log-edit">
+          <span class="log-date">${U.esc(e.name)}</span>
+          <input class="log-edit-g" type="number" inputmode="decimal" value="${e.grams}" min="0" step="1" aria-label="גרמים" />
+          <span class="log-edit-unit">ג'</span>
+          <button class="log-save" data-save="${e.id}" aria-label="שמור">💾</button>
+          <button class="del-x" data-cancel="${e.id}" aria-label="ביטול">✕</button>
+        </div>`;
+      }
+      return `
       <div class="log-row">
         <span class="log-date">${U.esc(e.name)} · ${U.esc(e.label || (e.grams + " ג'"))}</span>
         <span class="log-sets">${Math.round(e.kcal)} קק"ל · ${U.round(e.protein)} ח'</span>
+        <button class="edit-x" data-edite="${e.id}" aria-label="ערוך">✏️</button>
         <button class="del-x" data-del="${e.id}" aria-label="מחק">✕</button>
-      </div>`).join("") || `<p class="status">אין ארוחות ליום זה.</p>`;
+      </div>`;
+    }).join("") || `<p class="status">אין ארוחות ליום זה.</p>`;
 
     root.innerHTML = `
       ${dateStrip()}
@@ -166,11 +181,12 @@ App.food = (function () {
     // water
     root.querySelector("#w-plus").addEventListener("click", () => { setWater(d, wMl + 250); render(); });
     root.querySelector("#w-minus").addEventListener("click", () => { setWater(d, wMl - 250); render(); });
-    // search + scan
+    // search + scan — משחזר את מילת החיפוש האחרונה כדי לחזור אליה מדף מאכל
     const search = root.querySelector("#fd-search");
     const results = root.querySelector("#fd-results");
-    search.addEventListener("input", () => renderResults(search.value, results));
-    renderResults("", results);
+    search.value = lastQuery;
+    search.addEventListener("input", () => { lastQuery = search.value; renderResults(search.value, results); });
+    renderResults(lastQuery, results);
     root.querySelector("#fd-scan").addEventListener("click", () => {
       App.scanner.open((food) => {
         const c = custom();
@@ -180,7 +196,32 @@ App.food = (function () {
     });
     // delete + custom
     root.querySelectorAll("[data-del]").forEach((b) =>
-      b.addEventListener("click", () => { saveEntries(entries().filter((e) => e.id !== b.dataset.del)); render(); })
+      b.addEventListener("click", () => { saveEntries(entries().filter((e) => e.id !== b.dataset.del)); editEntryId = null; render(); })
+    );
+    // עריכת כמות בשורת יומן
+    root.querySelectorAll("[data-edite]").forEach((b) =>
+      b.addEventListener("click", () => { editEntryId = b.dataset.edite; render(); })
+    );
+    root.querySelectorAll("[data-cancel]").forEach((b) =>
+      b.addEventListener("click", () => { editEntryId = null; render(); })
+    );
+    root.querySelectorAll("[data-save]").forEach((b) =>
+      b.addEventListener("click", () => {
+        const id = b.dataset.save;
+        const inp = root.querySelector(".log-edit-g");
+        const newG = parseFloat(inp && inp.value) || 0;
+        if (!(newG > 0)) { alert("הזן כמות בגרמים."); return; }
+        const listE = entries();
+        const e = listE.find((x) => x.id === id);
+        if (e && e.grams > 0) {
+          const r = newG / e.grams;
+          e.kcal *= r; e.protein *= r; e.carbs *= r; e.fat *= r;
+          e.grams = Math.round(newG);
+          e.label = Math.round(newG) + " ג'";
+          saveEntries(listE);
+        }
+        editEntryId = null; render();
+      })
     );
     root.querySelector("#fd-custom").addEventListener("click", () => { view = "custom"; render(); });
   }
