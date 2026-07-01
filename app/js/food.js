@@ -4,7 +4,7 @@ window.App = window.App || {};
 App.food = (function () {
   const U = App.util, S = App.store, N = App.nutrition;
   let root, db = [], loaded = false, view = "main", selectedFood = null, selDate = null, editPrefill = null;
-  let editEntryId = null;    // מזהה שורת יומן בעריכה (עריכת כמות)
+  let editEntryId = null;    // מזהה רשומת יומן בעריכה — פותח את דף המאכל המלא, לא רק שדה גרמים
   let lastQuery = "";        // מילת החיפוש האחרונה — כדי לחזור אליה מדף מאכל
 
   function entries() { return S.get("food.entries", []); }   // [{id,date,name,grams,kcal,protein,carbs,fat}]
@@ -103,25 +103,13 @@ App.food = (function () {
     const tg = N.targets();
     const wMl = waterFor(d), wGoal = waterGoal();
 
-    const rows = list.map((e) => {
-      if (e.id === editEntryId) {
-        return `
-        <div class="log-row log-edit">
-          <span class="log-date">${U.esc(e.name)}</span>
-          <input class="log-edit-g" type="number" inputmode="decimal" value="${e.grams}" min="0" step="1" aria-label="גרמים" />
-          <span class="log-edit-unit">ג'</span>
-          <button class="log-save" data-save="${e.id}" aria-label="שמור">💾</button>
-          <button class="del-x" data-cancel="${e.id}" aria-label="ביטול">✕</button>
-        </div>`;
-      }
-      return `
+    const rows = list.map((e) => `
       <div class="log-row">
         <span class="log-date">${U.esc(e.name)} · ${U.esc(e.label || (e.grams + " ג'"))}</span>
         <span class="log-sets">${Math.round(e.kcal)} קק"ל · ${U.round(e.protein)} ח'</span>
         <button class="edit-x" data-edite="${e.id}" aria-label="ערוך">✏️</button>
         <button class="del-x" data-del="${e.id}" aria-label="מחק">✕</button>
-      </div>`;
-    }).join("") || `<p class="status">אין ארוחות ליום זה.</p>`;
+      </div>`).join("") || `<p class="status">אין ארוחות ליום זה.</p>`;
 
     root.innerHTML = `
       ${dateStrip()}
@@ -191,39 +179,33 @@ App.food = (function () {
       App.scanner.open((food) => {
         const c = custom();
         if (!c.some((x) => x.name === food.name)) { c.unshift(food); saveCustom(c); }
-        selectedFood = food; view = "detail"; render();
+        editEntryId = null; selectedFood = food; view = "detail"; render();
       });
     });
     // delete + custom
     root.querySelectorAll("[data-del]").forEach((b) =>
-      b.addEventListener("click", () => { saveEntries(entries().filter((e) => e.id !== b.dataset.del)); editEntryId = null; render(); })
+      b.addEventListener("click", () => { saveEntries(entries().filter((e) => e.id !== b.dataset.del)); render(); })
     );
-    // עריכת כמות בשורת יומן
+    // עריכת רשומה ביומן — פותח את דף המאכל המלא (כמו בחירת מאכל מהחיפוש), עם הכמות הקיימת ממולאת מראש
     root.querySelectorAll("[data-edite]").forEach((b) =>
-      b.addEventListener("click", () => { editEntryId = b.dataset.edite; render(); })
-    );
-    root.querySelectorAll("[data-cancel]").forEach((b) =>
-      b.addEventListener("click", () => { editEntryId = null; render(); })
-    );
-    root.querySelectorAll("[data-save]").forEach((b) =>
       b.addEventListener("click", () => {
-        const id = b.dataset.save;
-        const inp = root.querySelector(".log-edit-g");
-        const newG = parseFloat(inp && inp.value) || 0;
-        if (!(newG > 0)) { alert("הזן כמות בגרמים."); return; }
-        const listE = entries();
-        const e = listE.find((x) => x.id === id);
-        if (e && e.grams > 0) {
-          const r = newG / e.grams;
-          e.kcal *= r; e.protein *= r; e.carbs *= r; e.fat *= r;
-          e.grams = Math.round(newG);
-          e.label = Math.round(newG) + " ג'";
-          saveEntries(listE);
-        }
-        editEntryId = null; render();
+        const e = entries().find((x) => x.id === b.dataset.edite);
+        if (!e) return;
+        editEntryId = e.id;
+        selectedFood = foodFromEntry(e);
+        view = "detail";
+        render();
       })
     );
     root.querySelector("#fd-custom").addEventListener("click", () => { view = "custom"; render(); });
+  }
+
+  // בונה אובייקט מאכל (ערכים ל-100 ג') מתוך רשומת יומן — לפתיחת דף הפרטים בעריכה
+  function foodFromEntry(e) {
+    const match = allFoods().find((f) => f.name === e.name);
+    if (match) return match;
+    const factor = e.grams > 0 ? 100 / e.grams : 0;
+    return { name: e.name, cat: "", kcal: e.kcal * factor, protein: e.protein * factor, carbs: e.carbs * factor, fat: e.fat * factor };
   }
 
   function stat(label, val, target, unit) {
@@ -248,7 +230,7 @@ App.food = (function () {
         <small>${f.kcal} קק"ל · ${f.protein} ח' / 100ג'</small>
       </button>`).join("");
     container.querySelectorAll(".food-item").forEach((b) =>
-      b.addEventListener("click", () => { selectedFood = list[+b.dataset.i]; view = "detail"; render(); })
+      b.addEventListener("click", () => { editEntryId = null; selectedFood = list[+b.dataset.i]; view = "detail"; render(); })
     );
   }
 
@@ -274,6 +256,7 @@ App.food = (function () {
 
   function renderDetail(food) {
     if (!food) { view = "main"; return render(); }
+    const editingEntry = editEntryId ? entries().find((x) => x.id === editEntryId) : null;
     const hasUnit = food.unit && food.unitGrams > 0;
     const pk = food.protein * 4, ck = food.carbs * 4, fk = food.fat * 9, tot = pk + ck + fk || 1;
     const COL = { p: "var(--accent)", c: "var(--amber)", f: "#a78bfa" };
@@ -282,8 +265,13 @@ App.food = (function () {
         <span class="legend-name">${name}</span>
         <b>${U.round(grams)} ג'</b><small>${Math.round(frac * 100)}%</small></div>`;
 
+    const initG = editingEntry ? editingEntry.grams : (hasUnit ? "" : 100);
+    const initU = editingEntry && hasUnit ? U.round(editingEntry.grams / food.unitGrams) : 1;
+
     root.innerHTML = `
       <button id="fd-back" class="btn-secondary">‹ חזרה</button>
+
+      ${editingEntry ? `<p class="section-hint center">✏️ עריכת רשומה קיימת ביומן</p>` : ""}
 
       <div class="card-block food-detail">
         <h2 class="view-h2">${U.esc(food.name)}${food.custom ? " ✏️" : ""}</h2>
@@ -303,7 +291,7 @@ App.food = (function () {
         ${hasUnit ? `
         <p class="section-hint">ביחידות:</p>
         <div class="add-row inline" style="margin-bottom:14px">
-          <input id="fd-qty-u" type="number" inputmode="decimal" value="1" min="0" step="0.5" />
+          <input id="fd-qty-u" type="number" inputmode="decimal" value="${initU}" min="0" step="0.5" />
           <span style="white-space:nowrap;font-weight:600">${U.esc(food.unit)} <small style="font-weight:400;color:var(--muted)">(${food.unitGrams} ג' ליחידה)</small></span>
         </div>
         <p class="section-hint">— או גרמים מדויקים —</p>` :
@@ -312,11 +300,11 @@ App.food = (function () {
           ${[50,100,150,200,250,300,400,500].map(g => `<button class="gram-btn" data-g="${g}">${g}ג'</button>`).join("")}
         </div>
         <div class="add-row inline">
-          <input id="fd-qty-g" type="number" inputmode="decimal" value="${hasUnit ? "" : 100}" min="0" step="1" placeholder="${hasUnit ? "הקלד גרמים מדויקים..." : ""}" />
+          <input id="fd-qty-g" type="number" inputmode="decimal" value="${initG}" min="0" step="1" placeholder="${hasUnit && !editingEntry ? "הקלד גרמים מדויקים..." : ""}" />
           <span style="white-space:nowrap">גרם</span>
         </div>
         <div id="fd-detail-totals" class="totals-grid" style="margin-top:12px"></div>
-        <button id="fd-confirm" class="btn-primary full">➕ הוסף ליומן</button>
+        <button id="fd-confirm" class="btn-primary full">${editingEntry ? "💾 עדכן ביומן" : "➕ הוסף ליומן"}</button>
         <button id="fd-edit" class="btn-secondary full">✏️ ערוך ערכים של מאכל זה</button>
       </div>
     `;
@@ -324,7 +312,7 @@ App.food = (function () {
     const qtyU = hasUnit ? root.querySelector("#fd-qty-u") : null;
     const qtyG = root.querySelector("#fd-qty-g");
     const totalsEl = root.querySelector("#fd-detail-totals");
-    let lastUsed = hasUnit ? "unit" : "g";
+    let lastUsed = editingEntry ? "g" : (hasUnit ? "unit" : "g");
 
     function gramsNow() {
       if (lastUsed === "unit" && hasUnit) return (parseFloat(qtyU.value) || 0) * food.unitGrams;
@@ -360,7 +348,7 @@ App.food = (function () {
     );
     upd();
 
-    root.querySelector("#fd-back").addEventListener("click", () => { view = "main"; render(); });
+    root.querySelector("#fd-back").addEventListener("click", () => { editEntryId = null; view = "main"; render(); });
     root.querySelector("#fd-edit").addEventListener("click", () => {
       editPrefill = { name: food.name, kcal: food.kcal, protein: food.protein, carbs: food.carbs, fat: food.fat, unit: food.unit, unitGrams: food.unitGrams };
       view = "custom"; render();
@@ -370,6 +358,18 @@ App.food = (function () {
       if (!(g > 0)) { alert("הזן כמות."); return; }
       const f = g / 100;
       const list = entries();
+      if (editingEntry) {
+        const idx = list.findIndex((x) => x.id === editingEntry.id);
+        if (idx >= 0) {
+          list[idx] = {
+            ...list[idx], name: food.name, grams: Math.round(g), label: label(),
+            kcal: food.kcal * f, protein: food.protein * f, carbs: food.carbs * f, fat: food.fat * f,
+          };
+        }
+        saveEntries(list);
+        editEntryId = null; view = "main"; render();
+        return;
+      }
       list.push({
         id: U.uid(), date: curDate(), name: food.name, grams: Math.round(g), label: label(),
         kcal: food.kcal * f, protein: food.protein * f, carbs: food.carbs * f, fat: food.fat * f,
@@ -450,7 +450,7 @@ App.food = (function () {
     return allFoods().find((f) => f.barcode && String(f.barcode).trim() === c) || null;
   }
   // פתיחת מאכל ישירות בדף הפרטים (לסורק)
-  function openFood(food) { selectedFood = food; view = "detail"; if (root) render(); }
+  function openFood(food) { editEntryId = null; selectedFood = food; view = "detail"; if (root) render(); }
 
   return { mount, show, findByBarcode, openFood };
 })();
