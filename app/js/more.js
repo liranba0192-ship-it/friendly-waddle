@@ -9,6 +9,7 @@ App.more = (function () {
   function saveReminderTime(v) { S.set("reminder.time", v); }
   function weighTime() { return S.get("reminder.weighTime", "07:00"); }
   function weighDay() { return S.get("reminder.weighDay", 0); }
+  function foodTime() { return S.get("reminder.foodTime", "19:30"); }
 
   const BYDAY = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
   function buildICS({ summary, desc, time, freq, byday }) {
@@ -60,6 +61,16 @@ App.more = (function () {
       </div>
 
       <div class="card-block">
+        <h3>🍽️ תזכורת יומן אוכל (יומי)</h3>
+        <p class="section-hint">תזכורת קלילה פעם ביום לתעד מה אכלת — לא יותר מזה, בלי הצפה.</p>
+        <div class="add-row inline">
+          <input id="fm-time" type="time" value="${foodTime()}" />
+          <button id="fm-make" class="btn-primary">צור תזכורת</button>
+        </div>
+        <p class="section-hint" id="fm-hint"></p>
+      </div>
+
+      <div class="card-block">
         <h3>🎨 מראה</h3>
         <p class="section-hint">העיצוב מתאים את עצמו אוטומטית למצב בהיר/כהה של האייפון. אפשר לכפות מצב:</p>
         <div class="seg" id="theme-seg">
@@ -84,6 +95,7 @@ App.more = (function () {
 
     root.querySelector("#rm-make").addEventListener("click", makeReminder);
     root.querySelector("#wm-make").addEventListener("click", makeWeighReminder);
+    root.querySelector("#fm-make").addEventListener("click", makeFoodReminder);
 
     const seg = root.querySelector("#theme-seg");
     const cur = localStorage.getItem("mb.theme") || "light";
@@ -110,6 +122,19 @@ App.more = (function () {
     U.download("learning-daily.ics", ics, "text/calendar");
     root.querySelector("#rm-hint").innerHTML =
       `הקובץ ירד. ב-iOS פתח אותו ולחץ «הוסף הכל» כדי לקבל תזכורת כל בוקר ב-${time}. ✅`;
+  }
+
+  function makeFoodReminder() {
+    const time = root.querySelector("#fm-time").value || "19:30";
+    S.set("reminder.foodTime", time);
+    const ics = buildICS({
+      summary: "🍽️ היי, מה אכלת היום?",
+      desc: "רגע קטן לתעד ביומן התזונה — בלי לחץ, רק כדי לשמור על התמונה 🌿",
+      time, freq: "DAILY",
+    });
+    U.download("food-log-daily.ics", ics, "text/calendar");
+    root.querySelector("#fm-hint").innerHTML =
+      `הקובץ ירד. ב-iOS פתח אותו ולחץ «הוסף הכל» — תזכורת קלילה כל יום ב-${time}. ✅`;
   }
 
   function makeWeighReminder() {
