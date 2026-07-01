@@ -163,6 +163,10 @@ h3 { font-size: 16px; margin: 0 0 10px; }
 .log-date { color: var(--muted); font-size: 13px; flex: 1; }
 .log-sets { font-weight: 600; font-size: 14px; }
 .del-x { background: none; border: none; color: var(--danger); font-size: 16px; cursor: pointer; padding: 4px 8px; }
+.log-edit .log-date { flex: 0 1 auto; }
+.log-edit-g { width: 80px; flex: 0 0 auto; padding: 6px 8px; text-align: center; }
+.log-edit-unit { color: var(--muted); font-size: 13px; }
+.log-save { background: none; border: none; font-size: 18px; cursor: pointer; padding: 4px 6px; }
 
 /* ---------- inputs ---------- */
 input[type="number"], input[type="text"], input[type="date"], input[type="time"], input[type="search"], select {
