@@ -50,6 +50,7 @@
 ## 💾 שמירה (חובה — בסוף ההרצה)
 1. כתוב את `app/data/finance.json` המעודכן (כל השיעורים הקיימים + החדש).
 2. ודא תקינות JSON (לדוגמה `python3 -c "import json;json.load(open('app/data/finance.json'))"`).
-3. בצע **commit ו-push** ל-branch ברירת המחדל (`main`). הודעת commit: `Add finance lesson: <title>`.
+3. בצע **commit ו-push**. הודעת commit: `Add finance lesson: <title>`.
+4. ⚠️ **חובה — הסביבה שלך עובדת על branch נפרד, לא על `main`.** מיד אחרי ה-push, צור Pull Request אל `main` באמצעות `mcp__github__create_pull_request` ומזג אותו מיד עם `mcp__github__merge_pull_request` (`merge_method: "squash"`), **באותה הרצה**. אם יש merge conflicts: `git fetch origin main && git merge -X ours origin/main --no-edit && git push`, ואז מזג שוב. ודא שהתגובה מכילה `"merged": true` לפני שאתה מסיים.
 
 > כך כל יום נוסף שיעור פיננסי חדש, והאפליקציה (טאב לימוד → פיננסים) מציגה אותו אוטומטית — המסלול גדל בלי לחזור על עצמו.
