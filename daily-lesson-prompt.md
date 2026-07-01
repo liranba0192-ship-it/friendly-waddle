@@ -62,8 +62,8 @@
 
 > ℹ️ הערה: השיעור היומי באפליקציה כבר עובד **בלי רוטיין** — יש 100 שיעורים קבועים שמתחלפים לבד לפי תאריך. שגרה זו היא **רשות בלבד** — היא רק מוסיפה עוד שיעורים מעבר ל-100, אם תרצה תוכן שמתעדכן עם מחקרים חדשים.
 3. **עדכן את `app/data/daily-lessons-topics.json`**: הוסף את נושא היום למערך `topics` (שם גנרי, למשל "ויטמין C"). אל תמחק נושאים קיימים. ודא JSON תקין.
-4. **בצע commit ו-push** של שני הקבצים ל-branch `main`:
-   `Add daily lesson <YYYY-MM-DD>`.
+4. **בצע commit ו-push** של שני הקבצים: `Add daily lesson <YYYY-MM-DD>`.
+5. ⚠️ **חובה — הסביבה שלך עובדת על branch נפרד, לא על `main`.** מיד אחרי ה-push, צור Pull Request אל `main` באמצעות `mcp__github__create_pull_request` ומזג אותו מיד עם `mcp__github__merge_pull_request` (`merge_method: "squash"`), **באותה הרצה**. אם יש merge conflicts: `git fetch origin main && git merge -X ours origin/main --no-edit && git push`, ואז מזג שוב. ודא שהתגובה מכילה `"merged": true` לפני שאתה מסיים.
 
 > כך כל בוקר נוסף שיעור חדש לטאב הלימוד, השיעור של היום מקבל תג "היום", והשיעורים הישנים נשמרים לגלילה.
 
