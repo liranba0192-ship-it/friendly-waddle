@@ -143,6 +143,12 @@ body {
   border-radius: 50%;
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.12);
 }
+/* rows with a wrapping multi-line body (zone rows: name + BTU detail) align the
+   dot to the first line instead of centering it across the whole taller block */
+.room-row:has(.zone-meta) .room-dot {
+  align-self: flex-start;
+  margin-top: 0.2rem;
+}
 .room-meta {
   display: flex;
   min-width: 0;
@@ -415,6 +421,15 @@ body {
 .toast.is-visible {
   opacity: 1;
   transform: translate(-50%, 0);
+}
+
+/* ---- mobile sidebar drawer ---- */
+#sidebar.is-open {
+  transform: translateX(0);
+}
+#sidebar-backdrop.is-open {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 /* ---- projects manager ---- */

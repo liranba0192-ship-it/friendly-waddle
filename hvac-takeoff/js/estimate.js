@@ -191,7 +191,7 @@ App.estimate = (function () {
     page.className = "pdf-page";
     page.style.cssText =
       "position:fixed;left:-99999px;top:0;width:794px;height:1123px;background:#ffffff;" +
-      "color:#0f172a;box-sizing:border-box;padding:48px;font-family:Heebo,Arial,sans-serif;" +
+      "color:#0f172a;box-sizing:border-box;padding:48px;font-family:Rubik,Heebo,Arial,sans-serif;" +
       "direction:rtl;";
     document.body.appendChild(page);
     return page;

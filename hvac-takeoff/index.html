@@ -18,6 +18,14 @@
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
     <link rel="icon" href="icons/icon-192.png" />
 
+    <!-- Rubik — full Hebrew + Latin glyph coverage, the app's primary typeface -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,500&display=swap"
+      rel="stylesheet"
+    />
+
     <!-- Tailwind (Play CDN) with inline theme config -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -35,6 +43,7 @@
             },
             fontFamily: {
               sans: [
+                "Rubik",
                 "-apple-system",
                 "BlinkMacSystemFont",
                 "Segoe UI",
@@ -68,13 +77,25 @@
         <div
           class="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-between gap-3 p-3"
         >
-          <div
-            class="pointer-events-auto flex items-center gap-2 rounded-xl border border-zinc-700/60 bg-zinc-900/70 px-3 py-1.5 text-sm shadow-lg backdrop-blur"
-          >
-            <span class="text-brand-400">📐</span>
-            <span id="doc-name" class="max-w-[40vw] truncate text-zinc-300">אין קובץ טעון</span>
-            <span class="text-zinc-600">·</span>
-            <span id="page-indicator" class="tabular-nums text-zinc-400">—</span>
+          <div class="pointer-events-auto flex min-w-0 items-center gap-2">
+            <div class="shrink-0 md:hidden">
+              <button
+                id="sidebar-toggle"
+                class="icon-btn border border-zinc-700/60 bg-zinc-900/70 shadow-lg backdrop-blur"
+                title="תפריט"
+                aria-label="פתח תפריט"
+              >
+                ☰
+              </button>
+            </div>
+            <div
+              class="pointer-events-auto flex min-w-0 items-center gap-2 rounded-xl border border-zinc-700/60 bg-zinc-900/70 px-3 py-1.5 text-sm shadow-lg backdrop-blur"
+            >
+              <span class="text-brand-400 shrink-0">📐</span>
+              <span id="doc-name" class="max-w-[28vw] truncate text-zinc-300 sm:max-w-[40vw]">אין קובץ טעון</span>
+              <span class="text-zinc-600 shrink-0">·</span>
+              <span id="page-indicator" class="shrink-0 tabular-nums text-zinc-400">—</span>
+            </div>
           </div>
 
           <div
@@ -164,9 +185,18 @@
         </div>
       </main>
 
+      <!-- backdrop behind the sidebar drawer on narrow screens -->
+      <div
+        id="sidebar-backdrop"
+        class="fixed inset-0 z-30 bg-black/60 opacity-0 pointer-events-none transition-opacity md:hidden"
+      ></div>
+
       <!-- ===== Sidebar (right, RTL natural) ===== -->
+      <!-- narrow screens: a fixed off-canvas drawer sliding in from the end (right); -->
+      <!-- md+ : back to a normal, always-visible flex column -->
       <aside
-        class="flex w-72 shrink-0 flex-col overflow-y-auto border-s border-zinc-800 bg-zinc-900/80 backdrop-blur"
+        id="sidebar"
+        class="fixed inset-y-0 start-0 z-40 flex w-[85vw] max-w-80 translate-x-full flex-col overflow-y-auto border-s border-zinc-800 bg-zinc-900/95 shadow-2xl backdrop-blur transition-transform duration-200 md:static md:z-auto md:w-72 md:max-w-none md:translate-x-0 md:bg-zinc-900/80 md:shadow-none"
       >
         <!-- brand header -->
         <header class="flex items-center gap-3 border-b border-zinc-800 px-4 py-4">
