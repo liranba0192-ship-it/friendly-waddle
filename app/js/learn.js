@@ -29,14 +29,14 @@ App.learn = (function () {
     try {
       const [v, f] = await Promise.all([
         fetch(`data/vocab.json`, { cache: "no-cache" }).then((r) => r.json()),
-        fetch(`data/finance.json`, { cache: "no-cache" }).then((r) => r.json()),
+        fetch(`data/finance.json?ts=${Date.now()}`, { cache: "no-cache" }).then((r) => r.json()),
       ]);
       words = v.words || [];
       lessons = f.lessons || [];
     } catch { words = []; lessons = []; }
     // מדריך ה-AI — טעינה נפרדת כדי שכשל לא יפיל את השאר
     try {
-      const a = await fetch(`data/ai-guide.json`, { cache: "no-cache" }).then((r) => r.json());
+      const a = await fetch(`data/ai-guide.json?ts=${Date.now()}`, { cache: "no-cache" }).then((r) => r.json());
       aiLessons = a.lessons || [];
     } catch { aiLessons = []; }
     // קריאת הבוקר (נוצרת ע"י routine יומי) — טעינה נפרדת כדי שכשל לא יפיל את השאר
