@@ -111,7 +111,6 @@ App.learn = (function () {
   function renderHome() {
     if (section === "en") ensureDailyBatch();
     if (section === "finance") ensureDailyAdvance("finDay", "finDate", lessons.length);
-    if (section === "daily") ensureDailyAdvance("dailyDay", "dailyDate", dailyLessons.length);
     root.innerHTML = sectionTabs() + (section === "en" ? enHomeHTML() : courseHomeHTML(courseCfg()));
     root.querySelectorAll("#learn-seg button").forEach((b) =>
       b.addEventListener("click", () => { section = b.dataset.sec; view = { kind: "home" }; render(); })
@@ -306,9 +305,9 @@ App.learn = (function () {
   // ========== COURSES (finance / ai) ==========
   function courseCfg() {
     if (section === "daily") return {
-      arr: dailyLessons, doneKey: "dailyDone", dayKey: "dailyDay", daily: true, levels: true,
+      arr: dailyLessons, doneKey: "dailyDone", levels: false, newestFirst: true,
       title: "📅 השיעור היומי — כושר, תזונה ובריאות",
-      hint: "100 שיעורים ב-5 רמות — תזונה, אימון, תוספים ובריאות. שיעור חדש כל יום, אוטומטית.",
+      hint: "שיעור חדש כל בוקר, מבוסס מחקר, בלי לחזור על עצמו. השיעור של היום למעלה — והישנים נשמרים תמיד.",
     };
     if (section === "ai") return {
       arr: aiLessons, doneKey: "aiDone", daily: false, levels: true,
@@ -326,7 +325,7 @@ App.learn = (function () {
     const d = raw();
     const done = d[cfg.doneKey] || [];
     const arr = cfg.arr;
-    if (!arr.length) return `<div class="card-block"><p class="status">התוכן בטעינה… נסה לרענן בעוד רגע.</p></div>`;
+    if (!arr.length) return `<div class="card-block"><p class="status">${cfg.newestFirst ? "עדיין אין שיעורים כאן — השיעור הראשון יגיע עם ההרצה הבאה של השגרה היומית 🌅" : "התוכן בטעינה… נסה לרענן בעוד רגע."}</p></div>`;
     let featuredIdx;
     if (cfg.newestFirst) featuredIdx = 0;                                  // השיעור החדש ביותr = היום
     else if (cfg.daily) featuredIdx = (d[cfg.dayKey] || 0) % arr.length;
