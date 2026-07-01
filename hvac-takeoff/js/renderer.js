@@ -126,25 +126,50 @@ App.renderer = (function () {
     });
   }
 
+  /** Shrink `text` with a trailing ellipsis until it fits within maxWidth. */
+  function ellipsize(text, maxWidth) {
+    if (ctx.measureText(text).width <= maxWidth) return text;
+    let lo = 0, hi = text.length;
+    while (lo < hi) {
+      const mid = (lo + hi + 1) >> 1;
+      if (ctx.measureText(text.slice(0, mid) + "…").width <= maxWidth) lo = mid;
+      else hi = mid - 1;
+    }
+    return lo > 0 ? text.slice(0, lo) + "…" : "…";
+  }
+
+  /** Screen-space width of a room's polygon (used to keep its label contained). */
+  function roomScreenWidth(points) {
+    let minX = Infinity, maxX = -Infinity;
+    points.forEach((p) => {
+      const s = App.viewport.worldToScreen(p.x, p.y);
+      if (s.x < minX) minX = s.x;
+      if (s.x > maxX) maxX = s.x;
+    });
+    return maxX - minX;
+  }
+
   /** Centered name + area label for a finalized room. */
   function drawRoomLabel(room) {
     const c = App.rooms.centroid(room.points);
     const s = App.viewport.worldToScreen(c.x, c.y);
     const area = App.rooms.areaM2(room);
     const areaText = area != null ? area.toFixed(1) + " מ²" : "כייל קנה מידה";
+    const maxWidth = Math.max(40, roomScreenWidth(room.points) - 16); // keep the label inside the fill
 
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.font = "600 13px -apple-system, BlinkMacSystemFont, 'Segoe UI', Heebo, sans-serif";
+    ctx.font = "600 13px Rubik, -apple-system, BlinkMacSystemFont, 'Segoe UI', Heebo, sans-serif";
     ctx.lineJoin = "round";
+    const name = ellipsize(room.name, maxWidth);
     // outlined text for legibility over any fill
     ctx.lineWidth = 3;
     ctx.strokeStyle = "rgba(8,11,17,0.85)";
-    ctx.strokeText(room.name, s.x, s.y - 8);
+    ctx.strokeText(name, s.x, s.y - 8);
     ctx.fillStyle = "#f8fafc";
-    ctx.fillText(room.name, s.x, s.y - 8);
+    ctx.fillText(name, s.x, s.y - 8);
 
-    ctx.font = "500 11px -apple-system, BlinkMacSystemFont, 'Segoe UI', Heebo, sans-serif";
+    ctx.font = "500 11px Rubik, -apple-system, BlinkMacSystemFont, 'Segoe UI', Heebo, sans-serif";
     ctx.lineWidth = 3;
     ctx.strokeText(areaText, s.x, s.y + 9);
     ctx.fillStyle = area != null ? "#cbd5e1" : "#fca5a5";
@@ -219,7 +244,7 @@ App.renderer = (function () {
 
   // ---- HVAC assets & routes (STEP 4) -------------------------------------
   function pill(text, sx, sy, fg, bg) {
-    ctx.font = "600 11px -apple-system, BlinkMacSystemFont, 'Segoe UI', Heebo, sans-serif";
+    ctx.font = "600 11px Rubik, -apple-system, BlinkMacSystemFont, 'Segoe UI', Heebo, sans-serif";
     const padX = 6;
     const tw = ctx.measureText(text).width;
     ctx.fillStyle = bg;
@@ -376,7 +401,7 @@ App.renderer = (function () {
     ctx.save();
     ctx.translate(mx, my);
     ctx.rotate(ang);
-    ctx.font = "700 10px -apple-system, BlinkMacSystemFont, 'Segoe UI', Heebo, sans-serif";
+    ctx.font = "700 10px Rubik, -apple-system, BlinkMacSystemFont, 'Segoe UI', Heebo, sans-serif";
     const tw = ctx.measureText(size).width;
     ctx.fillStyle = "rgba(8,11,17,0.78)";
     roundRect(-tw / 2 - 4, -11 - 9, tw + 8, 15, 4); // offset above the line
@@ -545,7 +570,7 @@ App.renderer = (function () {
       ? (worldLen / ppm).toFixed(2) + " מ׳"
       : Math.round(worldLen) + " יח׳";
     ctx.font =
-      "600 12px -apple-system, BlinkMacSystemFont, 'Segoe UI', Heebo, sans-serif";
+      "600 12px Rubik, -apple-system, BlinkMacSystemFont, 'Segoe UI', Heebo, sans-serif";
     const padX = 6;
     const tw = ctx.measureText(label).width;
     const bx = mid.x - tw / 2 - padX;
