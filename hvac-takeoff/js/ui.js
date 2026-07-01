@@ -61,8 +61,8 @@ App.ui = (function () {
       btn.addEventListener("click", () => {
         if (btn.disabled) return;
         const t = btn.dataset.tool;
-        // scale / room calibration & mapping need a blueprint loaded
-        if ((t === "scale" || t === "room") && !App.state.getActivePage()) {
+        // drawing tools need a blueprint loaded to make sense
+        if ((t === "scale" || t === "room" || t === "measure") && !App.state.getActivePage()) {
           toast("טען שרטוט קודם");
           return;
         }
@@ -76,11 +76,15 @@ App.ui = (function () {
       // crosshair + no panning for the drawing/placement tools
       el.canvas.classList.toggle("tool-scale", tool === "scale");
       el.canvas.classList.toggle("tool-room", tool === "room");
+      el.canvas.classList.toggle("tool-measure", tool === "measure");
       el.canvas.classList.toggle("tool-asset", tool === "asset");
       el.canvas.classList.toggle("tool-route", tool === "route");
       // begin a fresh polygon draft when entering the room tool; drop it on exit
       if (tool === "room") App.rooms.start();
       else App.rooms.cancelDraft();
+      // same for the measure tool's open polyline
+      if (tool === "measure") App.measure.start();
+      else App.measure.cancelDraft();
       // keep asset/route transient selections consistent
       App.routing.syncTool(tool);
       reflectSystemTool(tool);
@@ -226,6 +230,32 @@ App.ui = (function () {
       onClick();
     });
     return del;
+  }
+
+  // --- measurements (on-canvas ruler) --------------------------------------
+  function setupMeasurements() {
+    App.state.on("measurements:changed", renderMeasurements);
+    App.state.on("scale:changed", renderMeasurements); // lengths switch to meters
+    renderMeasurements();
+  }
+
+  function renderMeasurements() {
+    const measurements = App.state.getMeasurements();
+    el.measureList.innerHTML = "";
+    el.measureEmpty.classList.toggle("hidden", measurements.length > 0);
+
+    measurements.forEach((m) => {
+      const meters = App.measure.lengthMeters(m);
+      const lenText = meters != null ? meters.toFixed(2) + ' מ׳' : "— מ׳";
+      const row = document.createElement("div");
+      row.className = "room-row";
+      row.innerHTML =
+        `<span class="room-dot" style="background:#facc15"></span>` +
+        `<span class="room-meta"><span class="room-name">${escapeHtml(m.label)}</span>` +
+        `<span class="room-area">${lenText}</span></span>`;
+      row.appendChild(mkDelete(() => App.state.removeMeasurement(m.id)));
+      el.measureList.appendChild(row);
+    });
   }
 
   // --- zone registry (rooms list) -----------------------------------------
@@ -425,6 +455,8 @@ App.ui = (function () {
     el.systemEmpty = $("system-empty");
     el.lineSize = $("line-size-select");
     el.lineSizeWrap = $("line-size-wrap");
+    el.measureList = $("measure-list");
+    el.measureEmpty = $("measure-empty");
 
     el.openBtn.addEventListener("click", openFileDialog);
     el.openBtnEmpty.addEventListener("click", openFileDialog);
@@ -438,6 +470,7 @@ App.ui = (function () {
     setupTheme();
     setupScale();
     setupRooms();
+    setupMeasurements();
     setupSystem();
 
     App.state.on("document:changed", renderPages);
