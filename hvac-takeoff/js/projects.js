@@ -80,6 +80,7 @@ App.projects = (function () {
       rooms: App.state.getRooms(),
       assets: App.state.getAssets(),
       routes: App.state.getRoutes(),
+      measurements: App.state.getMeasurements(),
       pages,
     };
   }
@@ -101,6 +102,7 @@ App.projects = (function () {
       rooms: data.rooms,
       assets: data.assets,
       routes: data.routes,
+      measurements: data.measurements,
     });
     // restore the saved camera, or fit if none
     requestAnimationFrame(() => {
@@ -267,7 +269,14 @@ App.projects = (function () {
     });
 
     // mark dirty on any project change (drives autosave necessity + status)
-    ["scale:changed", "rooms:changed", "assets:changed", "routes:changed", "document:changed"].forEach(
+    [
+      "scale:changed",
+      "rooms:changed",
+      "assets:changed",
+      "routes:changed",
+      "measurements:changed",
+      "document:changed",
+    ].forEach(
       (ev) => App.state.on(ev, markDirty)
     );
 

@@ -30,6 +30,8 @@ body {
 #board.tool-scale.is-grabbing,
 #board.tool-room,
 #board.tool-room.is-grabbing,
+#board.tool-measure,
+#board.tool-measure.is-grabbing,
 #board.tool-asset,
 #board.tool-asset.is-grabbing {
   cursor: crosshair;

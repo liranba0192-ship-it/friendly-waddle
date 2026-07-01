@@ -406,6 +406,95 @@ App.renderer = (function () {
     });
   }
 
+  /** Perpendicular ruler-style tick mark at a polyline endpoint (screen space). */
+  function drawTick(sx, sy, angle) {
+    const len = 7;
+    const nx = -Math.sin(angle), ny = Math.cos(angle); // perpendicular unit vector
+    ctx.beginPath();
+    ctx.moveTo(sx - nx * len, sy - ny * len);
+    ctx.lineTo(sx + nx * len, sy + ny * len);
+    ctx.stroke();
+  }
+
+  const MEASURE_COLOR = "#facc15"; // amber-400 — distinct from rooms/routes/scale
+
+  /** Draw one measurement polyline (screen space) with end ticks + length badge. */
+  function drawMeasureLine(points, { dashed = false } = {}) {
+    if (points.length < 2) return;
+    const pts = points.map((p) => App.viewport.worldToScreen(p.x, p.y));
+
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.setLineDash(dashed ? [6, 4] : []);
+    ctx.strokeStyle = MEASURE_COLOR;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    pts.forEach((s, i) => (i === 0 ? ctx.moveTo(s.x, s.y) : ctx.lineTo(s.x, s.y)));
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // perpendicular tick marks at the two open ends (classic ruler look)
+    const startAngle = Math.atan2(pts[1].y - pts[0].y, pts[1].x - pts[0].x);
+    const n = pts.length;
+    const endAngle = Math.atan2(pts[n - 1].y - pts[n - 2].y, pts[n - 1].x - pts[n - 2].x);
+    drawTick(pts[0].x, pts[0].y, startAngle);
+    drawTick(pts[n - 1].x, pts[n - 1].y, endAngle);
+
+    // small dots at interior vertices
+    for (let i = 1; i < n - 1; i++) {
+      ctx.beginPath();
+      ctx.arc(pts[i].x, pts[i].y, 3, 0, Math.PI * 2);
+      ctx.fillStyle = MEASURE_COLOR;
+      ctx.fill();
+    }
+  }
+
+  function drawMeasurements() {
+    if (!App.measure) return;
+    const measurements = App.state.getMeasurements();
+    measurements.forEach((m) => {
+      drawMeasureLine(m.points);
+      const mid = App.viewport.worldToScreen(
+        App.measure.midpoint(m.points).x,
+        App.measure.midpoint(m.points).y
+      );
+      const meters = App.measure.lengthMeters(m);
+      const label = meters != null ? meters.toFixed(2) + " מ׳" : "כייל קנה מידה";
+      pill(label, mid.x, mid.y - 14, "#422006", "rgba(250,204,21,0.92)");
+    });
+
+    // in-progress draft with a live rubber-band segment + running length
+    const draft = App.measure.getDraft();
+    if (draft && draft.points.length) {
+      const preview = draft.preview ? draft.points.concat([draft.preview]) : draft.points;
+      drawMeasureLine(preview, { dashed: !!draft.preview });
+
+      // vertex dots for every placed point (including the first)
+      draft.points.forEach((p) => {
+        const s = App.viewport.worldToScreen(p.x, p.y);
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, 4, 0, Math.PI * 2);
+        ctx.fillStyle = "#fff";
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = MEASURE_COLOR;
+        ctx.stroke();
+      });
+
+      // live running length near the cursor
+      if (preview.length >= 2) {
+        const lastScreen = App.viewport.worldToScreen(
+          preview[preview.length - 1].x,
+          preview[preview.length - 1].y
+        );
+        const ppm = App.state.getPixelsPerMeter();
+        const worldLen = App.measure.lengthWorld(preview);
+        const label = ppm ? (worldLen / ppm).toFixed(2) + " מ׳" : Math.round(worldLen) + " יח׳";
+        pill(label, lastScreen.x, lastScreen.y - 16, "#422006", "rgba(250,204,21,0.92)");
+      }
+    }
+  }
+
   /**
    * Draw the scale-calibration reference line in SCREEN space (so its width and
    * handles stay constant and crisp at any zoom). World endpoints are projected
@@ -495,6 +584,7 @@ App.renderer = (function () {
       drawRoutes();
       drawAssets();
       drawRouteHandles();
+      drawMeasurements();
       drawScaleLine();
     }
     requestAnimationFrame(frame);
@@ -512,6 +602,7 @@ App.renderer = (function () {
     App.state.on("scale:changed", markDirty); // area / length labels switch to m
     App.state.on("assets:changed", markDirty);
     App.state.on("routes:changed", markDirty);
+    App.state.on("measurements:changed", markDirty);
 
     // keep the backing store sized to the element
     if (window.ResizeObserver) {

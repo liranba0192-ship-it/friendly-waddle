@@ -240,10 +240,13 @@
             <button class="tool-btn is-active" data-tool="pan">
               <span class="text-lg">✋</span><span>הזזה</span>
             </button>
-            <button class="tool-btn" data-tool="measure" disabled>
+            <button class="tool-btn" data-tool="measure">
               <span class="text-lg">📏</span><span>מדידה</span>
             </button>
           </div>
+          <p class="mt-1.5 text-[11px] leading-relaxed text-zinc-600">
+            הקש נקודות לאורך הקיר/תעלה (מתיישר אוטומטית ל‑90°). סיים בלחיצה כפולה או Enter.
+          </p>
 
           <!-- prominent Set Scale tool -->
           <button
@@ -288,6 +291,15 @@
             אין חדרים מסומנים עדיין
           </div>
           <div id="room-list" class="flex max-h-48 flex-col gap-1 overflow-y-auto"></div>
+        </section>
+
+        <!-- measurements registry -->
+        <section class="flex flex-col border-b border-zinc-800 p-4">
+          <h2 class="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">מדידות</h2>
+          <div id="measure-empty" class="rounded-lg border border-dashed border-zinc-800 px-3 py-3 text-center text-[11px] text-zinc-600">
+            אין מדידות עדיין
+          </div>
+          <div id="measure-list" class="flex max-h-40 flex-col gap-1 overflow-y-auto"></div>
         </section>
 
         <!-- asset tray -->
@@ -478,6 +490,7 @@
     <script src="js/renderer.js"></script>
     <script src="js/scale.js"></script>
     <script src="js/rooms.js"></script>
+    <script src="js/measure.js"></script>
     <script src="js/routing.js"></script>
     <script src="js/estimate.js"></script>
     <script src="js/business.js"></script>

@@ -39,11 +39,16 @@ App.state = (function () {
     /** Orthogonal pipe/duct routes: { id, lineType, points:[{x,y}...],
      *  fromAssetId, toAssetId } with points in world coordinates. */
     routes: [],
+    /** Free-form reference measurements: { id, label, points:[{x,y}...] }
+     *  (open polylines, world coordinates) — a technician's on-canvas ruler,
+     *  separate from the priced pipe/duct routes. */
+    measurements: [],
   };
 
   let roomSeq = 0;
   let assetSeq = 0;
   let routeSeq = 0;
+  let measureSeq = 0;
 
   // --- pub/sub -------------------------------------------------------------
   const listeners = new Map(); // event -> Set<fn>
@@ -90,10 +95,12 @@ App.state = (function () {
     data.selectedRoomId = null;
     data.assets = [];
     data.routes = [];
+    data.measurements = [];
     emit("scale:changed", { pixelsPerMeter: null });
     emit("rooms:changed", { rooms: data.rooms });
     emit("assets:changed", { assets: data.assets });
     emit("routes:changed", { routes: data.routes });
+    emit("measurements:changed", { measurements: data.measurements });
     emit("document:changed", { pages, fileName: data.fileName });
     emit("page:changed", { index: data.activePage, page: getActivePage() });
   }
@@ -121,16 +128,19 @@ App.state = (function () {
     data.rooms = snap.rooms || [];
     data.assets = snap.assets || [];
     data.routes = snap.routes || [];
+    data.measurements = snap.measurements || [];
     data.hoveredRoomId = null;
     data.selectedRoomId = null;
     // reseed counters so freshly-created items don't reuse loaded ids
     roomSeq = maxSeq(data.rooms, "room-");
     assetSeq = maxSeq(data.assets, "asset-");
     routeSeq = maxSeq(data.routes, "route-");
+    measureSeq = maxSeq(data.measurements, "measure-");
     emit("scale:changed", { pixelsPerMeter: data.pixelsPerMeter });
     emit("rooms:changed", { rooms: data.rooms });
     emit("assets:changed", { assets: data.assets });
     emit("routes:changed", { routes: data.routes });
+    emit("measurements:changed", { measurements: data.measurements });
     emit("page:changed", { index: data.activePage, page: getActivePage() });
     emit("document:changed", { pages: data.pages, fileName: data.fileName });
   }
@@ -260,6 +270,23 @@ App.state = (function () {
     emit("routes:changed", { routes: data.routes });
   }
 
+  // --- measurements ----------------------------------------------------------
+  function getMeasurements() {
+    return data.measurements;
+  }
+  function addMeasurement(measurement) {
+    const full = Object.assign({ id: "measure-" + ++measureSeq }, measurement);
+    data.measurements.push(full);
+    emit("measurements:changed", { measurements: data.measurements });
+    return full;
+  }
+  function removeMeasurement(id) {
+    const i = data.measurements.findIndex((m) => m.id === id);
+    if (i < 0) return;
+    data.measurements.splice(i, 1);
+    emit("measurements:changed", { measurements: data.measurements });
+  }
+
   return {
     on,
     emit,
@@ -292,5 +319,8 @@ App.state = (function () {
     addRoute,
     removeRoute,
     touchRoutes,
+    getMeasurements,
+    addMeasurement,
+    removeMeasurement,
   };
 })();

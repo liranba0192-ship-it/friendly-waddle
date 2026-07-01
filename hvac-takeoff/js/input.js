@@ -111,6 +111,10 @@ App.input = (function () {
       App.rooms.updatePreview(worldOf(cur)); // preview follows touch/drag too
       return;
     }
+    if (tool() === "measure" && App.measure.isActive()) {
+      App.measure.updatePreview(worldOf(cur)); // preview follows touch/drag too
+      return;
+    }
     if (tool() === "pan") {
       App.state.setHoveredRoom(null); // not hovering while dragging the canvas
       App.viewport.panBy(cur.x - prev.x, cur.y - prev.y);
@@ -122,6 +126,10 @@ App.input = (function () {
     const world = worldOf(local);
     if (tool() === "room" && App.rooms.isActive()) {
       App.rooms.updatePreview(world);
+      return;
+    }
+    if (tool() === "measure" && App.measure.isActive()) {
+      App.measure.updatePreview(world);
       return;
     }
     if (tool() === "pan") {
@@ -163,6 +171,8 @@ App.input = (function () {
     const world = worldOf(local);
     if (tool() === "room") {
       App.rooms.addPoint(world);
+    } else if (tool() === "measure") {
+      App.measure.addPoint(world);
     } else if (tool() === "asset") {
       App.routing.placeAsset(world);
     } else if (tool() === "route") {
@@ -181,11 +191,22 @@ App.input = (function () {
     App.viewport.zoomAt(x, y, factor);
   }
 
-  // ---- keyboard: Escape cancels an in-progress room/scale gesture ----
+  // double-click finishes an in-progress measurement polyline
+  function onDblClick(e) {
+    if (tool() === "measure" && App.measure.isActive()) {
+      e.preventDefault();
+      App.measure.finish();
+    }
+  }
+
+  // ---- keyboard: Escape cancels, Enter finishes an in-progress gesture ----
   function onKeyDown(e) {
     if (e.key === "Escape") {
       if (App.rooms.isActive()) App.rooms.cancelDraft();
+      if (App.measure.isActive()) App.measure.cancelDraft();
       App.routing.cancel();
+    } else if (e.key === "Enter") {
+      if (tool() === "measure" && App.measure.isActive()) App.measure.finish();
     }
   }
 
@@ -196,6 +217,7 @@ App.input = (function () {
     canvas.addEventListener("pointerup", endPointer);
     canvas.addEventListener("pointercancel", endPointer);
     canvas.addEventListener("wheel", onWheel, { passive: false });
+    canvas.addEventListener("dblclick", onDblClick);
     window.addEventListener("keydown", onKeyDown);
   }
 
