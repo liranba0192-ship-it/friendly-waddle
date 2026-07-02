@@ -1,13 +1,14 @@
 "use strict";
 window.App = window.App || {};
 
-/* טאב לימוד: אוצר מילים לאנגלית (10 מילים ביום, סימון הבנתי/לא הבנתי + תרגול)
-   ומסלול ידע פיננסי מהיסוד (שיעורים). הכל אופליין מתוך data/vocab.json + data/finance.json */
+/* טאב לימוד: אוצר מילים לאנגלית (10 מילים ביום, סימון הבנתי/לא הבנתי + תרגול),
+   מסלול ידע פיננסי מהיסוד, מדריך AI, ושיעור יומי (כושר/תזונה/בריאות — נוצר ע"י routine).
+   הכל אופליין מתוך data/vocab.json + data/finance.json + data/ai-guide.json + data/daily-lessons.json */
 App.learn = (function () {
   const U = App.util, S = App.store;
   let root;
-  let words = [], lessons = [], readings = [], aiLessons = [], loaded = false;
-  let section = "en";                 // en | finance | ai
+  let words = [], lessons = [], readings = [], aiLessons = [], dailyLessons = [], loaded = false;
+  let section = "en";                 // en | finance | ai | daily
   let view = { kind: "home" };        // home | practice | lesson({id})
   const BATCH = 10;
 
@@ -44,6 +45,11 @@ App.learn = (function () {
       const r = await fetch(`../readings/index.json?ts=${Date.now()}`, { cache: "no-cache" });
       if (r.ok) readings = (await r.json()).readings || [];
     } catch { readings = []; }
+    // שיעור יומי — כושר/תזונה/בריאות (נוצר ע"י routine יומי) — טעינה נפרדת כדי שכשל לא יפיל את השאר
+    try {
+      const dl = await fetch(`data/daily-lessons.json?ts=${Date.now()}`, { cache: "no-cache" }).then((r) => r.json());
+      dailyLessons = dl.lessons || [];
+    } catch { dailyLessons = []; }
     loaded = true;
   }
 
@@ -66,7 +72,7 @@ App.learn = (function () {
   function render() {
     if (section === "en" && view.kind === "practice") return renderPractice();
     if (section === "en" && view.kind === "reading") return renderReading(view.file);
-    if ((section === "finance" || section === "ai") && view.kind === "lesson") return renderLesson(view.id);
+    if ((section === "finance" || section === "ai" || section === "daily") && view.kind === "lesson") return renderLesson(view.id);
     renderHome();
   }
 
@@ -75,6 +81,7 @@ App.learn = (function () {
       <button data-sec="en" class="${section === "en" ? "active" : ""}">🔤 אנגלית</button>
       <button data-sec="finance" class="${section === "finance" ? "active" : ""}">💰 פיננסים</button>
       <button data-sec="ai" class="${section === "ai" ? "active" : ""}">🤖 AI</button>
+      <button data-sec="daily" class="${section === "daily" ? "active" : ""}">📅 שיעור יומי</button>
     </div>`;
   }
 
@@ -303,6 +310,11 @@ App.learn = (function () {
       title: "🤖 לעבוד עם AI — מאפס לרמת המובילים",
       hint: "מסלול מסודר ב-3 רמות: מאפס למתקדם, רמה בינלאומית, ולהמשך החיים. התקדם לפי הסדר.",
     };
+    if (section === "daily") return {
+      arr: dailyLessons, doneKey: "dailyDone", daily: true, latest: true, levels: false,
+      title: "📅 שיעור יומי — כושר, תזונה ובריאות",
+      hint: "שיעור קצר (2–3 דק') כל בוקר, חדש לגמרי ומבוסס-מחקר. השיעור האחרון הוא תמיד \"היום\".",
+    };
     return {
       arr: lessons, doneKey: "doneLessons", dayKey: "finDay", daily: true, levels: true,
       title: "💰 ידע פיננסי מהיסוד",
@@ -316,7 +328,8 @@ App.learn = (function () {
     const arr = cfg.arr;
     if (!arr.length) return `<div class="card-block"><p class="status">התוכן בטעינה… נסה לרענן בעוד רגע.</p></div>`;
     let featuredIdx;
-    if (cfg.daily) featuredIdx = (d[cfg.dayKey] || 0) % arr.length;
+    if (cfg.latest) featuredIdx = arr.length - 1;
+    else if (cfg.daily) featuredIdx = (d[cfg.dayKey] || 0) % arr.length;
     else { featuredIdx = arr.findIndex((l) => !done.includes(l.id)); if (featuredIdx < 0) featuredIdx = 0; }
     const featured = arr[featuredIdx];
     const pct = arr.length ? Math.round((done.length / arr.length) * 100) : 0;
