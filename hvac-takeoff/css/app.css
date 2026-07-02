@@ -31,6 +31,31 @@ body {
   overscroll-behavior: none; /* stop pull-to-refresh / rubber-banding over the canvas */
 }
 
+/* base guarantees — keep the app dark and readable even if the Tailwind CDN
+   fails to load (these mirror the utility classes on <body>) */
+html {
+  color-scheme: dark;
+}
+body {
+  background: var(--surface-0);
+  color: #f4f4f5;
+}
+
+/* robust hiding for the file input: display:none can be flaky with
+   <label for> pickers on some mobile browsers — use the sr-only pattern */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
 /* respect device notches on the floating top strip */
 #stage > .pointer-events-none.absolute.inset-x-0.top-0 {
   padding-top: calc(0.75rem + var(--safe-top));
@@ -521,23 +546,28 @@ body {
 }
 
 /* ---- my business details ---- */
+/* light field + BLACK text: the user types their details here and needs
+   maximum readability (explicit request) */
 .biz-input {
   width: 100%;
   border-radius: 0.625rem;
-  border: 1px solid rgba(63, 63, 70, 0.7);
-  background: rgba(39, 39, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: #f8fafc;
   padding: 0.45rem 0.6rem;
-  font-size: 0.8125rem;
-  color: #e4e4e7;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #0f172a;
+  color-scheme: light;
   outline: none;
   transition: border-color 0.12s ease, box-shadow 0.12s ease;
 }
 .biz-input::placeholder {
-  color: #52525b;
+  color: #64748b;
+  font-weight: 400;
 }
 .biz-input:focus {
   border-color: #0ea5e9;
-  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.22);
+  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.35);
 }
 .biz-logo-btn {
   cursor: pointer;
@@ -628,22 +658,25 @@ body {
   font-weight: 600;
   color: #f4f4f5;
 }
+/* light field + black text, matching .biz-input — prices must be unmistakably readable */
 .est-input {
   width: 100%;
   min-width: 5rem;
   border-radius: 0.5rem;
-  border: 1px solid #3f3f46;
-  background: #18181b;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: #f8fafc;
   padding: 0.4rem 0.55rem;
   text-align: center;
   font-size: 0.875rem;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
-  color: #f4f4f5;
+  color: #0f172a;
+  color-scheme: light;
   outline: none;
   transition: border-color 0.12s ease, box-shadow 0.12s ease;
 }
 .est-input::placeholder {
-  color: #52525b;
+  color: #64748b;
 }
 .est-input:focus {
   border-color: #0ea5e9;
