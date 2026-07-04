@@ -11,12 +11,20 @@
 
     <!-- PWA -->
     <link rel="manifest" href="manifest.webmanifest" />
-    <meta name="theme-color" content="#0b0f17" />
+    <meta name="theme-color" content="#08090b" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="HVAC Takeoff" />
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
     <link rel="icon" href="icons/icon-192.png" />
+
+    <!-- Rubik — full Hebrew + Latin glyph coverage, the app's primary typeface -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,500&display=swap"
+      rel="stylesheet"
+    />
 
     <!-- Tailwind (Play CDN) with inline theme config -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -26,15 +34,29 @@
         theme: {
           extend: {
             colors: {
+              // primary accent — a single, considered accent (Linear/Vercel-style
+              // restraint), used sparingly against a near-monochrome surface scale
               brand: {
                 50: "#eff6ff",
+                100: "#dbeafe",
                 400: "#38bdf8",
                 500: "#0ea5e9",
                 600: "#0284c7",
+                700: "#0369a1",
+              },
+              // layered dark surfaces, darkest at the base (canvas) and lightening
+              // toward the foreground (cards/popovers), for a consistent elevation system
+              surface: {
+                0: "#08090b",
+                1: "#0c0d10",
+                2: "#111318",
+                3: "#16181f",
+                4: "#1c1f27",
               },
             },
             fontFamily: {
               sans: [
+                "Rubik",
                 "-apple-system",
                 "BlinkMacSystemFont",
                 "Segoe UI",
@@ -43,6 +65,12 @@
                 "system-ui",
                 "sans-serif",
               ],
+            },
+            boxShadow: {
+              premium:
+                "0 1px 1px rgba(0,0,0,0.3), 0 8px 24px -8px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.04)",
+              "premium-lg":
+                "0 2px 4px rgba(0,0,0,0.35), 0 24px 48px -12px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05)",
             },
           },
         },
@@ -58,28 +86,40 @@
     <link rel="stylesheet" href="css/app.css" />
   </head>
 
-  <body class="font-sans bg-zinc-950 text-zinc-100 antialiased overflow-hidden">
+  <body class="font-sans bg-[#08090b] text-zinc-100 antialiased overflow-hidden">
     <div class="flex h-[100dvh] w-screen overflow-hidden">
       <!-- ===== Canvas stage (main area) ===== -->
-      <main id="stage" class="relative flex-1 min-w-0 bg-[#0b0f17]">
+      <main id="stage" class="relative flex-1 min-w-0 bg-[#08090b]">
         <canvas id="board" class="absolute inset-0 h-full w-full touch-none select-none"></canvas>
 
         <!-- floating top strip -->
         <div
           class="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-between gap-3 p-3"
         >
-          <div
-            class="pointer-events-auto flex items-center gap-2 rounded-xl border border-zinc-700/60 bg-zinc-900/70 px-3 py-1.5 text-sm shadow-lg backdrop-blur"
-          >
-            <span class="text-brand-400">📐</span>
-            <span id="doc-name" class="max-w-[40vw] truncate text-zinc-300">אין קובץ טעון</span>
-            <span class="text-zinc-600">·</span>
-            <span id="page-indicator" class="tabular-nums text-zinc-400">—</span>
+          <div class="pointer-events-auto flex min-w-0 items-center gap-2">
+            <div class="shrink-0 md:hidden">
+              <button
+                id="sidebar-toggle"
+                class="icon-btn chip-panel"
+                title="תפריט"
+                aria-label="פתח תפריט"
+              >
+                ☰
+              </button>
+            </div>
+            <div
+              class="chip-panel pointer-events-auto flex min-w-0 items-center gap-2 rounded-xl px-3 py-1.5 text-sm backdrop-blur"
+            >
+              <span class="text-brand-400 shrink-0">📐</span>
+              <span id="doc-name" class="max-w-[28vw] truncate text-zinc-300 sm:max-w-[40vw]">אין קובץ טעון</span>
+              <span class="text-zinc-600 shrink-0">·</span>
+              <span id="page-indicator" class="shrink-0 tabular-nums text-zinc-400">—</span>
+            </div>
           </div>
 
           <div
             id="coords"
-            class="pointer-events-auto rounded-xl border border-zinc-700/60 bg-zinc-900/70 px-3 py-1.5 font-mono text-xs tabular-nums text-zinc-400 shadow-lg backdrop-blur"
+            class="chip-panel pointer-events-auto rounded-xl px-3 py-1.5 font-mono text-xs tabular-nums text-zinc-400 backdrop-blur"
           >
             X 0  Y 0
           </div>
@@ -97,7 +137,7 @@
           </p>
           <button
             id="open-file-empty"
-            class="pointer-events-auto rounded-xl bg-brand-500 px-5 py-2.5 font-medium text-white shadow-lg transition hover:bg-brand-600 active:scale-95"
+            class="btn-primary pointer-events-auto rounded-xl px-5 py-2.5 font-medium text-white"
           >
             פתח קובץ
           </button>
@@ -105,7 +145,7 @@
 
         <!-- floating zoom controls (bottom-start) -->
         <div
-          class="absolute bottom-4 start-4 flex items-center gap-1 rounded-xl border border-zinc-700/60 bg-zinc-900/70 p-1 shadow-lg backdrop-blur"
+          class="chip-panel absolute bottom-4 start-4 flex items-center gap-1 rounded-xl p-1 backdrop-blur"
         >
           <button id="zoom-out" class="icon-btn" title="התרחקות" aria-label="התרחקות">−</button>
           <button
@@ -123,7 +163,7 @@
         <!-- dynamic scale ruler (bottom-left); hidden until calibrated -->
         <div
           id="ruler"
-          class="pointer-events-none absolute bottom-4 left-4 hidden select-none flex-col items-center gap-1 rounded-lg border border-zinc-700/60 bg-zinc-900/70 px-3 py-2 shadow-lg backdrop-blur"
+          class="chip-panel pointer-events-none absolute bottom-4 left-4 hidden select-none flex-col items-center gap-1 rounded-lg px-3 py-2 backdrop-blur"
         >
           <span id="ruler-label" class="font-mono text-xs tabular-nums text-zinc-300">1 מ׳</span>
           <div class="ruler-bar" id="ruler-bar"></div>
@@ -164,9 +204,18 @@
         </div>
       </main>
 
+      <!-- backdrop behind the sidebar drawer on narrow screens -->
+      <div
+        id="sidebar-backdrop"
+        class="fixed inset-0 z-30 bg-black/60 opacity-0 pointer-events-none transition-opacity md:hidden"
+      ></div>
+
       <!-- ===== Sidebar (right, RTL natural) ===== -->
+      <!-- narrow screens: a fixed off-canvas drawer sliding in from the end (right); -->
+      <!-- md+ : back to a normal, always-visible flex column -->
       <aside
-        class="flex w-72 shrink-0 flex-col overflow-y-auto border-s border-zinc-800 bg-zinc-900/80 backdrop-blur"
+        id="sidebar"
+        class="fixed inset-y-0 start-0 z-40 flex w-[85vw] max-w-80 translate-x-full flex-col overflow-y-auto border-s border-zinc-800 bg-zinc-900/95 shadow-2xl backdrop-blur transition-transform duration-200 md:static md:z-auto md:w-72 md:max-w-none md:translate-x-0 md:bg-zinc-900/80 md:shadow-none"
       >
         <!-- brand header -->
         <header class="flex items-center gap-3 border-b border-zinc-800 px-4 py-4">
@@ -193,7 +242,7 @@
         <section class="border-b border-zinc-800 p-4">
           <button
             id="open-file"
-            class="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 font-medium text-white shadow-lg transition hover:bg-brand-600 active:scale-[0.98]"
+            class="btn-primary flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 font-medium text-white"
           >
             <span>📂</span> פתח שרטוט
           </button>
@@ -383,7 +432,7 @@
         <section class="sticky bottom-0 mt-auto border-t border-zinc-800 bg-zinc-900/95 p-4 backdrop-blur">
           <button
             id="open-estimate"
-            class="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-l from-brand-500 to-brand-600 px-4 py-3 font-semibold text-white shadow-lg transition hover:from-brand-400 hover:to-brand-500 active:scale-[0.98]"
+            class="btn-primary flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 font-semibold text-white"
           >
             <span>🧾</span> סיכום ותמחור
           </button>

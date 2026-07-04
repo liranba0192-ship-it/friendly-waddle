@@ -55,6 +55,25 @@ App.ui = (function () {
     });
   }
 
+  // --- mobile sidebar drawer -----------------------------------------------
+  function setupSidebarDrawer() {
+    const open = () => {
+      el.sidebar.classList.add("is-open");
+      el.sidebarBackdrop.classList.add("is-open");
+    };
+    const close = () => {
+      el.sidebar.classList.remove("is-open");
+      el.sidebarBackdrop.classList.remove("is-open");
+    };
+    el.sidebarToggle.addEventListener("click", open);
+    el.sidebarBackdrop.addEventListener("click", close);
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") close();
+    });
+    closeSidebarDrawer = close; // exposed for other handlers (e.g. picking a tool)
+  }
+  let closeSidebarDrawer = () => {};
+
   // --- tools ---------------------------------------------------------------
   function setupTools() {
     el.toolButtons.forEach((btn) => {
@@ -67,6 +86,7 @@ App.ui = (function () {
           return;
         }
         App.state.setTool(t);
+        closeSidebarDrawer(); // on mobile, get out of the way of the canvas
       });
     });
     App.state.on("tool:changed", ({ tool }) => {
@@ -359,6 +379,7 @@ App.ui = (function () {
     el.pageList.innerHTML = "";
     el.emptyHint.classList.toggle("hidden", pages.length > 0);
     el.docName.textContent = App.state.getFileName() || "אין קובץ טעון";
+    if (pages.length) closeSidebarDrawer(); // reveal the canvas once a blueprint loads (mobile)
 
     pages.forEach((page, i) => {
       const item = document.createElement("button");
@@ -457,12 +478,19 @@ App.ui = (function () {
     el.lineSizeWrap = $("line-size-wrap");
     el.measureList = $("measure-list");
     el.measureEmpty = $("measure-empty");
+    el.sidebar = $("sidebar");
+    el.sidebarToggle = $("sidebar-toggle");
+    el.sidebarBackdrop = $("sidebar-backdrop");
 
     el.openBtn.addEventListener("click", openFileDialog);
     el.openBtnEmpty.addEventListener("click", openFileDialog);
     el.fileInput.addEventListener("change", onFilePicked);
-    $("open-estimate").addEventListener("click", () => App.estimate.open());
+    $("open-estimate").addEventListener("click", () => {
+      App.estimate.open();
+      closeSidebarDrawer();
+    });
 
+    setupSidebarDrawer();
     setupDragDrop();
     setupTools();
     setupZoom();

@@ -4,6 +4,24 @@
 :root {
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+  /* premium dark elevation system (Linear-inspired): each step lightens
+     slightly toward the foreground, replacing the flatter zinc-900/950 look */
+  --surface-0: #08090b; /* the canvas void */
+  --surface-1: #0d0e12; /* sidebar, footer */
+  --surface-2: #131519; /* cards: modals, popovers, panels */
+  --surface-3: #1a1c22; /* raised chrome: floating chips, hovered rows */
+  --border-subtle: rgba(255, 255, 255, 0.07);
+  --border-subtle-strong: rgba(255, 255, 255, 0.11);
+}
+
+/* floating glass chips — top-strip badges, zoom controls, the scale ruler.
+   Class selector ties Tailwind's utilities in source order (app.css loads
+   after the Tailwind runtime), so this reliably wins without extra specificity. */
+.chip-panel {
+  border: 1px solid var(--border-subtle);
+  background: rgba(19, 21, 25, 0.78);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.25), 0 8px 20px -8px rgba(0, 0, 0, 0.55);
 }
 
 html,
@@ -55,7 +73,7 @@ body {
   transition: background-color 0.15s ease, transform 0.1s ease, color 0.15s ease;
 }
 .icon-btn:hover {
-  background: rgba(63, 63, 70, 0.7); /* zinc-700 */
+  background: var(--surface-3);
   color: #fff;
 }
 .icon-btn:active {
@@ -79,7 +97,9 @@ body {
 }
 .tool-btn:not(:disabled):hover {
   border-color: rgba(14, 165, 233, 0.6); /* brand-500 */
-  background: rgba(39, 39, 42, 0.9);
+  background: var(--surface-3);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px -4px rgba(0, 0, 0, 0.5);
 }
 .tool-btn:not(:disabled):active {
   transform: scale(0.96);
@@ -98,7 +118,7 @@ body {
 /* ---- Set Scale (wide) tool button ---- */
 .tool-btn-wide:hover {
   border-color: rgba(239, 68, 68, 0.55); /* red-500 */
-  background: rgba(39, 39, 42, 0.9);
+  background: var(--surface-3);
 }
 .tool-btn-wide.is-active {
   border-color: #ef4444;
@@ -109,7 +129,7 @@ body {
 /* ---- Add Room (wide) tool button ---- */
 .tool-btn-room:hover {
   border-color: rgba(16, 185, 129, 0.55); /* emerald-500 */
-  background: rgba(39, 39, 42, 0.9);
+  background: var(--surface-3);
 }
 .tool-btn-room.is-active {
   border-color: #10b981;
@@ -130,7 +150,7 @@ body {
 }
 .room-row:hover,
 .room-row.is-hover {
-  background: rgba(63, 63, 70, 0.45);
+  background: var(--surface-3);
 }
 .room-row.is-selected {
   border-color: rgba(14, 165, 233, 0.6);
@@ -142,6 +162,12 @@ body {
   flex-shrink: 0;
   border-radius: 50%;
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.12);
+}
+/* rows with a wrapping multi-line body (zone rows: name + BTU detail) align the
+   dot to the first line instead of centering it across the whole taller block */
+.room-row:has(.zone-meta) .room-dot {
+  align-self: flex-start;
+  margin-top: 0.2rem;
 }
 .room-meta {
   display: flex;
@@ -266,7 +292,9 @@ body {
 }
 .asset-btn:hover {
   border-color: color-mix(in srgb, var(--c) 55%, transparent);
-  background: rgba(39, 39, 42, 0.9);
+  background: var(--surface-3);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px -4px rgba(0, 0, 0, 0.5);
 }
 .asset-btn:active {
   transform: scale(0.96);
@@ -293,7 +321,7 @@ body {
 }
 .line-chip:hover {
   border-color: color-mix(in srgb, var(--c) 55%, transparent);
-  background: rgba(39, 39, 42, 0.9);
+  background: var(--surface-3);
 }
 .line-chip:active {
   transform: scale(0.98);
@@ -417,6 +445,62 @@ body {
   transform: translate(-50%, 0);
 }
 
+/* ---- primary CTA button: one considered accent, not a loud gradient ---- */
+.btn-primary {
+  background: linear-gradient(180deg, #14aef0 0%, #0ea5e9 60%, #0284c7 100%);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.18) inset, 0 1px 2px rgba(0, 0, 0, 0.3),
+    0 8px 20px -6px rgba(14, 165, 233, 0.45);
+  transition: filter 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+}
+.btn-primary:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.22) inset, 0 1px 2px rgba(0, 0, 0, 0.3),
+    0 10px 24px -6px rgba(14, 165, 233, 0.55);
+}
+.btn-primary:active {
+  filter: brightness(0.97);
+  transform: scale(0.98);
+}
+
+/* ---- premium surfaces: sidebar, dividers, modals/popovers ---- */
+/* ID-scoped selectors beat Tailwind's single-class utilities on specificity
+   alone, so these override bg-zinc-900/border-zinc-800 etc. without editing
+   every element's class list. */
+#sidebar {
+  background-color: var(--surface-1);
+}
+#sidebar > section,
+#sidebar > header,
+#sidebar > footer {
+  border-color: var(--border-subtle);
+}
+#sidebar > footer {
+  background-color: var(--surface-1);
+}
+
+.modal-card,
+.room-popup,
+.estimate-panel {
+  background-color: var(--surface-2);
+  border-color: var(--border-subtle-strong);
+  border-radius: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35), 0 24px 48px -12px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+.estimate-panel header,
+.estimate-panel footer {
+  border-color: var(--border-subtle);
+}
+
+/* ---- mobile sidebar drawer ---- */
+#sidebar.is-open {
+  transform: translateX(0);
+}
+#sidebar-backdrop.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 /* ---- projects manager ---- */
 .project-select {
   border-radius: 0.625rem;
@@ -467,7 +551,7 @@ body {
 }
 .biz-logo-btn:hover {
   border-color: #0ea5e9;
-  background: rgba(39, 39, 42, 0.9);
+  background: var(--surface-3);
 }
 .biz-logo-preview {
   height: 2.25rem;
