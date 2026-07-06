@@ -95,7 +95,7 @@ body {
   font-size: 1.125rem;
   line-height: 1;
   color: #d4d4d8; /* zinc-300 */
-  transition: background-color 0.15s ease, transform 0.1s ease, color 0.15s ease;
+  transition: background-color 0.2s ease-in-out, transform 0.1s ease, color 0.2s ease-in-out;
 }
 .icon-btn:hover {
   background: var(--surface-3);
@@ -117,8 +117,8 @@ body {
   background: rgba(39, 39, 42, 0.6); /* zinc-800 */
   color: #d4d4d8;
   font-size: 0.8125rem;
-  transition: border-color 0.15s ease, background-color 0.15s ease,
-    transform 0.1s ease, box-shadow 0.15s ease;
+  transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out,
+    transform 0.1s ease, box-shadow 0.2s ease-in-out;
 }
 .tool-btn:not(:disabled):hover {
   border-color: rgba(14, 165, 233, 0.6); /* brand-500 */
@@ -171,7 +171,7 @@ body {
   border-radius: 0.5rem;
   border: 1px solid transparent;
   cursor: pointer;
-  transition: background-color 0.12s ease, border-color 0.12s ease;
+  transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
 }
 .room-row:hover,
 .room-row.is-hover {
@@ -244,7 +244,7 @@ body {
   padding: 0.15rem 0.45rem;
   font-size: 0.6875rem;
   color: #bae6fd;
-  transition: background-color 0.12s ease, transform 0.1s ease;
+  transition: background-color 0.2s ease-in-out, transform 0.1s ease;
 }
 .room-apply:hover {
   background: rgba(56, 189, 248, 0.22);
@@ -260,7 +260,7 @@ body {
   padding: 0.1rem 0.3rem;
   font-size: 0.8rem;
   opacity: 0.5;
-  transition: opacity 0.12s ease, background-color 0.12s ease;
+  transition: opacity 0.2s ease-in-out, background-color 0.2s ease-in-out;
 }
 .room-del:hover {
   opacity: 1;
@@ -278,7 +278,7 @@ body {
   background: rgba(39, 39, 42, 0.6);
   font-size: 0.6875rem;
   color: #d4d4d8;
-  transition: border-color 0.12s ease, background-color 0.12s ease, transform 0.1s ease;
+  transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out, transform 0.1s ease;
 }
 .zone-chip:active {
   transform: scale(0.95);
@@ -307,8 +307,8 @@ body {
   background: rgba(39, 39, 42, 0.6);
   color: #d4d4d8;
   font-size: 0.72rem;
-  transition: border-color 0.15s ease, background-color 0.15s ease,
-    transform 0.1s ease, box-shadow 0.15s ease, color 0.15s ease;
+  transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out,
+    transform 0.1s ease, box-shadow 0.2s ease-in-out, color 0.2s ease-in-out;
 }
 .asset-btn svg {
   width: 26px;
@@ -342,7 +342,7 @@ body {
   background: rgba(39, 39, 42, 0.6);
   color: #d4d4d8;
   font-size: 0.8125rem;
-  transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.1s ease;
+  transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out, transform 0.1s ease;
 }
 .line-chip:hover {
   border-color: color-mix(in srgb, var(--c) 55%, transparent);
@@ -376,7 +376,7 @@ body {
   display: none;
   opacity: 0;
   transform: translateY(6px) scale(0.98);
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  transition: opacity 0.2s ease-in-out, transform 0.15s ease;
 }
 .room-popup.is-open {
   display: block;
@@ -414,7 +414,7 @@ body {
 .scale-error {
   min-height: 1rem;
   opacity: 0;
-  transition: opacity 0.15s ease;
+  transition: opacity 0.2s ease-in-out;
 }
 .scale-error.is-visible {
   opacity: 1;
@@ -475,7 +475,7 @@ body {
   background: linear-gradient(180deg, #14aef0 0%, #0ea5e9 60%, #0284c7 100%);
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.18) inset, 0 1px 2px rgba(0, 0, 0, 0.3),
     0 8px 20px -6px rgba(14, 165, 233, 0.45);
-  transition: filter 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+  transition: filter 0.2s ease-in-out, transform 0.1s ease, box-shadow 0.2s ease-in-out;
 }
 .btn-primary:hover {
   filter: brightness(1.08);
@@ -535,7 +535,7 @@ body {
   font-size: 0.8125rem;
   color: #e4e4e7;
   outline: none;
-  transition: border-color 0.12s ease;
+  transition: border-color 0.2s ease-in-out;
 }
 .project-select:focus {
   border-color: #0ea5e9;
@@ -559,7 +559,7 @@ body {
   color: #0f172a;
   color-scheme: light;
   outline: none;
-  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 .biz-input::placeholder {
   color: #64748b;
@@ -577,7 +577,7 @@ body {
   padding: 0.4rem 0.7rem;
   font-size: 0.75rem;
   color: #d4d4d8;
-  transition: border-color 0.12s ease, background-color 0.12s ease;
+  transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
 }
 .biz-logo-btn:hover {
   border-color: #0ea5e9;
@@ -673,7 +673,7 @@ body {
   color: #0f172a;
   color-scheme: light;
   outline: none;
-  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 .est-input::placeholder {
   color: #64748b;
@@ -713,4 +713,119 @@ body {
 html:not(.dark) body {
   background: #f1f5f9;
   color: #0f172a;
+}
+
+/* ================= Day-2: micro-interactions & UI feedback ================= */
+
+/* a consistent motion language for anything the earlier component rules don't
+   already cover (element selectors lose to any class rule, so this is a safe
+   baseline, not an override) */
+button,
+label[for],
+[role="button"],
+select,
+input {
+  transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out,
+    color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, opacity 0.2s ease-in-out,
+    filter 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+/* ---- premium active-tool indicator: a glowing accent bar on the start edge,
+   colored per tool family, sliding in when the tool becomes active ---- */
+.tool-btn,
+.tool-btn-wide,
+.tool-btn-room,
+.asset-btn,
+.line-chip {
+  position: relative;
+  --active-accent: #0ea5e9;
+}
+.tool-btn-wide {
+  --active-accent: #ef4444;
+}
+.tool-btn-room {
+  --active-accent: #10b981;
+}
+.asset-btn,
+.line-chip {
+  --active-accent: var(--c);
+}
+.tool-btn.is-active::before,
+.tool-btn-wide.is-active::before,
+.tool-btn-room.is-active::before,
+.asset-btn.is-active::before,
+.line-chip.is-active::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: -1px;
+  top: 22%;
+  bottom: 22%;
+  width: 3px;
+  border-radius: 9999px;
+  background: var(--active-accent);
+  box-shadow: 0 0 10px 1px color-mix(in srgb, var(--active-accent) 65%, transparent);
+  animation: active-bar-in 0.2s ease-in-out;
+}
+@keyframes active-bar-in {
+  from {
+    transform: scaleY(0.3);
+    opacity: 0;
+  }
+  to {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+/* ---- smooth open animations for modals & popovers ----
+   CSS keyframes (unlike transitions) DO run on the frame an element first
+   becomes displayed, so opening from display:none/[hidden] animates reliably */
+@keyframes overlay-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes card-pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.modal.is-open {
+  animation: overlay-fade-in 0.2s ease-in-out;
+}
+.modal.is-open .modal-card {
+  animation: card-pop-in 0.22s ease-in-out;
+}
+.estimate-overlay.is-open {
+  animation: overlay-fade-in 0.2s ease-in-out;
+}
+.estimate-overlay.is-open .estimate-panel {
+  animation: card-pop-in 0.24s ease-in-out;
+}
+.room-popup.is-open {
+  animation: card-pop-in 0.2s ease-in-out;
+}
+/* the pipe-diameter dropdown wrapper pops in when revealed */
+#line-size-wrap:not(.hidden) {
+  animation: card-pop-in 0.2s ease-in-out;
+}
+/* toast slides up + fades via its existing transition (kept) */
+
+/* ---- accessibility: honor reduced-motion preferences ---- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
