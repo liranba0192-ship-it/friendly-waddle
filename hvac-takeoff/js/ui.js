@@ -24,14 +24,12 @@ App.ui = (function () {
   }
 
   // --- file open -----------------------------------------------------------
-  function openFileDialog() {
-    el.fileInput.value = ""; // allow re-selecting the same file
-    el.fileInput.click();
-  }
-
+  // The "open" buttons are <label for="file-input"> elements, so the browser
+  // opens the picker natively — no JS click listener that could fail to attach.
   function onFilePicked(e) {
     const file = e.target.files && e.target.files[0];
     if (file) App.ingest.loadFile(file);
+    e.target.value = ""; // allow re-selecting the same file next time
   }
 
   function setupDragDrop() {
@@ -448,8 +446,6 @@ App.ui = (function () {
     el.stage = $("stage");
     el.canvas = $("board");
     el.fileInput = $("file-input");
-    el.openBtn = $("open-file");
-    el.openBtnEmpty = $("open-file-empty");
     el.toolButtons = [...document.querySelectorAll("[data-tool]")];
     el.zoomIn = $("zoom-in");
     el.zoomOut = $("zoom-out");
@@ -482,9 +478,16 @@ App.ui = (function () {
     el.sidebarToggle = $("sidebar-toggle");
     el.sidebarBackdrop = $("sidebar-backdrop");
 
-    el.openBtn.addEventListener("click", openFileDialog);
-    el.openBtnEmpty.addEventListener("click", openFileDialog);
     el.fileInput.addEventListener("change", onFilePicked);
+    // keyboard access for the <label role="button"> open-file controls
+    [$("open-file"), $("open-file-empty")].forEach((lbl) =>
+      lbl.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          el.fileInput.click();
+        }
+      })
+    );
     $("open-estimate").addEventListener("click", () => {
       App.estimate.open();
       closeSidebarDrawer();

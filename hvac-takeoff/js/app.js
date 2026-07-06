@@ -17,15 +17,28 @@ window.App = window.App || {};
     }
   }
 
+  // One failing module must not take the whole app down (e.g. a stale cache
+  // served a partially-updated file) — log and keep bootstrapping the rest.
+  function safeInit(name, fn) {
+    try {
+      fn();
+    } catch (err) {
+      console.error("init failed:", name, err);
+    }
+  }
+
   function start() {
     applyStoredTheme();
 
     const canvas = document.getElementById("board");
-    App.renderer.init(canvas);
-    App.input.init(canvas);
-    App.ui.init();
-    App.business.init();
-    App.projects.init();
+    safeInit("renderer", () => App.renderer.init(canvas));
+    safeInit("input", () => App.input.init(canvas));
+    safeInit("ui", () => App.ui.init());
+    safeInit("business", () => App.business.init());
+    safeInit("projects", () => App.projects.init());
+
+    // signal a healthy boot to the recovery watchdog in index.html
+    window.__hvacBooted = true;
 
     // register the service worker (PWA shell), non-blocking
     if ("serviceWorker" in navigator) {

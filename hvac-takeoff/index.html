@@ -84,6 +84,43 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <link rel="stylesheet" href="css/app.css" />
+
+    <!-- self-healing watchdog: if the app failed to boot (e.g. a stale/poisoned
+         service-worker cache served broken files), purge SWs + caches and
+         reload ONCE. sessionStorage guards against a reload loop. -->
+    <script>
+      window.addEventListener("load", function () {
+        setTimeout(function () {
+          if (window.__hvacBooted) {
+            try { sessionStorage.removeItem("hvac:recovered"); } catch (_) {}
+            return;
+          }
+          var guarded;
+          try {
+            guarded = sessionStorage.getItem("hvac:recovered");
+            sessionStorage.setItem("hvac:recovered", "1");
+          } catch (_) {}
+          if (guarded) return; // already tried once — don't loop
+          Promise.resolve()
+            .then(function () {
+              return navigator.serviceWorker && navigator.serviceWorker.getRegistrations
+                ? navigator.serviceWorker.getRegistrations()
+                : [];
+            })
+            .then(function (regs) {
+              return Promise.all(regs.map(function (r) { return r.unregister(); }));
+            })
+            .then(function () {
+              return window.caches && caches.keys ? caches.keys() : [];
+            })
+            .then(function (keys) {
+              return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+            })
+            .catch(function () {})
+            .then(function () { location.reload(); });
+        }, 1500);
+      });
+    </script>
   </head>
 
   <body class="font-sans bg-[#08090b] text-zinc-100 antialiased overflow-hidden">
@@ -135,12 +172,17 @@
           <p class="max-w-xs text-sm text-zinc-500">
             גרור לכאן קובץ PDF או תמונה, או לחץ על הכפתור
           </p>
-          <button
+          <!-- a <label for> opens the picker natively — works even if a JS
+               listener failed to attach (resilience against stale SW caches) -->
+          <label
             id="open-file-empty"
-            class="btn-primary pointer-events-auto rounded-xl px-5 py-2.5 font-medium text-white"
+            for="file-input"
+            role="button"
+            tabindex="0"
+            class="btn-primary pointer-events-auto inline-block cursor-pointer rounded-xl px-5 py-2.5 font-medium text-white"
           >
             פתח קובץ
-          </button>
+          </label>
         </div>
 
         <!-- floating zoom controls (bottom-start) -->
@@ -187,7 +229,7 @@
               id="room-name-input"
               type="text"
               placeholder='לדוגמה: סלון, ממ"ד, חדר הורים'
-              class="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-2.5 py-2 text-sm text-zinc-100 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/30"
+              class="biz-input rounded-lg px-2.5 py-2 text-sm"
             />
           </label>
           <div id="room-zone-chips" class="mb-2 flex flex-wrap gap-1"></div>
@@ -240,13 +282,16 @@
 
         <!-- file actions -->
         <section class="border-b border-zinc-800 p-4">
-          <button
+          <label
             id="open-file"
-            class="btn-primary flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 font-medium text-white"
+            for="file-input"
+            role="button"
+            tabindex="0"
+            class="btn-primary flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-2.5 font-medium text-white"
           >
             <span>📂</span> פתח שרטוט
-          </button>
-          <input id="file-input" type="file" accept=".pdf,.png,.jpg,.jpeg,.webp,image/*,application/pdf" class="hidden" />
+          </label>
+          <input id="file-input" type="file" accept=".pdf,.png,.jpg,.jpeg,.webp,image/*,application/pdf" class="visually-hidden" />
         </section>
 
         <!-- projects manager -->
@@ -462,7 +507,7 @@
               inputmode="decimal"
               dir="ltr"
               placeholder="לדוגמה: 3.5"
-              class="w-full rounded-xl border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-center font-mono text-base text-zinc-100 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30"
+              class="biz-input rounded-xl px-3 py-2.5 text-center font-mono text-base"
             />
             <span class="shrink-0 text-sm text-zinc-400">מ׳</span>
           </div>
