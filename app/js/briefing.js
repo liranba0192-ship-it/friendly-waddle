@@ -144,13 +144,35 @@ App.briefing = (function () {
       const res = await fetch(`../briefings/${item.file}?ts=${Date.now()}`, { cache: "no-cache" });
       if (!res.ok) throw new Error();
       const md = await res.text();
-      articleEl.innerHTML = window.marked.parse(md);
+      articleEl.innerHTML = window.marked.parse(md) + `
+        <div class="card-block">
+          <button id="brf-nblm" class="btn-secondary full">📓 פתח ב-NotebookLM (שמע/סיכום/מפת חשיבה)</button>
+          <p class="section-hint" id="brf-nblm-hint" style="margin-top:8px"></p>
+        </div>`;
       articleEl.querySelectorAll("a[href^='http']").forEach((a) => {
         a.target = "_blank";
         a.rel = "noopener noreferrer";
       });
+      articleEl.querySelector("#brf-nblm").addEventListener("click", () => openInNotebookLM(md, item));
     } catch {
       articleEl.innerHTML = `<p class="status">לא ניתן לטעון את התדריך 😕</p>`;
+    }
+  }
+
+  // מעתיק את התדריך ללוח ופותח את NotebookLM בכרטיסייה חדשה — אין API רשמי
+  // שמעביר תוכן אוטומטית, אז השלב האחרון (הדבקה) נשאר ידני.
+  async function openInNotebookLM(md, item) {
+    const hint = articleEl.querySelector("#brf-nblm-hint");
+    let copied = false;
+    try {
+      await navigator.clipboard.writeText(`תדריך בוקר — ${U.prettyDate(item.date)}\n\n${md}`);
+      copied = true;
+    } catch {}
+    window.open("https://notebooklm.google.com/", "_blank", "noopener");
+    if (hint) {
+      hint.innerHTML = copied
+        ? `הטקסט הועתק ללוח ✅ ב-NotebookLM: <b>+ Add source → Paste text</b> → הדבק (Cmd/Ctrl+V) → Insert. אז תוכל לבחור <b>Audio Overview</b> (שמע), סיכום או מפת חשיבה.`
+        : `לא הצלחנו להעתיק אוטומטית — פתח את NotebookLM והדבק את התדריך ידנית (חזור לכאן, סמן והעתק את הטקסט).`;
     }
   }
 
