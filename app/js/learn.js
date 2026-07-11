@@ -397,6 +397,10 @@ App.learn = (function () {
       <button id="ls-back" class="btn-secondary">‹ חזרה לשיעורים</button>
       <h2 class="view-h2">${l.icon} ${U.esc(l.title)}</h2>
       <div class="card-block lesson-body">${body}</div>
+      <div class="card-block">
+        <button id="ls-nblm" class="btn-secondary full">📓 פתח ב-NotebookLM (שמע/סיכום/מפת חשיבה)</button>
+        <p class="section-hint" id="ls-nblm-hint" style="margin-top:8px"></p>
+      </div>
       <div class="card-block reminder-card">
         <div class="rem-title">🔔 תזכורת לחזור על השיעור</div>
         <p class="section-hint">חזרה מרווחת עוזרת לזכור — קבע תזכורת ביומן:</p>
@@ -411,6 +415,7 @@ App.learn = (function () {
       ${next ? `<button id="ls-next" class="btn-secondary full">לשיעור הבא: ${U.esc(next.title)} ←</button>` : ""}
     `;
     root.querySelector("#ls-back").addEventListener("click", () => { view = { kind: "home" }; render(); });
+    root.querySelector("#ls-nblm").addEventListener("click", () => openInNotebookLM(l));
     root.querySelectorAll(".rem-opt").forEach((b) =>
       b.addEventListener("click", () => makeLessonReminder(l, +b.dataset.days))
     );
@@ -445,6 +450,23 @@ App.learn = (function () {
     U.download("lesson-reminder.ics", ics, "text/calendar");
     const hint = root.querySelector("#rem-hint");
     if (hint) hint.innerHTML = `הקובץ ירד — פתח אותו ב-iOS ולחץ «הוסף» לתזכורת בעוד ${days === 1 ? "יום" : days + " ימים"}. ✅`;
+  }
+
+  // מעתיק את השיעור ללוח ופותח את NotebookLM בכרטיסייה חדשה — אין API רשמי
+  // שמעביר תוכן אוטומטית, אז השלב האחרון (הדבקה) נשאר ידני.
+  async function openInNotebookLM(l) {
+    const hint = root.querySelector("#ls-nblm-hint");
+    let copied = false;
+    try {
+      await navigator.clipboard.writeText(`${l.title}\n\n${l.md}`);
+      copied = true;
+    } catch {}
+    window.open("https://notebooklm.google.com/", "_blank", "noopener");
+    if (hint) {
+      hint.innerHTML = copied
+        ? `הטקסט הועתק ללוח ✅ ב-NotebookLM: <b>+ Add source → Paste text</b> → הדבק (Cmd/Ctrl+V) → Insert. אז תוכל לבחור <b>Audio Overview</b> (שמע), סיכום או מפת חשיבה.`
+        : `לא הצלחנו להעתיק אוטומטית — פתח את NotebookLM והדבק את השיעור ידנית (חזור לכאן, סמן והעתק את הטקסט).`;
+    }
   }
 
   return { mount, show };
