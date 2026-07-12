@@ -190,7 +190,7 @@ App.weight = (function () {
           </label>
         </div>
         <label class="field">אחוז שומן מהקלוריות
-          <input id="ca-fatpct" type="number" inputmode="decimal" step="1" min="15" max="45" value="${p.fatPct || 25}" placeholder="ברירת מחדל 25%" />
+          <input id="ca-fatpct" type="number" inputmode="decimal" step="1" min="15" max="45" value="${p.fatPct || 30}" placeholder="ברירת מחדל 30%" />
         </label>
         <p class="section-hint">חלבון תמיד מחושב לפי ק"ג משקל גוף (סטנדרט תזונת ספורט) — לא מושפע מהאחוז הזה. הפחמימות ממלאות את מה שנשאר.</p>
         <div id="ca-result" class="suggest-box" hidden></div>
@@ -210,7 +210,7 @@ App.weight = (function () {
       activity: parseFloat(root.querySelector("#ca-activity").value),
       goalDir: root.querySelector("#ca-dir").value,
       goalRate: parseFloat(root.querySelector("#ca-rate").value),
-      fatPct: parseFloat(root.querySelector("#ca-fatpct").value) || 25,
+      fatPct: parseFloat(root.querySelector("#ca-fatpct").value) || 30,
     });
     root.querySelector("#ca-calc").addEventListener("click", () => {
       const weight = parseFloat(root.querySelector("#ca-weight").value);
