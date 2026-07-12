@@ -7,7 +7,7 @@ App.nutrition = (function () {
 
   function targets() { return S.get("food.targets", { kcal: 2200, protein: 150, carbs: 220, fat: 70 }); }
   function saveTargets(v) { S.set("food.targets", v); }
-  function profile() { return S.get("food.profile", { sex: "male", age: 30, height: 175, activity: 1.375, goalDir: "lose", goalRate: 0.5 }); }
+  function profile() { return S.get("food.profile", { sex: "male", age: 30, height: 175, activity: 1.375, goalDir: "lose", goalRate: 0.5, fatPct: 25 }); }
   function saveProfile(v) { S.set("food.profile", v); }
 
   // המשקל העדכני ביותר מטאב השקילה (אם קיים)
@@ -29,7 +29,8 @@ App.nutrition = (function () {
     let warn = "";
     if (kcal < floor) { warn = `החישוב יצא נמוך מהמומלץ — הועלה ל-${floor} קק"ל. כדאי לבחור קצב מתון יותר.`; kcal = floor; }
     const protein = Math.round(weightKg * (p.goalDir === "lose" ? 2.0 : 1.8));
-    const fat = Math.round((kcal * 0.25) / 9);
+    const fatPct = (p.fatPct > 0 ? p.fatPct : 25) / 100;
+    const fat = Math.round((kcal * fatPct) / 9);
     const carbs = Math.max(0, Math.round((kcal - protein * 4 - fat * 9) / 4));
     return { bmr: Math.round(bmr), tdee: Math.round(tdee), kcal: Math.round(kcal), protein, carbs, fat, warn };
   }
