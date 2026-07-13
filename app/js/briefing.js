@@ -3,8 +3,9 @@ window.App = window.App || {};
 
 App.briefing = (function () {
   const U = App.util, S = App.store;
-  let root, listEl, statusEl, freshEl, articleEl, backBtn, inArticle = false, loadSeq = 0;
-  let gkLessons = [];
+  let root, segEl, listEl, statusEl, freshEl, articleEl, backBtn, inArticle = false, loadSeq = 0;
+  let section = "fitness";           // fitness | gk
+  let gkLessons = [], fitnessItems = [];
 
   function daysAgo(iso) {
     const [y, m, d] = iso.split("-").map(Number);
@@ -28,9 +29,13 @@ App.briefing = (function () {
 
   function html() {
     return `
+      <div class="seg" id="brf-seg">
+        <button data-sec="fitness">💪 כושר ותזונה</button>
+        <button data-sec="gk">🧠 ידע כללי</button>
+      </div>
       <div id="brf-list">
         <div id="brf-fresh" class="briefing-fresh" hidden></div>
-        <p id="brf-status" class="status">טוען תדריכים…</p>
+        <p id="brf-status" class="status">טוען…</p>
         <ul id="brf-items" class="briefing-list"></ul>
       </div>
       <article id="brf-article" class="article" hidden></article>
@@ -41,12 +46,17 @@ App.briefing = (function () {
   function mount(el) {
     root = el;
     root.innerHTML = html();
+    segEl = root.querySelector("#brf-seg");
     listEl = root.querySelector("#brf-items");
     statusEl = root.querySelector("#brf-status");
     freshEl = root.querySelector("#brf-fresh");
     articleEl = root.querySelector("#brf-article");
     backBtn = root.querySelector("#brf-back");
     backBtn.addEventListener("click", showList);
+    segEl.querySelectorAll("button").forEach((b) =>
+      b.addEventListener("click", () => { section = b.dataset.sec; renderSeg(); renderCurrent(); })
+    );
+    renderSeg();
     load();
   }
 
@@ -55,13 +65,17 @@ App.briefing = (function () {
     if (!inArticle) load();
   }
 
+  function renderSeg() {
+    segEl.querySelectorAll("button").forEach((b) => b.classList.toggle("active", b.dataset.sec === section));
+  }
+
   async function load() {
     const seq = ++loadSeq;             // מזהה ייחודי לטעינה הנוכחית
     statusEl.hidden = false;
-    statusEl.textContent = "טוען תדריכים…";
-    // ידע כללי (נוצר ע"י routine נפרד) — טעינה נפרדת כדי שכשל לא יפיל את התדריכים
+    statusEl.textContent = "טוען…";
     try {
       const g = await fetch(`data/general-knowledge.json?ts=${Date.now()}`, { cache: "no-cache" }).then((r) => r.json());
+      if (seq !== loadSeq) return;
       gkLessons = g.lessons || [];
     } catch { gkLessons = []; }
     try {
@@ -69,23 +83,28 @@ App.briefing = (function () {
       if (!res.ok) throw new Error();
       const data = await res.json();
       if (seq !== loadSeq) return;     // טעינה חדשה יותר התחילה — בטל את הישנה
-      const items = (data.briefings || []).slice().sort((a, b) => b.date.localeCompare(a.date));
-      renderList(items);
+      fitnessItems = (data.briefings || []).slice().sort((a, b) => b.date.localeCompare(a.date));
     } catch {
-      if (seq === loadSeq) empty();
+      if (seq === loadSeq) fitnessItems = [];
     }
+    if (seq === loadSeq) renderCurrent();
   }
 
-  function empty() {
+  function renderCurrent() {
+    if (section === "gk") renderGKList(); else renderFitnessList();
+  }
+
+  function empty(msg) {
     listEl.innerHTML = "";
     if (freshEl) freshEl.hidden = true;
     statusEl.hidden = false;
-    statusEl.innerHTML = "עדיין אין תדריכים 📭<br><small>התדריך הראשון ייווצר בהרצת הבוקר הבאה.</small>";
+    statusEl.innerHTML = msg;
   }
 
-  function renderList(items) {
+  function renderFitnessList() {
+    const items = fitnessItems;
     listEl.innerHTML = "";             // ניקוי סינכרוני ממש לפני ההוספה (מונע כפילויות)
-    if (!items.length) return empty();
+    if (!items.length) return empty("עדיין אין תדריכים 📭<br><small>התדריך הראשון ייווצר בהרצת הבוקר הבאה.</small>");
     statusEl.hidden = true;
 
     // חיווי טריות — מתי נוצר התדריך האחרון
@@ -100,21 +119,6 @@ App.briefing = (function () {
 
     const today = U.todayISO();
     const frag = document.createDocumentFragment();
-
-    // נושא ידע כללי להיום (נוצר ע"י שגרה נפרדת) — כרטיס מודגש בראש הרשימה
-    if (gkLessons.length) {
-      const gk = gkLessons[gkLessons.length - 1];
-      const li = document.createElement("li");
-      const card = document.createElement("button");
-      card.className = "briefing-card gk-card";
-      card.innerHTML = `
-        <div class="date-row"><span>🧠 נושא ידע כללי · ⏱️ ~3 דק'</span><span class="brf-tag brf-new">חדש</span></div>
-        <h2>${U.esc(gk.icon || "🧠")} ${U.esc(gk.title)}</h2>
-        <div class="brf-tags"><span class="brf-tag">${U.esc(gk.tip || "")}</span></div>`;
-      card.addEventListener("click", () => openGK(gk));
-      li.appendChild(card);
-      frag.appendChild(li);
-    }
 
     // כפתור הצעת תזכורת
     const cta = document.createElement("li");
@@ -150,6 +154,31 @@ App.briefing = (function () {
       li.appendChild(card);
       frag.appendChild(li);
     }
+    listEl.appendChild(frag);
+  }
+
+  function renderGKList() {
+    const items = gkLessons.slice().reverse(); // החדש ביותר קודם
+    listEl.innerHTML = "";
+    if (!items.length) return empty("עדיין אין נושאי ידע כללי 🧠<br><small>הנושא הראשון יגיע עם ההרצה הבאה של השגרה היומית.</small>");
+    statusEl.hidden = true;
+    freshEl.hidden = false;
+    freshEl.className = "briefing-fresh";
+    freshEl.textContent = `📚 ${items.length} נושא${items.length === 1 ? "" : "ים"} שנלמדו עד כה`;
+
+    const frag = document.createDocumentFragment();
+    items.forEach((gk, i) => {
+      const li = document.createElement("li");
+      const card = document.createElement("button");
+      card.className = "briefing-card gk-card" + (i === 0 ? " today" : "");
+      card.innerHTML = `
+        <div class="date-row"><span>🧠 ידע כללי · ⏱️ ~3 דק'</span>${i === 0 ? `<span class="brf-tag brf-new">חדש</span>` : ""}</div>
+        <h2>${U.esc(gk.icon || "🧠")} ${U.esc(gk.title)}</h2>
+        <div class="brf-tags"><span class="brf-tag">${U.esc(gk.tip || "")}</span></div>`;
+      card.addEventListener("click", () => openGK(gk));
+      li.appendChild(card);
+      frag.appendChild(li);
+    });
     listEl.appendChild(frag);
   }
 
@@ -224,7 +253,7 @@ App.briefing = (function () {
     articleEl.hidden = true;
     backBtn.hidden = true;
     window.scrollTo(0, 0);
-    load(); // רענון כדי שתג "נקרא" יתעדכן
+    renderCurrent(); // רענון סינכרוני כדי שתג "נקרא" יתעדכן (ללא fetch מחדש)
   }
 
   return { mount, show };
