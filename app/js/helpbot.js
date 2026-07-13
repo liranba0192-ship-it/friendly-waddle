@@ -155,14 +155,14 @@ App.helpbot = (function () {
         parts.push(`# 🧠 ידע כללי — ${last.title}\n\n${last.md}`);
       }
     } catch {}
-    // שיעור פיננסי של היום — אותה רוטציית finDay שמוצגת בטאב לימוד → פיננסים
+    // שיעור פיננסי הבא (הראשון שלא סומן כהושלם) — כמו "▶️ המשך מכאן" בטאב פיננסים
     try {
       const fin = await fetch(`data/finance.json?ts=${Date.now()}`, { cache: "no-cache" }).then((r) => r.json());
       const finLessons = fin.lessons || [];
       if (finLessons.length) {
         const learnState = App.store.get("learn", {});
-        const idx = (learnState.finDay || 0) % finLessons.length;
-        const l = finLessons[idx];
+        const done = learnState.doneLessons || [];
+        const l = finLessons.find((x) => !done.includes(x.id)) || finLessons[0];
         parts.push(`# 💰 פיננסים — ${l.title}\n\n${l.md}`);
       }
     } catch {}
