@@ -4,6 +4,7 @@ window.App = window.App || {};
 App.briefing = (function () {
   const U = App.util, S = App.store;
   let root, listEl, statusEl, freshEl, articleEl, backBtn, inArticle = false, loadSeq = 0;
+  let gkLessons = [];
 
   function daysAgo(iso) {
     const [y, m, d] = iso.split("-").map(Number);
@@ -58,6 +59,11 @@ App.briefing = (function () {
     const seq = ++loadSeq;             // מזהה ייחודי לטעינה הנוכחית
     statusEl.hidden = false;
     statusEl.textContent = "טוען תדריכים…";
+    // ידע כללי (נוצר ע"י routine נפרד) — טעינה נפרדת כדי שכשל לא יפיל את התדריכים
+    try {
+      const g = await fetch(`data/general-knowledge.json?ts=${Date.now()}`, { cache: "no-cache" }).then((r) => r.json());
+      gkLessons = g.lessons || [];
+    } catch { gkLessons = []; }
     try {
       const res = await fetch(`../briefings/index.json?ts=${Date.now()}`, { cache: "no-cache" });
       if (!res.ok) throw new Error();
@@ -94,6 +100,21 @@ App.briefing = (function () {
 
     const today = U.todayISO();
     const frag = document.createDocumentFragment();
+
+    // נושא ידע כללי להיום (נוצר ע"י שגרה נפרדת) — כרטיס מודגש בראש הרשימה
+    if (gkLessons.length) {
+      const gk = gkLessons[gkLessons.length - 1];
+      const li = document.createElement("li");
+      const card = document.createElement("button");
+      card.className = "briefing-card gk-card";
+      card.innerHTML = `
+        <div class="date-row"><span>🧠 נושא ידע כללי · ⏱️ ~3 דק'</span><span class="brf-tag brf-new">חדש</span></div>
+        <h2>${U.esc(gk.icon || "🧠")} ${U.esc(gk.title)}</h2>
+        <div class="brf-tags"><span class="brf-tag">${U.esc(gk.tip || "")}</span></div>`;
+      card.addEventListener("click", () => openGK(gk));
+      li.appendChild(card);
+      frag.appendChild(li);
+    }
 
     // כפתור הצעת תזכורת
     const cta = document.createElement("li");
@@ -153,26 +174,47 @@ App.briefing = (function () {
         a.target = "_blank";
         a.rel = "noopener noreferrer";
       });
-      articleEl.querySelector("#brf-nblm").addEventListener("click", () => openInNotebookLM(md, item));
+      articleEl.querySelector("#brf-nblm").addEventListener("click", () =>
+        openInNotebookLM(md, `תדריך בוקר — ${U.prettyDate(item.date)}`, "#brf-nblm-hint")
+      );
     } catch {
       articleEl.innerHTML = `<p class="status">לא ניתן לטעון את התדריך 😕</p>`;
     }
   }
 
-  // מעתיק את התדריך ללוח ופותח את NotebookLM בכרטיסייה חדשה — אין API רשמי
+  // נושא ידע כללי — אותה תצוגת מאמר, בלי מעקב "נקרא" (זה לא מגיע מ-briefings/index.json)
+  function openGK(gk) {
+    inArticle = true;
+    root.querySelector("#brf-list").hidden = true;
+    articleEl.hidden = false;
+    backBtn.hidden = false;
+    window.scrollTo(0, 0);
+    const body = window.marked ? window.marked.parse(gk.md) : `<pre>${U.esc(gk.md)}</pre>`;
+    articleEl.innerHTML = `<h2 class="view-h2">${U.esc(gk.icon || "🧠")} ${U.esc(gk.title)}</h2>` + body + `
+      <div class="card-block">
+        <button id="brf-nblm" class="btn-secondary full">📓 פתח ב-NotebookLM (שמע/סיכום/מפת חשיבה)</button>
+        <p class="section-hint" id="brf-nblm-hint" style="margin-top:8px"></p>
+      </div>`;
+    articleEl.querySelectorAll("a[href^='http']").forEach((a) => { a.target = "_blank"; a.rel = "noopener noreferrer"; });
+    articleEl.querySelector("#brf-nblm").addEventListener("click", () =>
+      openInNotebookLM(gk.md, gk.title, "#brf-nblm-hint")
+    );
+  }
+
+  // מעתיק טקסט ללוח ופותח את NotebookLM בכרטיסייה חדשה — אין API רשמי
   // שמעביר תוכן אוטומטית, אז השלב האחרון (הדבקה) נשאר ידני.
-  async function openInNotebookLM(md, item) {
-    const hint = articleEl.querySelector("#brf-nblm-hint");
+  async function openInNotebookLM(md, label, hintSel) {
+    const hint = articleEl.querySelector(hintSel);
     let copied = false;
     try {
-      await navigator.clipboard.writeText(`תדריך בוקר — ${U.prettyDate(item.date)}\n\n${md}`);
+      await navigator.clipboard.writeText(`${label}\n\n${md}`);
       copied = true;
     } catch {}
     window.open("https://notebooklm.google.com/", "_blank", "noopener");
     if (hint) {
       hint.innerHTML = copied
         ? `הטקסט הועתק ללוח ✅ ב-NotebookLM: <b>+ Add source → Paste text</b> → הדבק (Cmd/Ctrl+V) → Insert. אז תוכל לבחור <b>Audio Overview</b> (שמע), סיכום או מפת חשיבה.`
-        : `לא הצלחנו להעתיק אוטומטית — פתח את NotebookLM והדבק את התדריך ידנית (חזור לכאן, סמן והעתק את הטקסט).`;
+        : `לא הצלחנו להעתיק אוטומטית — פתח את NotebookLM והדבק את התוכן ידנית.`;
     }
   }
 

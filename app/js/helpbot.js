@@ -37,7 +37,8 @@ App.helpbot = (function () {
       a: "אני בוט העזרה של <b>חלבונינץ</b> 🥑💪 — אפליקציית כושר ותזונה. שאל אותי איך לעשות משהו, או בחר נושא מהכפתורים." },
   ];
 
-  const QUICK = ["הוספת מאכל", "סריקת ברקוד", "יעדי קלוריות", "תיעוד אימון", "ימי מנוחה", "תדריך הבוקר", "גיבוי"];
+  const QUICK = ["📚 מה ללמוד היום?", "הוספת מאכל", "סריקת ברקוד", "יעדי קלוריות", "תיעוד אימון", "ימי מנוחה", "תדריך הבוקר", "גיבוי"];
+  const TODAY_LEARN_TRIGGER = "📚 מה ללמוד היום?";
 
   function build() {
     if (overlay) return; // הגנה מפני אתחול כפול
@@ -118,6 +119,10 @@ App.helpbot = (function () {
 
   function ask(text) {
     addUser(text);
+    if (text.trim() === TODAY_LEARN_TRIGGER || /מה ללמוד היום|נוטבוק/.test(text)) {
+      setTimeout(giveTodayLearningPack, 180);
+      return;
+    }
     const e = answerFor(text);
     setTimeout(() => {
       if (e) addBot(`<b>${e.t}</b><br>${e.a}`);
@@ -126,6 +131,44 @@ App.helpbot = (function () {
         addChips();
       }
     }, 180);
+  }
+
+  // אוסף את תדריך הבוקר + נושא הידע הכללי של היום למחרוזת אחת, מעתיק ללוח
+  // ופותח את NotebookLM — כדי שכל מה שיש ללמוד היום ייכנס לשיעור אחד.
+  async function giveTodayLearningPack() {
+    addBot("רגע, אוסף את כל מה שיש ללמוד היום… ⏳");
+    const parts = [];
+    try {
+      const idx = await fetch(`../briefings/index.json?ts=${Date.now()}`, { cache: "no-cache" }).then((r) => r.json());
+      const items = (idx.briefings || []).slice().sort((a, b) => b.date.localeCompare(a.date));
+      if (items.length) {
+        const latest = items[0];
+        const md = await fetch(`../briefings/${latest.file}?ts=${Date.now()}`, { cache: "no-cache" }).then((r) => r.text());
+        parts.push(`# 🌅 תדריך בוקר — ${latest.date}\n\n${md}`);
+      }
+    } catch {}
+    try {
+      const gk = await fetch(`data/general-knowledge.json?ts=${Date.now()}`, { cache: "no-cache" }).then((r) => r.json());
+      const lessons = gk.lessons || [];
+      if (lessons.length) {
+        const last = lessons[lessons.length - 1];
+        parts.push(`# 🧠 ידע כללי — ${last.title}\n\n${last.md}`);
+      }
+    } catch {}
+
+    if (!parts.length) {
+      addBot("עדיין אין תדריך או נושא ידע כללי להיום 😕 נסה שוב אחרי שהשגרות היומיות ירוצו.");
+      return;
+    }
+
+    const combined = parts.join("\n\n---\n\n");
+    let copied = false;
+    try { await navigator.clipboard.writeText(combined); copied = true; } catch {}
+    window.open("https://notebooklm.google.com/", "_blank", "noopener");
+
+    addBot(copied
+      ? `הכנתי הכל ✅ — ${parts.length === 2 ? "תדריך הבוקר + נושא הידע הכללי" : "התוכן של היום"} הועתקו ללוח כטקסט אחד, ו-NotebookLM נפתח בכרטיסייה חדשה.<br><br>שם: <b>+ Add source → Paste text</b> → הדבק (Cmd/Ctrl+V) → Insert — ותוכל לצרוך הכל בשיעור אחד (Audio Overview/סיכום/מפת חשיבה).`
+      : `NotebookLM נפתח, אבל לא הצלחתי להעתיק אוטומטית ללוח. נסה מהתדריך או מהידע הכללי ישירות (יש כפתור 📓 בכל אחד מהם).`);
   }
 
   function send() {
