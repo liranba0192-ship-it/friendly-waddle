@@ -90,21 +90,8 @@ App.learn = (function () {
     }
   }
 
-  // שיעור יומי מתקדם אוטומטית בכל יום קלנדרי חדש, בלי לחזור על אתמול (פיננסי / שיעור יומי)
-  function ensureDailyAdvance(dayKey, dateKey, len) {
-    const d = raw();
-    const today = U.todayISO();
-    if (!d[dateKey]) { d[dayKey] = d[dayKey] || 0; d[dateKey] = today; save(d); return; }
-    if (d[dateKey] !== today) {
-      d[dayKey] = ((d[dayKey] || 0) + 1) % Math.max(len, 1); // יום חדש = השיעור הבא
-      d[dateKey] = today;
-      save(d);
-    }
-  }
-
   function renderHome() {
     if (section === "en") ensureDailyBatch();
-    if (section === "finance") ensureDailyAdvance("finDay", "finDate", lessons.length);
     root.innerHTML = sectionTabs() + (section === "en" ? enHomeHTML() : courseHomeHTML(courseCfg()));
     root.querySelectorAll("#learn-seg button").forEach((b) =>
       b.addEventListener("click", () => { section = b.dataset.sec; view = { kind: "home" }; render(); })
@@ -299,14 +286,14 @@ App.learn = (function () {
   // ========== COURSES (finance / ai) ==========
   function courseCfg() {
     if (section === "ai") return {
-      arr: aiLessons, doneKey: "aiDone", daily: false, levels: true,
+      arr: aiLessons, doneKey: "aiDone", levels: true,
       title: "🤖 לעבוד עם AI — מאפס לרמת המובילים",
       hint: "מסלול מסודר ב-3 רמות: מאפס למתקדם, רמה בינלאומית, ולהמשך החיים. התקדם לפי הסדר.",
     };
     return {
-      arr: lessons, doneKey: "doneLessons", dayKey: "finDay", daily: true, levels: true,
+      arr: lessons, doneKey: "doneLessons", levels: true,
       title: "💰 ידע פיננסי מהיסוד",
-      hint: "100 שיעורים ב-5 רמות — מיסודות הכסף ועד מסים, נדל\"ן והשקעות. שיעור חדש כל יום.",
+      hint: "100 שיעורים ב-5 רמות — מיסודות הכסף ועד מסים, נדל\"ן והשקעות. מתקדם כשאתה מסמן ✅ סיימתי.",
     };
   }
 
@@ -315,16 +302,15 @@ App.learn = (function () {
     const done = d[cfg.doneKey] || [];
     const arr = cfg.arr;
     if (!arr.length) return `<div class="card-block"><p class="status">התוכן בטעינה… נסה לרענן בעוד רגע.</p></div>`;
-    let featuredIdx;
-    if (cfg.daily) featuredIdx = (d[cfg.dayKey] || 0) % arr.length;
-    else { featuredIdx = arr.findIndex((l) => !done.includes(l.id)); if (featuredIdx < 0) featuredIdx = 0; }
+    let featuredIdx = arr.findIndex((l) => !done.includes(l.id));
+    if (featuredIdx < 0) featuredIdx = 0;
     const featured = arr[featuredIdx];
     const pct = arr.length ? Math.round((done.length / arr.length) * 100) : 0;
 
     const cardFor = (l, i) => {
       const isDone = done.includes(l.id);
       const isFeatured = i === featuredIdx;
-      const tag = cfg.daily ? "היום" : "המשך";
+      const tag = "המשך";
       return `
         <button class="list-card lesson-card${isFeatured ? " lesson-today" : ""}" data-lesson="${l.id}">
           <div class="lesson-ico">${l.icon}</div>
@@ -351,7 +337,7 @@ App.learn = (function () {
       listHTML = `<div class="list-cards">${arr.map((l, i) => cardFor(l, i)).join("")}</div>`;
     }
 
-    const featTag = cfg.daily ? "📅 שיעור היום" : (done.length ? "▶️ המשך מכאן" : "▶️ התחל כאן");
+    const featTag = done.length ? "▶️ המשך מכאן" : "▶️ התחל כאן";
     const featuredCard = featured ? `
       <button class="card-block fin-today" data-lesson="${featured.id}">
         <div class="fin-today-tag">${featTag}</div>
