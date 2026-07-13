@@ -155,9 +155,31 @@ App.helpbot = (function () {
         parts.push(`# 🧠 ידע כללי — ${last.title}\n\n${last.md}`);
       }
     } catch {}
+    // שיעור פיננסי של היום — אותה רוטציית finDay שמוצגת בטאב לימוד → פיננסים
+    try {
+      const fin = await fetch(`data/finance.json?ts=${Date.now()}`, { cache: "no-cache" }).then((r) => r.json());
+      const finLessons = fin.lessons || [];
+      if (finLessons.length) {
+        const learnState = App.store.get("learn", {});
+        const idx = (learnState.finDay || 0) % finLessons.length;
+        const l = finLessons[idx];
+        parts.push(`# 💰 פיננסים — ${l.title}\n\n${l.md}`);
+      }
+    } catch {}
+    // שיעור AI הבא (הראשון שלא סומן כהושלם) — כמו "▶️ המשך מכאן" בטאב AI
+    try {
+      const ai = await fetch(`data/ai-guide.json?ts=${Date.now()}`, { cache: "no-cache" }).then((r) => r.json());
+      const aiLessons = ai.lessons || [];
+      if (aiLessons.length) {
+        const learnState = App.store.get("learn", {});
+        const done = learnState.aiDone || [];
+        const l = aiLessons.find((x) => !done.includes(x.id)) || aiLessons[0];
+        parts.push(`# 🤖 AI — ${l.title}\n\n${l.md}`);
+      }
+    } catch {}
 
     if (!parts.length) {
-      addBot("עדיין אין תדריך או נושא ידע כללי להיום 😕 נסה שוב אחרי שהשגרות היומיות ירוצו.");
+      addBot("עדיין אין תוכן ללמידה היום 😕 נסה שוב אחרי שהשגרות היומיות ירוצו.");
       return;
     }
 
@@ -167,8 +189,8 @@ App.helpbot = (function () {
     window.open("https://notebooklm.google.com/", "_blank", "noopener");
 
     addBot(copied
-      ? `הכנתי הכל ✅ — ${parts.length === 2 ? "תדריך הבוקר + נושא הידע הכללי" : "התוכן של היום"} הועתקו ללוח כטקסט אחד, ו-NotebookLM נפתח בכרטיסייה חדשה.<br><br>שם: <b>+ Add source → Paste text</b> → הדבק (Cmd/Ctrl+V) → Insert — ותוכל לצרוך הכל בשיעור אחד (Audio Overview/סיכום/מפת חשיבה).`
-      : `NotebookLM נפתח, אבל לא הצלחתי להעתיק אוטומטית ללוח. נסה מהתדריך או מהידע הכללי ישירות (יש כפתור 📓 בכל אחד מהם).`);
+      ? `הכנתי הכל ✅ — ${parts.length} נושאים של היום (תדריך בוקר, ידע כללי, פיננסים, AI — מה שזמין) הועתקו ללוח כטקסט אחד, ו-NotebookLM נפתח בכרטיסייה חדשה.<br><br>שם: <b>+ Add source → Paste text</b> → הדבק (Cmd/Ctrl+V) → Insert — ותוכל לצרוך הכל בשיעור אחד (Audio Overview/סיכום/מפת חשיבה).`
+      : `NotebookLM נפתח, אבל לא הצלחתי להעתיק אוטומטית ללוח. נסה מכל עמוד בנפרד (יש כפתור 📓 בתדריך, בידע כללי, ובכל שיעור).`);
   }
 
   function send() {
