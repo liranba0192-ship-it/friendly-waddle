@@ -6,8 +6,8 @@ window.App = window.App || {};
 App.learn = (function () {
   const U = App.util, S = App.store;
   let root;
-  let words = [], lessons = [], readings = [], aiLessons = [], loaded = false;
-  let section = "en";                 // en | finance | ai
+  let words = [], lessons = [], readings = [], aiLessons = [], gkLessons = [], loaded = false;
+  let section = "en";                 // en | finance | ai | gk
   let view = { kind: "home" };        // home | practice | lesson({id})
   const BATCH = 10;
 
@@ -39,6 +39,11 @@ App.learn = (function () {
       const a = await fetch(`data/ai-guide.json?ts=${Date.now()}`, { cache: "no-cache" }).then((r) => r.json());
       aiLessons = a.lessons || [];
     } catch { aiLessons = []; }
+    // ידע כללי (נוצר ע"י routine יומי) — newest-first, טעינה נפרדת כדי שכשל לא יפיל את השאר
+    try {
+      const g = await fetch(`data/general-knowledge.json?ts=${Date.now()}`, { cache: "no-cache" }).then((r) => r.json());
+      gkLessons = g.lessons || [];
+    } catch { gkLessons = []; }
     // קריאת הבוקר (נוצרת ע"י routine יומי) — טעינה נפרדת כדי שכשל לא יפיל את השאר
     try {
       const r = await fetch(`../readings/index.json?ts=${Date.now()}`, { cache: "no-cache" });
@@ -66,7 +71,7 @@ App.learn = (function () {
   function render() {
     if (section === "en" && view.kind === "practice") return renderPractice();
     if (section === "en" && view.kind === "reading") return renderReading(view.file);
-    if ((section === "finance" || section === "ai") && view.kind === "lesson") return renderLesson(view.id);
+    if ((section === "finance" || section === "ai" || section === "gk") && view.kind === "lesson") return renderLesson(view.id);
     renderHome();
   }
 
@@ -75,6 +80,7 @@ App.learn = (function () {
       <button data-sec="en" class="${section === "en" ? "active" : ""}">🔤 אנגלית</button>
       <button data-sec="finance" class="${section === "finance" ? "active" : ""}">💰 פיננסים</button>
       <button data-sec="ai" class="${section === "ai" ? "active" : ""}">🤖 AI</button>
+      <button data-sec="gk" class="${section === "gk" ? "active" : ""}">🧠 ידע כללי</button>
     </div>`;
   }
 
@@ -303,6 +309,11 @@ App.learn = (function () {
       title: "🤖 לעבוד עם AI — מאפס לרמת המובילים",
       hint: "מסלול מסודר ב-3 רמות: מאפס למתקדם, רמה בינלאומית, ולהמשך החיים. התקדם לפי הסדר.",
     };
+    if (section === "gk") return {
+      arr: gkLessons, doneKey: "gkDone", levels: false, newestFirst: true,
+      title: "🧠 ידע כללי — היסטוריה, מדע, גיאוגרפיה ותרבות",
+      hint: "נושא חדש כל בוקר, מבוסס עובדות ומאומת. הנושא של היום למעלה — והישנים נשמרים תמיד.",
+    };
     return {
       arr: lessons, doneKey: "doneLessons", dayKey: "finDay", daily: true, levels: true,
       title: "💰 ידע פיננסי מהיסוד",
@@ -314,9 +325,10 @@ App.learn = (function () {
     const d = raw();
     const done = d[cfg.doneKey] || [];
     const arr = cfg.arr;
-    if (!arr.length) return `<div class="card-block"><p class="status">התוכן בטעינה… נסה לרענן בעוד רגע.</p></div>`;
+    if (!arr.length) return `<div class="card-block"><p class="status">${cfg.newestFirst ? "עדיין אין תוכן כאן — הנושא הראשון יגיע עם ההרצה הבאה של השגרה היומית 🌅" : "התוכן בטעינה… נסה לרענן בעוד רגע."}</p></div>`;
     let featuredIdx;
-    if (cfg.daily) featuredIdx = (d[cfg.dayKey] || 0) % arr.length;
+    if (cfg.newestFirst) featuredIdx = 0;                                   // הנושא החדש ביותר = היום
+    else if (cfg.daily) featuredIdx = (d[cfg.dayKey] || 0) % arr.length;
     else { featuredIdx = arr.findIndex((l) => !done.includes(l.id)); if (featuredIdx < 0) featuredIdx = 0; }
     const featured = arr[featuredIdx];
     const pct = arr.length ? Math.round((done.length / arr.length) * 100) : 0;
@@ -324,7 +336,7 @@ App.learn = (function () {
     const cardFor = (l, i) => {
       const isDone = done.includes(l.id);
       const isFeatured = i === featuredIdx;
-      const tag = cfg.daily ? "היום" : "המשך";
+      const tag = (cfg.daily || cfg.newestFirst) ? "היום" : "המשך";
       return `
         <button class="list-card lesson-card${isFeatured ? " lesson-today" : ""}" data-lesson="${l.id}">
           <div class="lesson-ico">${l.icon}</div>
@@ -351,7 +363,7 @@ App.learn = (function () {
       listHTML = `<div class="list-cards">${arr.map((l, i) => cardFor(l, i)).join("")}</div>`;
     }
 
-    const featTag = cfg.daily ? "📅 שיעור היום" : (done.length ? "▶️ המשך מכאן" : "▶️ התחל כאן");
+    const featTag = (cfg.daily || cfg.newestFirst) ? "📅 היום" : (done.length ? "▶️ המשך מכאן" : "▶️ התחל כאן");
     const featuredCard = featured ? `
       <button class="card-block fin-today" data-lesson="${featured.id}">
         <div class="fin-today-tag">${featTag}</div>
@@ -397,6 +409,10 @@ App.learn = (function () {
       <button id="ls-back" class="btn-secondary">‹ חזרה לשיעורים</button>
       <h2 class="view-h2">${l.icon} ${U.esc(l.title)}</h2>
       <div class="card-block lesson-body">${body}</div>
+      <div class="card-block">
+        <button id="ls-nblm" class="btn-secondary full">📓 פתח ב-NotebookLM (שמע/סיכום/מפת חשיבה)</button>
+        <p class="section-hint" id="ls-nblm-hint" style="margin-top:8px"></p>
+      </div>
       <div class="card-block reminder-card">
         <div class="rem-title">🔔 תזכורת לחזור על השיעור</div>
         <p class="section-hint">חזרה מרווחת עוזרת לזכור — קבע תזכורת ביומן:</p>
@@ -411,6 +427,7 @@ App.learn = (function () {
       ${next ? `<button id="ls-next" class="btn-secondary full">לשיעור הבא: ${U.esc(next.title)} ←</button>` : ""}
     `;
     root.querySelector("#ls-back").addEventListener("click", () => { view = { kind: "home" }; render(); });
+    root.querySelector("#ls-nblm").addEventListener("click", () => openInNotebookLM(l));
     root.querySelectorAll(".rem-opt").forEach((b) =>
       b.addEventListener("click", () => makeLessonReminder(l, +b.dataset.days))
     );
@@ -433,7 +450,7 @@ App.learn = (function () {
     const p2 = (x) => String(x).padStart(2, "0");
     const dstr = `${dt.getFullYear()}${p2(dt.getMonth() + 1)}${p2(dt.getDate())}T180000`;
     const stamp = `${now.getUTCFullYear()}${p2(now.getUTCMonth() + 1)}${p2(now.getUTCDate())}T${p2(now.getUTCHours())}${p2(now.getUTCMinutes())}${p2(now.getUTCSeconds())}Z`;
-    const ico = section === "ai" ? "🤖" : "💰";
+    const ico = section === "ai" ? "🤖" : section === "gk" ? "🧠" : "💰";
     const ics = [
       "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//halbonintz//HE", "CALSCALE:GREGORIAN",
       "BEGIN:VEVENT", `UID:halbonintz-${U.uid()}@local`, `DTSTAMP:${stamp}`, `DTSTART:${dstr}`,
@@ -445,6 +462,23 @@ App.learn = (function () {
     U.download("lesson-reminder.ics", ics, "text/calendar");
     const hint = root.querySelector("#rem-hint");
     if (hint) hint.innerHTML = `הקובץ ירד — פתח אותו ב-iOS ולחץ «הוסף» לתזכורת בעוד ${days === 1 ? "יום" : days + " ימים"}. ✅`;
+  }
+
+  // מעתיק את השיעור ללוח ופותח את NotebookLM בכרטיסייה חדשה — אין API רשמי
+  // שמעביר תוכן אוטומטית, אז השלב האחרון (הדבקה) נשאר ידני.
+  async function openInNotebookLM(l) {
+    const hint = root.querySelector("#ls-nblm-hint");
+    let copied = false;
+    try {
+      await navigator.clipboard.writeText(`${l.title}\n\n${l.md}`);
+      copied = true;
+    } catch {}
+    window.open("https://notebooklm.google.com/", "_blank", "noopener");
+    if (hint) {
+      hint.innerHTML = copied
+        ? `הטקסט הועתק ללוח ✅ ב-NotebookLM: <b>+ Add source → Paste text</b> → הדבק (Cmd/Ctrl+V) → Insert. אז תוכל לבחור <b>Audio Overview</b> (שמע), סיכום או מפת חשיבה.`
+        : `לא הצלחנו להעתיק אוטומטית — פתח את NotebookLM והדבק את השיעור ידנית (חזור לכאן, סמן והעתק את הטקסט).`;
+    }
   }
 
   return { mount, show };
