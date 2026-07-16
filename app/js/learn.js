@@ -14,6 +14,7 @@ App.learn = (function () {
   let weekQuizSession = null;         // { qs:[{word,opts}], idx, correct } — נבנה בכניסה לבוחן
   let dictFilter = "all";             // all | got | miss | none — סינון מסך "המילון שלי"
   let dictSearch = "";
+  let practiceMode = "mc";            // mc | mc-rev | flashcard | type — נבחר בתפריט התרגול
 
   // ---------- storage ----------
   function raw() { return S.get("learn", { batch: 0, marks: {}, lastBatchDate: null, doneLessons: [], featuredSince: {}, autoAdvancedHint: {} }); }
@@ -27,6 +28,27 @@ App.learn = (function () {
     return Object.keys(m).filter((k) => m[k] === "miss").map((k) => +k);
   }
 
+  // סדר אקראי-קבוע (seeded) של המילים — כך המנה היומית מרגישה אקראית אבל נשארת
+  // ניתנת לחישוב זהה גם בענן (ראו daily-reading-prompt.md) בלי לשמור מצב על שרת.
+  const SHUFFLE_SEED = 42; // קבוע — אסור לשנות, אחרת הסדר יתפזר מחדש בלי בקרה
+  function mulberry32(seed) {
+    return function () {
+      let t = (seed += 0x6D2B79F5);
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function shuffledOrder(list) {
+    const arr = list.slice();
+    const rnd = mulberry32(SHUFFLE_SEED);
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(rnd() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
   // ---------- data ----------
   async function ensure() {
     if (loaded) return;
@@ -35,7 +57,7 @@ App.learn = (function () {
         fetch(`data/vocab.json`, { cache: "no-cache" }).then((r) => r.json()),
         fetch(`data/finance.json?ts=${Date.now()}`, { cache: "no-cache" }).then((r) => r.json()),
       ]);
-      words = v.words || [];
+      words = shuffledOrder(v.words || []);
       lessons = f.lessons || [];
     } catch { words = []; lessons = []; }
     // מדריך ה-AI — טעינה נפרדת כדי שכשל לא יפיל את השאר
@@ -48,6 +70,15 @@ App.learn = (function () {
       const r = await fetch(`../readings/index.json?ts=${Date.now()}`, { cache: "no-cache" });
       if (r.ok) readings = (await r.json()).readings || [];
     } catch { readings = []; }
+    // איפוס חד-פעמי: מעכשיו הסדר היומי אקראי-קבוע והאפוק זז להיום — מנקים סימונים
+    // ישנים כדי שהמחזור החדש יתחיל נקי (לא נוגע ב-doneLessons/aiDone/weekQuiz).
+    const d = raw();
+    if (!d.vocabResetV2) {
+      d.marks = {};
+      d.lastBatchDate = null;
+      d.vocabResetV2 = true;
+      save(d);
+    }
     loaded = true;
   }
 
@@ -59,7 +90,7 @@ App.learn = (function () {
 
   // בסיס קבוע לחישוב מנת המילים היומית — כך גם שגרת קריאת הבוקר (שרצה בענן, בלי
   // גישה ל-localStorage של המכשיר) יכולה לחשב בדיוק את אותה מנה של 10 מילים.
-  const VOCAB_EPOCH = "2026-01-01";
+  const VOCAB_EPOCH = "2026-07-16";
   function daysSince(epochIso, todayIso) {
     const [ey, em, ed] = epochIso.split("-").map(Number);
     const [ty, tm, td] = todayIso.split("-").map(Number);
@@ -83,27 +114,12 @@ App.learn = (function () {
     return words.slice(0, Math.min((days + 1) * BATCH, words.length));
   }
 
-  // ---------- בוחן שבועי (חמישי/שישי) — כל המילים שנלמדו מתחילת השבוע (ראשון) ----------
+  // ---------- בוחן שבועי (חמישי/שישי) — מכל המילים שנלמדו אי-פעם, פעם בשבוע ----------
   function weekStartISO() {
     const now = new Date();
     const sunday = new Date(now); sunday.setDate(now.getDate() - now.getDay());
     const p2 = (x) => String(x).padStart(2, "0");
     return `${sunday.getFullYear()}-${p2(sunday.getMonth() + 1)}-${p2(sunday.getDate())}`;
-  }
-  function weekWords() {
-    const start = weekStartISO();
-    const today = U.todayISO();
-    const seen = new Map();
-    let iso = start;
-    while (iso <= today) {
-      const idx = batchIndexFor(iso);
-      words.slice(idx * BATCH, idx * BATCH + BATCH).forEach((w) => seen.set(w.id, w));
-      const [y, m, d] = iso.split("-").map(Number);
-      const next = new Date(Date.UTC(y, m - 1, d + 1));
-      const p2 = (x) => String(x).padStart(2, "0");
-      iso = `${next.getUTCFullYear()}-${p2(next.getUTCMonth() + 1)}-${p2(next.getUTCDate())}`;
-    }
-    return [...seen.values()];
   }
   function isQuizDay() { return [4, 5].includes(new Date().getDay()); } // חמישי/שישי
   function weekQuizState() { return raw().weekQuiz || {}; }
@@ -119,6 +135,7 @@ App.learn = (function () {
   async function show() { await ensure(); render(); }
 
   function render() {
+    if (section === "en" && view.kind === "practice-menu") return renderPracticeMenu();
     if (section === "en" && view.kind === "practice") return renderPractice();
     if (section === "en" && view.kind === "weekquiz") return renderWeekQuiz();
     if (section === "en" && view.kind === "dictionary") return renderDictionary();
@@ -193,7 +210,7 @@ App.learn = (function () {
 
     const wq = weekQuizState();
     const wqDoneThisWeek = weekQuizDoneThisWeek();
-    const wqCount = weekWords().length;
+    const wqCount = learnedWordsSoFar().length;
     const quizCard = (isQuizDay() && wqCount >= 4) ? `
       <button class="card-block fin-today quiz-card" data-weekquiz>
         <div class="fin-today-tag">🧠 בוחן השבוע · ${wqCount} מילים</div>
@@ -201,7 +218,7 @@ App.learn = (function () {
           <span class="fin-today-ico">📝</span>
           <div>
             <div class="fin-today-title">${wqDoneThisWeek ? `כבר עשית השבוע — ${wq.score}/${wq.total} ✅` : "בוא נבדוק מה זכרת מכל השבוע"}</div>
-            <div class="fin-today-tip">בוחן קצרצר (עד 12 שאלות) על כל המילים מיום ראשון</div>
+            <div class="fin-today-tip">בוחן קצרצר (עד 12 שאלות) מכל המילים שלמדת, עם עדיפות למילים שסימנת ❌</div>
           </div>
         </div>
         <div class="fin-today-cta">${wqDoneThisWeek ? "עשה שוב ←" : "התחל בוחן ←"}</div>
@@ -256,7 +273,7 @@ App.learn = (function () {
       })
     );
     const pr = root.querySelector("#en-practice");
-    if (pr) pr.addEventListener("click", () => { view = { kind: "practice" }; render(); });
+    if (pr) pr.addEventListener("click", () => { view = { kind: "practice-menu" }; render(); });
     const rd = root.querySelector("[data-reading]");
     if (rd) rd.addEventListener("click", () => { view = { kind: "reading", file: rd.dataset.reading }; render(); });
     const wq = root.querySelector("[data-weekquiz]");
@@ -287,46 +304,98 @@ App.learn = (function () {
     }
   }
 
-  // ----- practice (multiple choice over the review pool) -----
+  // בוחר n-1 הסחות אקראיות מתוך words (לפי מפתח he/en) + המילה הנכונה, מעורבב
+  function pickDistractors(correct, key, n) {
+    const others = words.filter((w) => w.id !== correct.id && w[key]);
+    const opts = [correct];
+    while (opts.length < n && others.length) {
+      const cand = others.splice(Math.floor(Math.random() * others.length), 1)[0];
+      if (!opts.includes(cand)) opts.push(cand);
+    }
+    for (let i = opts.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [opts[i], opts[j]] = [opts[j], opts[i]]; }
+    return opts;
+  }
+
+  // ----- תפריט בחירת סוג תרגול -----
+  function renderPracticeMenu() {
+    const n = reviewPool().length;
+    const modes = [
+      { mode: "mc", icon: "🔤", title: "רב-ברירה", sub: "רואים מילה באנגלית, בוחרים תרגום בעברית" },
+      { mode: "mc-rev", icon: "🔄", title: "רב-ברירה הפוכה", sub: "רואים תרגום בעברית, בוחרים את המילה באנגלית" },
+      { mode: "flashcard", icon: "🎴", title: "כרטיסיות", sub: "נחשו לפני שחושפים, וסמנו לבד אם ידעתם" },
+      { mode: "type", icon: "⌨️", title: "הקלדה", sub: "רואים תרגום בעברית, מקלידים את המילה באנגלית" },
+    ];
+    root.innerHTML = `
+      <button id="pm-back" class="btn-secondary">‹ חזרה</button>
+      <div class="card-block learn-intro">
+        <h3>🎯 תרגול (${n} מילים לחזרה)</h3>
+        <p class="section-hint">בחר סוג תרגול:</p>
+      </div>
+      <div class="list-cards">
+        ${modes.map((m) => `
+          <button class="list-card" data-mode="${m.mode}">
+            <div class="lesson-ico">${m.icon}</div>
+            <div class="lc-main">
+              <div class="lc-title">${m.title}</div>
+              <div class="lc-sub">${m.sub}</div>
+            </div>
+            <span class="lc-chevron">‹</span>
+          </button>`).join("")}
+      </div>`;
+    root.querySelector("#pm-back").addEventListener("click", () => { view = { kind: "home" }; render(); });
+    root.querySelectorAll("[data-mode]").forEach((b) =>
+      b.addEventListener("click", () => {
+        practiceMode = b.dataset.mode;
+        practiceQ = null;
+        flashRevealed = false;
+        view = { kind: "practice" };
+        render();
+      })
+    );
+  }
+
+  // ----- practice (4 modes over the review pool) -----
   let practiceQ = null;
+  let flashRevealed = false;
   function nextPracticeQ() {
     const pool = reviewPool();
     if (!pool.length) { practiceQ = null; return; }
     const id = pool[Math.floor(Math.random() * pool.length)];
     const correct = words.find((w) => w.id === id);
-    // 3 הסחות אקראיות
-    const others = words.filter((w) => w.id !== id && w.he);
-    const opts = [correct];
-    while (opts.length < 4 && others.length) {
-      const cand = others.splice(Math.floor(Math.random() * others.length), 1)[0];
-      if (!opts.includes(cand)) opts.push(cand);
-    }
-    for (let i = opts.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [opts[i], opts[j]] = [opts[j], opts[i]]; }
-    practiceQ = { correct, opts };
+    practiceQ = { correct, opts: pickDistractors(correct, practiceMode === "mc-rev" ? "en" : "he", 4) };
+  }
+
+  function emptyPracticeState() {
+    root.innerHTML = `
+      <button id="pr-back" class="btn-secondary">‹ חזרה</button>
+      <div class="card-block center">
+        <h3>🎉 כל הכבוד!</h3>
+        <p class="section-hint">אין מילים לחזרה כרגע. סמן עוד מילים כ"לא הבנתי" כדי לתרגל.</p>
+      </div>`;
+    root.querySelector("#pr-back").addEventListener("click", () => { view = { kind: "home" }; render(); });
   }
 
   function renderPractice() {
+    if (practiceMode === "flashcard") return renderFlashcard();
+    if (practiceMode === "type") return renderTypePractice();
+    return renderPracticeMC(practiceMode === "mc-rev");
+  }
+
+  function renderPracticeMC(reversed) {
     if (!practiceQ) nextPracticeQ();
     const pool = reviewPool();
-    if (!practiceQ) {
-      root.innerHTML = `
-        <button id="pr-back" class="btn-secondary">‹ חזרה</button>
-        <div class="card-block center">
-          <h3>🎉 כל הכבוד!</h3>
-          <p class="section-hint">אין מילים לחזרה כרגע. סמן עוד מילים כ"לא הבנתי" כדי לתרגל.</p>
-        </div>`;
-      root.querySelector("#pr-back").addEventListener("click", () => { view = { kind: "home" }; render(); });
-      return;
-    }
+    if (!practiceQ) return emptyPracticeState();
     const q = practiceQ;
+    const promptHTML = reversed
+      ? `<div class="vc-he" style="text-align:center;font-size:20px">🇮🇱 ${U.esc(q.correct.he)}</div><p class="section-hint center">מה המילה באנגלית?</p>`
+      : `<div class="practice-word">${U.esc(q.correct.en)} ${q.correct.pos ? `<span class="vc-pos">${U.esc(q.correct.pos)}</span>` : ""}</div><p class="section-hint center">מה הפירוש בעברית?</p>`;
     root.innerHTML = `
       <button id="pr-back" class="btn-secondary">‹ חזרה</button>
       <div class="card-block">
         <p class="section-hint center">🎯 תרגול · נותרו ${pool.length} מילים</p>
-        <div class="practice-word">${U.esc(q.correct.en)} ${q.correct.pos ? `<span class="vc-pos">${U.esc(q.correct.pos)}</span>` : ""}</div>
-        <p class="section-hint center">מה הפירוש בעברית?</p>
+        ${promptHTML}
         <div class="practice-opts">
-          ${q.opts.map((o) => `<button class="practice-opt" data-id="${o.id}">${U.esc(o.he)}</button>`).join("")}
+          ${q.opts.map((o) => `<button class="practice-opt" data-id="${o.id}">${U.esc(reversed ? o.en : o.he)}</button>`).join("")}
         </div>
         <div id="pr-feedback" class="practice-feedback"></div>
       </div>`;
@@ -346,7 +415,7 @@ App.learn = (function () {
         } else {
           b.classList.add("wrong");
           root.querySelectorAll(".practice-opt").forEach((x) => { if (+x.dataset.id === q.correct.id) x.classList.add("correct"); });
-          fb.innerHTML = `<span class="pf-no">הפירוש: <b>${U.esc(q.correct.he)}</b></span>
+          fb.innerHTML = `<span class="pf-no">${reversed ? "המילה" : "הפירוש"}: <b>${U.esc(reversed ? q.correct.en : q.correct.he)}</b></span>
             <button id="pr-cont" class="btn-primary">המשך ←</button>`;
           root.querySelector("#pr-cont").addEventListener("click", () => { practiceQ = null; render(); });
         }
@@ -354,21 +423,96 @@ App.learn = (function () {
     );
   }
 
-  // ----- בוחן שבועי (multiple choice, מעורבב, על כל מילות השבוע) -----
-  function buildWeekQuiz() {
-    const pool = weekWords();
-    for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
-    const picked = pool.slice(0, QUIZ_LEN);
-    const qs = picked.map((correct) => {
-      const others = words.filter((w) => w.id !== correct.id && w.he);
-      const opts = [correct];
-      while (opts.length < 4 && others.length) {
-        const cand = others.splice(Math.floor(Math.random() * others.length), 1)[0];
-        if (!opts.includes(cand)) opts.push(cand);
+  // ----- תרגול כרטיסיות (Anki-style): נחשו, חשפו, סמנו לבד -----
+  function renderFlashcard() {
+    if (!practiceQ) { nextPracticeQ(); flashRevealed = false; }
+    const pool = reviewPool();
+    if (!practiceQ) return emptyPracticeState();
+    const q = practiceQ;
+    root.innerHTML = `
+      <button id="pr-back" class="btn-secondary">‹ חזרה</button>
+      <div class="card-block center">
+        <p class="section-hint center">🎴 כרטיסיות · נותרו ${pool.length} מילים</p>
+        <div class="practice-word">${U.esc(q.correct.en)} ${q.correct.pos ? `<span class="vc-pos">${U.esc(q.correct.pos)}</span>` : ""}</div>
+        ${flashRevealed
+          ? `<div class="vc-he" style="margin-top:14px">🇮🇱 ${U.esc(q.correct.he)}</div>
+             <div class="flash-btns">
+               <button id="fc-no" class="btn-secondary">❌ לא ידעתי</button>
+               <button id="fc-yes" class="btn-primary">✅ ידעתי</button>
+             </div>`
+          : `<button id="fc-reveal" class="btn-primary full" style="margin-top:14px">הצג תרגום 🔎</button>`}
+      </div>`;
+    root.querySelector("#pr-back").addEventListener("click", () => { view = { kind: "home" }; render(); });
+    const rv = root.querySelector("#fc-reveal");
+    if (rv) rv.addEventListener("click", () => { flashRevealed = true; render(); });
+    const yes = root.querySelector("#fc-yes");
+    if (yes) yes.addEventListener("click", () => { mark(q.correct.id, "got"); practiceQ = null; flashRevealed = false; render(); });
+    const no = root.querySelector("#fc-no");
+    if (no) no.addEventListener("click", () => { mark(q.correct.id, "miss"); practiceQ = null; flashRevealed = false; render(); });
+  }
+
+  // ----- תרגול הקלדה: רואים עברית, מקלידים אנגלית — השוואה סלחנית -----
+  function normalizeTyped(s) {
+    return s.toLowerCase().replace(/\bsth\b|\bsb\b/g, "").replace(/[^\w\s]/g, "").replace(/\s+/g, " ").trim();
+  }
+  function renderTypePractice() {
+    if (!practiceQ) nextPracticeQ();
+    const pool = reviewPool();
+    if (!practiceQ) return emptyPracticeState();
+    const q = practiceQ;
+    root.innerHTML = `
+      <button id="pr-back" class="btn-secondary">‹ חזרה</button>
+      <div class="card-block">
+        <p class="section-hint center">⌨️ הקלדה · נותרו ${pool.length} מילים</p>
+        <div class="vc-he" style="text-align:center;font-size:20px">🇮🇱 ${U.esc(q.correct.he)}</div>
+        <p class="section-hint center">הקלד/י את המילה באנגלית</p>
+        <input id="tp-input" class="search-input" type="text" autocomplete="off" autocapitalize="off" placeholder="type the word…" />
+        <button id="tp-check" class="btn-primary full">בדוק</button>
+        <div id="tp-feedback" class="practice-feedback"></div>
+      </div>`;
+    root.querySelector("#pr-back").addEventListener("click", () => { view = { kind: "home" }; render(); });
+    const input = root.querySelector("#tp-input");
+    const checkBtn = root.querySelector("#tp-check");
+    const check = () => {
+      const alts = q.correct.en.split(/ or |\//).map(normalizeTyped);
+      const ok = alts.includes(normalizeTyped(input.value));
+      const fb = root.querySelector("#tp-feedback");
+      input.disabled = true; checkBtn.disabled = true;
+      if (ok) {
+        fb.innerHTML = `<span class="pf-ok">✅ נכון!</span> <button id="tp-cont" class="btn-primary">המשך ←</button>`;
+        mark(q.correct.id, "got");
+      } else {
+        fb.innerHTML = `<span class="pf-no">התשובה: <b>${U.esc(q.correct.en)}</b></span> <button id="tp-cont" class="btn-primary">המשך ←</button>`;
+        mark(q.correct.id, "miss");
       }
-      for (let i = opts.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [opts[i], opts[j]] = [opts[j], opts[i]]; }
-      return { word: correct, opts };
+      root.querySelector("#tp-cont").addEventListener("click", () => { practiceQ = null; render(); });
+    };
+    checkBtn.addEventListener("click", check);
+    input.addEventListener("keydown", (e) => { if (e.key === "Enter") check(); });
+    input.focus();
+  }
+
+  // ----- בוחן שבועי (multiple choice, מעורבב, מכל המילים שנלמדו אי-פעם) -----
+  // דגימה משוקללת: מילים ❌ מופיעות הכי הרבה, לא-מסומנות באמצע, ✅ הכי פחות (לא נעלמות).
+  function buildWeekQuiz() {
+    const marks = raw().marks || {};
+    const learned = learnedWordsSoFar().filter((w) => w.he);
+    const weighted = [];
+    learned.forEach((w) => {
+      const st = marks[String(w.id)];
+      const weight = st === "miss" ? 4 : !st ? 2 : 1;
+      for (let i = 0; i < weight; i++) weighted.push(w);
     });
+    for (let i = weighted.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [weighted[i], weighted[j]] = [weighted[j], weighted[i]]; }
+    const picked = [];
+    const seen = new Set();
+    for (const w of weighted) {
+      if (seen.has(w.id)) continue;
+      seen.add(w.id);
+      picked.push(w);
+      if (picked.length >= QUIZ_LEN) break;
+    }
+    const qs = picked.map((correct) => ({ word: correct, opts: pickDistractors(correct, "he", 4) }));
     weekQuizSession = { qs, idx: 0, correct: 0 };
   }
 

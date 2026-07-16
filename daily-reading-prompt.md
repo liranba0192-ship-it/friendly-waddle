@@ -1,7 +1,7 @@
 # קריאת בוקר באנגלית — תרגול לבגרות 📖🇬🇧
 
 > זהו ה-prompt שטריגר מתוזמן (Scheduled Trigger) של Claude Code מריץ כל בוקר.
-> המטרה: **קטע קריאה אחד באנגלית, כ-5 דקות**, ברמת בגרות (Band III Core), לתרגול הבנת הנקרא ואוצר מילים.
+> המטרה: **קטע קריאה אחד באנגלית, כ-7 דקות**, ברמת בגרות (Band III Core), לתרגול הבנת הנקרא ואוצר מילים.
 > חבר אליו טריגר יומי (ראה `SETUP.md`).
 
 ## המשימה
@@ -14,15 +14,50 @@
 
 ## אוצר מילים — חובה: בדיוק המילים שהמשתמש לומד היום (לא מילים אקראיות!)
 
-טאב הלימוד באפליקציה מציג כל יום "מנה" קבועה של 10 מילים מתוך `app/data/vocab.json`, לפי נוסחה **דטרמיניסטית** שתלויה רק בתאריך של היום — כדי שהקטע הזה יתאים בדיוק למה שהמשתמש רואה בטאב, **חובה** לחשב את אותה מנה בעצמך ולא לבחור מילים חופשי:
+טאב הלימוד באפליקציה מציג כל יום "מנה" קבועה של 10 מילים מתוך `app/data/vocab.json`, לפי נוסחה **דטרמיניסטית** שתלויה רק בתאריך של היום — כדי שהקטע הזה יתאים בדיוק למה שהמשתמש רואה בטאב, **חובה** להריץ סקריפט Node (לא לחשב "ביד"!) שמשחזר את אותה נוסחה בדיוק, כולל שלב הערבוב:
 
-1. קרא את `app/data/vocab.json` וספור את מספר המילים (`N = words.length`).
-2. חשב `totalBatches = ceil(N / 10)`.
-3. חשב את מספר הימים בין **1 בינואר 2026** (`2026-01-01`) לבין **התאריך של היום** (UTC, ימים שלמים) — קרא לזה `days`. אם `days` יוצא שלילי (לפני 2026-01-01), השתמש ב-0.
-4. חשב `batchIndex = days % totalBatches`.
-5. **מנת המילים של היום** = `words.slice(batchIndex * 10, batchIndex * 10 + 10)` — בדיוק 10 המילים הבאות (או פחות אם הגענו לסוף הרשימה).
+1. הרץ את הסקריפט הבא (עדכן רק את `TODAY_ISO` לתאריך של היום, לפי `YYYY-MM-DD`), ושמור פלט ל-`words10.json` או הדפס אותו:
+```js
+// save as get-batch.mjs then: node get-batch.mjs
+import { readFileSync } from "fs";
+const TODAY_ISO = "YYYY-MM-DD"; // ⚠️ עדכן לתאריך של היום לפני ההרצה
 
-> 💡 דוגמה לחישוב (אפשר להריץ בפייתון/node אם נוח): `days = (today_UTC_date − date(2026,1,1)).days`, ואז `batchIndex = days % totalBatches`.
+const SHUFFLE_SEED = 42; // קבוע — זהה בדיוק לזה שב-app/js/learn.js, אסור לשנות
+function mulberry32(seed) {
+  return function () {
+    let t = (seed += 0x6D2B79F5);
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function shuffledOrder(list) {
+  const arr = list.slice();
+  const rnd = mulberry32(SHUFFLE_SEED);
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(rnd() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+function daysSince(epochIso, todayIso) {
+  const [ey, em, ed] = epochIso.split("-").map(Number);
+  const [ty, tm, td] = todayIso.split("-").map(Number);
+  return Math.floor((Date.UTC(ty, tm - 1, td) - Date.UTC(ey, em - 1, ed)) / 86400000);
+}
+
+const VOCAB_EPOCH = "2026-07-16"; // קבוע — זהה בדיוק לזה שב-app/js/learn.js
+const raw = JSON.parse(readFileSync("app/data/vocab.json", "utf8"));
+const words = shuffledOrder(raw.words);
+const totalBatches = Math.max(1, Math.ceil(words.length / 10));
+const days = Math.max(0, daysSince(VOCAB_EPOCH, TODAY_ISO));
+const batchIndex = days % totalBatches;
+const todaysWords = words.slice(batchIndex * 10, batchIndex * 10 + 10);
+console.log(JSON.stringify(todaysWords, null, 2));
+```
+2. **מנת המילים של היום** = פלט הסקריפט (בדיוק 10 המילים, בסדר שהוא מחזיר).
+
+> ⚠️ שני קבועים חייבים להישאר **זהים בדיוק** לאלה שב-`app/js/learn.js`: `SHUFFLE_SEED = 42` ו-`VOCAB_EPOCH = "2026-07-16"`. אם מישהו משנה אותם בקוד האפליקציה — יש לעדכן גם כאן, אחרת השגרה תשלב מילים שלא תואמות למה שהאפליקציה מציגה.
 
 **כתוב את הקטע כך שכל 10 המילים האלה (שדה `en`) ישולבו בו בטבעיות**, מודגשות עם **bold**. אם מילה מסוימת ממש לא מתאימה להקשר הנושא שבחרת — אפשר לשנות נטייה דקדוקית קלה (רבים/יחיד, זמן) אבל לא לדלג עליה; אם קשה מאוד לשלב את כל ה-10 בטבעיות, אפשר להוסיף עוד 1-2 משפטים קצרים בסוף הקטע רק כדי לכלול את שנשאר.
 
