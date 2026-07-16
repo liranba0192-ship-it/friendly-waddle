@@ -249,7 +249,7 @@ App.learn = (function () {
       ${quizCard}
       ${dictCard}
       <div class="card-block learn-intro">
-        <h3>🔤 המנה היומית — 10 מילים</h3>
+        <h3>🔤 המנה היומית — 10 מילים ${doneToday && markedCount === list.length ? '<span class="lesson-done">✓ סיימת</span>' : ""}</h3>
         <p class="section-hint">סמן ✅ אם הבנת, או ❌ אם לא — ואז יופיע התרגום + תרגול. מנה ${batch + 1} מתוך ${totalBatches}.</p>
         <div class="learn-progress"><div class="lp-bar" style="width:${Math.round(((batch) / totalBatches) * 100)}%"></div></div>
         <div class="learn-stats">
@@ -885,5 +885,5 @@ App.learn = (function () {
     }
   }
 
-  return { mount, show };
+  return { mount, show, isHome: () => view.kind === "home" };
 })();

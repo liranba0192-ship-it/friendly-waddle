@@ -452,5 +452,5 @@ App.food = (function () {
   // פתיחת מאכל ישירות בדף הפרטים (לסורק)
   function openFood(food) { editEntryId = null; selectedFood = food; view = "detail"; if (root) render(); }
 
-  return { mount, show, findByBarcode, openFood };
+  return { mount, show, findByBarcode, openFood, isHome: () => view === "main" };
 })();

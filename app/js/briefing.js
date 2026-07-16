@@ -262,5 +262,5 @@ App.briefing = (function () {
     renderCurrent(); // רענון סינכרוני כדי שתג "נקרא" יתעדכן (ללא fetch מחדש)
   }
 
-  return { mount, show };
+  return { mount, show, isHome: () => !inArticle };
 })();

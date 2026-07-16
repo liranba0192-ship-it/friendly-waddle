@@ -88,6 +88,8 @@ window.App = window.App || {};
       const idx = TABS.findIndex((x) => x.id === active);
       const nextIdx = dx < 0 ? idx + 1 : idx - 1; // RTL: שמאלה=הבא, ימינה=קודם
       if (idx < 0 || nextIdx < 0 || nextIdx >= TABS.length) return;
+      const curTab = TABS[idx];
+      if (curTab && curTab.mod().isHome && !curTab.mod().isHome()) return; // לא במסך הבית — לא מחליפים טאב
       switchTab(TABS[nextIdx].id);
     }, { passive: true });
   }
