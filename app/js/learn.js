@@ -16,7 +16,7 @@ App.learn = (function () {
   let dictSearch = "";
 
   // ---------- storage ----------
-  function raw() { return S.get("learn", { batch: 0, marks: {}, lastBatchDate: null, doneLessons: [] }); }
+  function raw() { return S.get("learn", { batch: 0, marks: {}, lastBatchDate: null, doneLessons: [], featuredSince: {}, autoAdvancedHint: {} }); }
   function save(d) { S.set("learn", d); }
 
   function mark(id, val) {
@@ -527,11 +527,44 @@ App.learn = (function () {
     };
   }
 
+  // אם השיעור המומלץ נשאר "תקוע" (לא סומן) STALE_DAYS ימים רצוף — מתקדם צעד אחד קדימה
+  // בלבד (לא קפיצה קלנדרית לפי כמה ימים עברו מההתחלה — רק "בטחון" נגד תקיעות).
+  const STALE_DAYS = 3;
+  function autoAdvanceStale(cfg) {
+    const d = raw();
+    const arr = cfg.arr;
+    if (!arr.length) return;
+    d.featuredSince = d.featuredSince || {};
+    d.autoAdvancedHint = d.autoAdvancedHint || {};
+    const done = d[cfg.doneKey] || [];
+    const featuredIdx = arr.findIndex((l) => !done.includes(l.id));
+    if (featuredIdx < 0) return;
+    const featured = arr[featuredIdx];
+    const rec = d.featuredSince[cfg.doneKey];
+    const today = U.todayISO();
+    if (!rec || rec.id !== featured.id) {
+      d.featuredSince[cfg.doneKey] = { id: featured.id, date: today };
+      save(d);
+      return;
+    }
+    if (daysSince(rec.date, today) >= STALE_DAYS) {
+      d[cfg.doneKey] = [...done, featured.id];
+      d.autoAdvancedHint[cfg.doneKey] = featured.title;
+      delete d.featuredSince[cfg.doneKey];
+      save(d);
+    }
+  }
+
   function courseHomeHTML(cfg) {
+    autoAdvanceStale(cfg);
     const d = raw();
     const done = d[cfg.doneKey] || [];
     const arr = cfg.arr;
     if (!arr.length) return `<div class="card-block"><p class="status">התוכן בטעינה… נסה לרענן בעוד רגע.</p></div>`;
+    const autoHint = d.autoAdvancedHint && d.autoAdvancedHint[cfg.doneKey];
+    if (autoHint) {
+      const dd = raw(); delete dd.autoAdvancedHint[cfg.doneKey]; save(dd);
+    }
     let featuredIdx = arr.findIndex((l) => !done.includes(l.id));
     if (featuredIdx < 0) featuredIdx = 0;
     const featured = arr[featuredIdx];
@@ -582,6 +615,7 @@ App.learn = (function () {
       </button>` : "";
 
     return `
+      ${autoHint ? `<p class="section-hint center">⏭️ סימנו אוטומטית "<b>${U.esc(autoHint)}</b>" כהושלם כי עברו ${STALE_DAYS} ימים בלי סימון — אפשר לחזור אליו בכל זמן מרשימת השיעורים למטה.</p>` : ""}
       <div class="card-block learn-intro">
         <h3>${cfg.title}</h3>
         <p class="section-hint">${cfg.hint}</p>
