@@ -553,5 +553,5 @@ App.workout = (function () {
     );
   }
 
-  return { mount, show };
+  return { mount, show, isHome: () => view.kind === "home" };
 })();

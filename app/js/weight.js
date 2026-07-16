@@ -291,5 +291,5 @@ App.weight = (function () {
     return svg + legend;
   }
 
-  return { mount, show };
+  return { mount, show, isHome: () => true };
 })();
