@@ -12,6 +12,8 @@ App.learn = (function () {
   const BATCH = 10;
   const QUIZ_LEN = 12;
   let weekQuizSession = null;         // { qs:[{word,opts}], idx, correct } — נבנה בכניסה לבוחן
+  let dictFilter = "all";             // all | got | miss | none — סינון מסך "המילון שלי"
+  let dictSearch = "";
 
   // ---------- storage ----------
   function raw() { return S.get("learn", { batch: 0, marks: {}, lastBatchDate: null, doneLessons: [] }); }
@@ -73,6 +75,13 @@ App.learn = (function () {
     const start = todaysBatchIndex() * BATCH;
     return words.slice(start, start + BATCH);
   }
+  // כל המילים שכבר הוצגו עד היום (סבב שלם → כל הרשימה; אחרת המנות 0..היום ברצף)
+  function learnedWordsSoFar() {
+    const totalBatches = Math.max(1, Math.ceil(words.length / BATCH));
+    const days = Math.max(0, daysSince(VOCAB_EPOCH, U.todayISO()));
+    if (days >= totalBatches - 1) return words.slice();
+    return words.slice(0, Math.min((days + 1) * BATCH, words.length));
+  }
 
   // ---------- בוחן שבועי (חמישי/שישי) — כל המילים שנלמדו מתחילת השבוע (ראשון) ----------
   function weekStartISO() {
@@ -112,6 +121,7 @@ App.learn = (function () {
   function render() {
     if (section === "en" && view.kind === "practice") return renderPractice();
     if (section === "en" && view.kind === "weekquiz") return renderWeekQuiz();
+    if (section === "en" && view.kind === "dictionary") return renderDictionary();
     if (section === "en" && view.kind === "reading") return renderReading(view.file);
     if ((section === "finance" || section === "ai") && view.kind === "lesson") return renderLesson(view.id);
     renderHome();
@@ -197,9 +207,23 @@ App.learn = (function () {
         <div class="fin-today-cta">${wqDoneThisWeek ? "עשה שוב ←" : "התחל בוחן ←"}</div>
       </button>` : "";
 
+    const dictCard = `
+      <button class="card-block fin-today dict-entry-card" data-dict>
+        <div class="fin-today-tag">📔 המילון שלי</div>
+        <div class="fin-today-row">
+          <span class="fin-today-ico">📔</span>
+          <div>
+            <div class="fin-today-title">${learnedWordsSoFar().length} מילים שלמדת עד כה</div>
+            <div class="fin-today-tip">חפש, סנן וחזור על כל מילה שכבר ראית</div>
+          </div>
+        </div>
+        <div class="fin-today-cta">פתח את המילון ←</div>
+      </button>`;
+
     return `
       ${readingCard}
       ${quizCard}
+      ${dictCard}
       <div class="card-block learn-intro">
         <h3>🔤 המנה היומית — 10 מילים</h3>
         <p class="section-hint">סמן ✅ אם הבנת, או ❌ אם לא — ואז יופיע התרגום + תרגול. מנה ${batch + 1} מתוך ${totalBatches}.</p>
@@ -237,6 +261,8 @@ App.learn = (function () {
     if (rd) rd.addEventListener("click", () => { view = { kind: "reading", file: rd.dataset.reading }; render(); });
     const wq = root.querySelector("[data-weekquiz]");
     if (wq) wq.addEventListener("click", () => { weekQuizSession = null; view = { kind: "weekquiz" }; render(); });
+    const dict = root.querySelector("[data-dict]");
+    if (dict) dict.addEventListener("click", () => { dictFilter = "all"; dictSearch = ""; view = { kind: "dictionary" }; render(); });
   }
 
   // ----- קריאת הבוקר (Markdown מתוך readings/) -----
@@ -409,6 +435,82 @@ App.learn = (function () {
         root.querySelector("#wq-cont").addEventListener("click", () => { s.idx++; render(); });
       })
     );
+  }
+
+  // ----- המילון שלי — כל המילים שנלמדו עד כה, עם חיפוש/סינון/סימון -----
+  function dictFilteredWords() {
+    const learned = learnedWordsSoFar();
+    const marks = raw().marks || {};
+    const q = dictSearch.trim().toLowerCase();
+    return learned
+      .filter((w) => {
+        const st = marks[String(w.id)] || "none";
+        if (dictFilter !== "all" && st !== dictFilter) return false;
+        if (q && !(w.en.toLowerCase().includes(q) || (w.he || "").includes(q))) return false;
+        return true;
+      })
+      .sort((a, b) => a.en.localeCompare(b.en));
+  }
+
+  function dictListHTML() {
+    const marks = raw().marks || {};
+    const filtered = dictFilteredWords();
+    if (!filtered.length) return `<p class="section-hint center">אין מילים תואמות לסינון.</p>`;
+    return `<div class="vocab-list">${filtered.map((w) => {
+      const st = marks[String(w.id)];
+      return `
+        <div class="vocab-card${st ? " marked-" + st : ""}" data-id="${w.id}">
+          <div class="vc-top">
+            <div class="vc-en">${U.esc(w.en)} ${w.pos ? `<span class="vc-pos">${U.esc(w.pos)}</span>` : ""}</div>
+          </div>
+          <div class="vc-he">🇮🇱 ${U.esc(w.he)}</div>
+          <div class="vc-btns">
+            <button class="vc-btn got${st === "got" ? " sel" : ""}" data-act="got" data-id="${w.id}">✅ הבנתי</button>
+            <button class="vc-btn miss${st === "miss" ? " sel" : ""}" data-act="miss" data-id="${w.id}">❌ לא הבנתי</button>
+          </div>
+        </div>`;
+    }).join("")}</div>`;
+  }
+
+  function wireDictList() {
+    const list = root.querySelector("#dict-list");
+    if (list) list.innerHTML = dictListHTML();
+    root.querySelectorAll("#dict-list .vc-btn").forEach((b) =>
+      b.addEventListener("click", () => { mark(+b.dataset.id, b.dataset.act); wireDictList(); })
+    );
+    const cnt = root.querySelector("#dict-count");
+    if (cnt) cnt.textContent = `${dictFilteredWords().length} מוצגות`;
+  }
+
+  function renderDictionary() {
+    const total = learnedWordsSoFar().length;
+    root.innerHTML = `
+      <button id="dict-back" class="btn-secondary">‹ חזרה</button>
+      <div class="card-block learn-intro">
+        <h3>📔 המילון שלי</h3>
+        <p class="section-hint">${total} מילים שכבר למדת · <span id="dict-count"></span></p>
+        <input id="dict-search" class="search-input" type="search" placeholder="חפש מילה…" value="${U.esc(dictSearch)}" autocomplete="off" />
+        <div class="seg dict-seg" id="dict-seg">
+          <button data-f="all" class="${dictFilter === "all" ? "active" : ""}">הכל</button>
+          <button data-f="got" class="${dictFilter === "got" ? "active" : ""}">✅ הבנתי</button>
+          <button data-f="miss" class="${dictFilter === "miss" ? "active" : ""}">❌ לא הבנתי</button>
+          <button data-f="none" class="${dictFilter === "none" ? "active" : ""}">⬜ לא סומנו</button>
+        </div>
+      </div>
+      <div id="dict-list"></div>
+      <button class="close-fab" aria-label="סגור וחזור">✕</button>`;
+    const goHome = () => { view = { kind: "home" }; render(); };
+    root.querySelector("#dict-back").addEventListener("click", goHome);
+    root.querySelector(".close-fab").addEventListener("click", goHome);
+    root.querySelector("#dict-search").addEventListener("input", (e) => { dictSearch = e.target.value; wireDictList(); });
+    root.querySelectorAll("#dict-seg button").forEach((b) =>
+      b.addEventListener("click", () => {
+        dictFilter = b.dataset.f;
+        root.querySelectorAll("#dict-seg button").forEach((x) => x.classList.toggle("active", x === b));
+        wireDictList();
+      })
+    );
+    wireDictList();
   }
 
   // ========== COURSES (finance / ai) ==========
