@@ -597,6 +597,9 @@ body { background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, 
 .fin-today-title { font-size: 17px; font-weight: 700; color: var(--text); }
 .fin-today-tip { font-size: 13px; color: var(--muted); margin-top: 2px; }
 .fin-today-cta { margin-top: 10px; text-align: center; font-weight: 700; color: var(--accent); font-size: 14px; }
+.fin-today.quiz-card { border-color: var(--amber); background: color-mix(in srgb, var(--amber) 8%, var(--surface)); }
+.fin-today.quiz-card .fin-today-tag,
+.fin-today.quiz-card .fin-today-cta { color: var(--amber); }
 .lesson-today { border-color: var(--accent); }
 .lesson-todaytag { font-size: 10px; background: var(--accent); color: var(--accent-ink); border-radius: 6px; padding: 1px 6px; font-weight: 700; }
 /* קריאת הבוקר (אנגלית) */
