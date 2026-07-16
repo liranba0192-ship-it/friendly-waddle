@@ -54,6 +54,44 @@ window.App = window.App || {};
     );
   }
 
+  // --- swipe navigation בין טאבים (ימין/שמאל) ---
+  // בודק אם הנגיעה התחילה בתוך אלמנט עם גלילה אופקית אמיתית (למשל .date-strip)
+  // כדי לא "לגנוב" ממנו את המגע.
+  function isInsideHorizontalScroller(el) {
+    let node = el;
+    while (node && node !== document.body) {
+      if (node.scrollWidth > node.clientWidth + 1) {
+        const cs = getComputedStyle(node);
+        if (cs.overflowX === "auto" || cs.overflowX === "scroll") return true;
+      }
+      node = node.parentElement;
+    }
+    return false;
+  }
+
+  function initSwipeNav() {
+    const content = document.querySelector("main.content");
+    const THRESHOLD = 60;
+    let sx = 0, sy = 0, tracking = false;
+
+    content.addEventListener("touchstart", (e) => {
+      tracking = e.touches.length === 1 && !isInsideHorizontalScroller(e.target);
+      if (tracking) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }
+    }, { passive: true });
+
+    content.addEventListener("touchend", (e) => {
+      if (!tracking) return;
+      tracking = false;
+      const t = e.changedTouches[0];
+      const dx = t.clientX - sx, dy = t.clientY - sy;
+      if (Math.abs(dx) < THRESHOLD || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+      const idx = TABS.findIndex((x) => x.id === active);
+      const nextIdx = dx < 0 ? idx + 1 : idx - 1; // RTL: שמאלה=הבא, ימינה=קודם
+      if (idx < 0 || nextIdx < 0 || nextIdx >= TABS.length) return;
+      switchTab(TABS[nextIdx].id);
+    }, { passive: true });
+  }
+
   // --- settings overlay ---
   function openSettings() {
     const ov = document.getElementById("settings-overlay");
@@ -142,6 +180,7 @@ window.App = window.App || {};
   async function init() {
     applyTheme();
     buildTabbar();
+    initSwipeNav();
     document.getElementById("settingsBtn").addEventListener("click", openSettings);
     document.getElementById("settings-close").addEventListener("click", closeSettings);
     if ("serviceWorker" in navigator) {
