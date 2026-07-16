@@ -3,7 +3,7 @@ window.App = window.App || {};
 
 App.briefing = (function () {
   const U = App.util, S = App.store;
-  let root, segEl, listEl, statusEl, freshEl, articleEl, backBtn, inArticle = false, loadSeq = 0;
+  let root, segEl, listEl, statusEl, freshEl, articleEl, backBtn, closeFab, inArticle = false, loadSeq = 0;
   let section = "fitness";           // fitness | gk
   let gkLessons = [], fitnessItems = [];
 
@@ -40,6 +40,7 @@ App.briefing = (function () {
       </div>
       <article id="brf-article" class="article" hidden></article>
       <button id="brf-back" class="btn-secondary" hidden>‹ חזרה לרשימה</button>
+      <button id="brf-close-fab" class="close-fab" hidden aria-label="סגור וחזור לרשימה">✕</button>
     `;
   }
 
@@ -52,7 +53,9 @@ App.briefing = (function () {
     freshEl = root.querySelector("#brf-fresh");
     articleEl = root.querySelector("#brf-article");
     backBtn = root.querySelector("#brf-back");
+    closeFab = root.querySelector("#brf-close-fab");
     backBtn.addEventListener("click", showList);
+    closeFab.addEventListener("click", showList);
     segEl.querySelectorAll("button").forEach((b) =>
       b.addEventListener("click", () => { section = b.dataset.sec; renderSeg(); renderCurrent(); })
     );
@@ -188,6 +191,7 @@ App.briefing = (function () {
     root.querySelector("#brf-list").hidden = true;
     articleEl.hidden = false;
     backBtn.hidden = false;
+    closeFab.hidden = false;
     articleEl.innerHTML = `<p class="status">טוען…</p>`;
     window.scrollTo(0, 0);
     try {
@@ -217,6 +221,7 @@ App.briefing = (function () {
     root.querySelector("#brf-list").hidden = true;
     articleEl.hidden = false;
     backBtn.hidden = false;
+    closeFab.hidden = false;
     window.scrollTo(0, 0);
     const body = window.marked ? window.marked.parse(gk.md) : `<pre>${U.esc(gk.md)}</pre>`;
     articleEl.innerHTML = `<h2 class="view-h2">${U.esc(gk.icon || "🧠")} ${U.esc(gk.title)}</h2>` + body + `
@@ -252,6 +257,7 @@ App.briefing = (function () {
     root.querySelector("#brf-list").hidden = false;
     articleEl.hidden = true;
     backBtn.hidden = true;
+    closeFab.hidden = true;
     window.scrollTo(0, 0);
     renderCurrent(); // רענון סינכרוני כדי שתג "נקרא" יתעדכן (ללא fetch מחדש)
   }
