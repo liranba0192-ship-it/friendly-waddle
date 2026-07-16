@@ -135,7 +135,7 @@ App.learn = (function () {
     const rd = todaysReading();
     const readingCard = rd ? `
       <button class="card-block fin-today reading-card" data-reading="${U.esc(rd.file)}">
-        <div class="fin-today-tag">📖 קריאת הבוקר · ~5 דק'</div>
+        <div class="fin-today-tag">📖 קריאת הבוקר · ~7 דק'</div>
         <div class="fin-today-row">
           <span class="fin-today-ico">📰</span>
           <div>
