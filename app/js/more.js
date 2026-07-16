@@ -98,7 +98,7 @@ App.more = (function () {
     root.querySelector("#fm-make").addEventListener("click", makeFoodReminder);
 
     const seg = root.querySelector("#theme-seg");
-    const cur = localStorage.getItem("mb.theme") || "light";
+    const cur = localStorage.getItem("mb.theme") || "auto";
     seg.querySelectorAll("button").forEach((b) => {
       if (b.dataset.theme === cur) b.classList.add("active");
       b.addEventListener("click", () => { App.setTheme(b.dataset.theme); render(); });
