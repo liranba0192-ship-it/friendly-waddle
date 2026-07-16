@@ -8,8 +8,10 @@ App.learn = (function () {
   let root;
   let words = [], lessons = [], readings = [], aiLessons = [], loaded = false;
   let section = "en";                 // en | finance | ai
-  let view = { kind: "home" };        // home | practice | lesson({id})
+  let view = { kind: "home" };        // home | practice | weekquiz | lesson({id})
   const BATCH = 10;
+  const QUIZ_LEN = 12;
+  let weekQuizSession = null;         // { qs:[{word,opts}], idx, correct } — נבנה בכניסה לבוחן
 
   // ---------- storage ----------
   function raw() { return S.get("learn", { batch: 0, marks: {}, lastBatchDate: null, doneLessons: [] }); }
@@ -61,14 +63,46 @@ App.learn = (function () {
     const [ty, tm, td] = todayIso.split("-").map(Number);
     return Math.floor((Date.UTC(ty, tm - 1, td) - Date.UTC(ey, em - 1, ed)) / 86400000);
   }
-  function todaysBatchIndex() {
+  function batchIndexFor(iso) {
     const totalBatches = Math.max(1, Math.ceil(words.length / BATCH));
-    const days = Math.max(0, daysSince(VOCAB_EPOCH, U.todayISO()));
+    const days = Math.max(0, daysSince(VOCAB_EPOCH, iso));
     return days % totalBatches;
   }
+  function todaysBatchIndex() { return batchIndexFor(U.todayISO()); }
   function curBatchWords() {
     const start = todaysBatchIndex() * BATCH;
     return words.slice(start, start + BATCH);
+  }
+
+  // ---------- בוחן שבועי (חמישי/שישי) — כל המילים שנלמדו מתחילת השבוע (ראשון) ----------
+  function weekStartISO() {
+    const now = new Date();
+    const sunday = new Date(now); sunday.setDate(now.getDate() - now.getDay());
+    const p2 = (x) => String(x).padStart(2, "0");
+    return `${sunday.getFullYear()}-${p2(sunday.getMonth() + 1)}-${p2(sunday.getDate())}`;
+  }
+  function weekWords() {
+    const start = weekStartISO();
+    const today = U.todayISO();
+    const seen = new Map();
+    let iso = start;
+    while (iso <= today) {
+      const idx = batchIndexFor(iso);
+      words.slice(idx * BATCH, idx * BATCH + BATCH).forEach((w) => seen.set(w.id, w));
+      const [y, m, d] = iso.split("-").map(Number);
+      const next = new Date(Date.UTC(y, m - 1, d + 1));
+      const p2 = (x) => String(x).padStart(2, "0");
+      iso = `${next.getUTCFullYear()}-${p2(next.getUTCMonth() + 1)}-${p2(next.getUTCDate())}`;
+    }
+    return [...seen.values()];
+  }
+  function isQuizDay() { return [4, 5].includes(new Date().getDay()); } // חמישי/שישי
+  function weekQuizState() { return raw().weekQuiz || {}; }
+  function weekQuizDoneThisWeek() { return weekQuizState().weekKey === weekStartISO(); }
+  function saveWeekQuizResult(score, total) {
+    const d = raw();
+    d.weekQuiz = { weekKey: weekStartISO(), score, total };
+    save(d);
   }
 
   // ---------- lifecycle ----------
@@ -77,6 +111,7 @@ App.learn = (function () {
 
   function render() {
     if (section === "en" && view.kind === "practice") return renderPractice();
+    if (section === "en" && view.kind === "weekquiz") return renderWeekQuiz();
     if (section === "en" && view.kind === "reading") return renderReading(view.file);
     if ((section === "finance" || section === "ai") && view.kind === "lesson") return renderLesson(view.id);
     renderHome();
@@ -146,8 +181,25 @@ App.learn = (function () {
         <div class="fin-today-cta">קרא עכשיו ←</div>
       </button>` : "";
 
+    const wq = weekQuizState();
+    const wqDoneThisWeek = weekQuizDoneThisWeek();
+    const wqCount = weekWords().length;
+    const quizCard = (isQuizDay() && wqCount >= 4) ? `
+      <button class="card-block fin-today quiz-card" data-weekquiz>
+        <div class="fin-today-tag">🧠 בוחן השבוע · ${wqCount} מילים</div>
+        <div class="fin-today-row">
+          <span class="fin-today-ico">📝</span>
+          <div>
+            <div class="fin-today-title">${wqDoneThisWeek ? `כבר עשית השבוע — ${wq.score}/${wq.total} ✅` : "בוא נבדוק מה זכרת מכל השבוע"}</div>
+            <div class="fin-today-tip">בוחן קצרצר (עד 12 שאלות) על כל המילים מיום ראשון</div>
+          </div>
+        </div>
+        <div class="fin-today-cta">${wqDoneThisWeek ? "עשה שוב ←" : "התחל בוחן ←"}</div>
+      </button>` : "";
+
     return `
       ${readingCard}
+      ${quizCard}
       <div class="card-block learn-intro">
         <h3>🔤 המנה היומית — 10 מילים</h3>
         <p class="section-hint">סמן ✅ אם הבנת, או ❌ אם לא — ואז יופיע התרגום + תרגול. מנה ${batch + 1} מתוך ${totalBatches}.</p>
@@ -183,6 +235,8 @@ App.learn = (function () {
     if (pr) pr.addEventListener("click", () => { view = { kind: "practice" }; render(); });
     const rd = root.querySelector("[data-reading]");
     if (rd) rd.addEventListener("click", () => { view = { kind: "reading", file: rd.dataset.reading }; render(); });
+    const wq = root.querySelector("[data-weekquiz]");
+    if (wq) wq.addEventListener("click", () => { weekQuizSession = null; view = { kind: "weekquiz" }; render(); });
   }
 
   // ----- קריאת הבוקר (Markdown מתוך readings/) -----
@@ -270,6 +324,89 @@ App.learn = (function () {
             <button id="pr-cont" class="btn-primary">המשך ←</button>`;
           root.querySelector("#pr-cont").addEventListener("click", () => { practiceQ = null; render(); });
         }
+      })
+    );
+  }
+
+  // ----- בוחן שבועי (multiple choice, מעורבב, על כל מילות השבוע) -----
+  function buildWeekQuiz() {
+    const pool = weekWords();
+    for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+    const picked = pool.slice(0, QUIZ_LEN);
+    const qs = picked.map((correct) => {
+      const others = words.filter((w) => w.id !== correct.id && w.he);
+      const opts = [correct];
+      while (opts.length < 4 && others.length) {
+        const cand = others.splice(Math.floor(Math.random() * others.length), 1)[0];
+        if (!opts.includes(cand)) opts.push(cand);
+      }
+      for (let i = opts.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [opts[i], opts[j]] = [opts[j], opts[i]]; }
+      return { word: correct, opts };
+    });
+    weekQuizSession = { qs, idx: 0, correct: 0 };
+  }
+
+  function renderWeekQuiz() {
+    if (!weekQuizSession) buildWeekQuiz();
+    const s = weekQuizSession;
+
+    if (!s.qs.length) {
+      root.innerHTML = `
+        <button id="wq-back" class="btn-secondary">‹ חזרה</button>
+        <div class="card-block center">
+          <h3>עדיין אין מספיק מילים השבוע</h3>
+          <p class="section-hint">חזור אחרי שתלמד עוד כמה מנות יומיות.</p>
+        </div>`;
+      root.querySelector("#wq-back").addEventListener("click", () => { view = { kind: "home" }; render(); });
+      return;
+    }
+
+    if (s.idx >= s.qs.length) {
+      saveWeekQuizResult(s.correct, s.qs.length);
+      const pct = Math.round((s.correct / s.qs.length) * 100);
+      const msg = pct >= 80 ? "🌟 מעולה! זכרת כמעט הכל." : pct >= 50 ? "👍 לא רע, אבל כדאי לחזור על כמה מילים." : "💪 היה קשה — כדאי לחזור על המנות של השבוע.";
+      root.innerHTML = `
+        <button id="wq-back" class="btn-secondary">‹ חזרה</button>
+        <div class="card-block center">
+          <h3>🏁 סיימת את בוחן השבוע!</h3>
+          <p class="practice-word" style="font-size:32px">${s.correct}/${s.qs.length}</p>
+          <p class="section-hint">${msg}</p>
+          <button id="wq-redo" class="btn-secondary full">🔁 עשה שוב</button>
+        </div>`;
+      root.querySelector("#wq-back").addEventListener("click", () => { view = { kind: "home" }; render(); });
+      root.querySelector("#wq-redo").addEventListener("click", () => { weekQuizSession = null; render(); });
+      return;
+    }
+
+    const q = s.qs[s.idx];
+    root.innerHTML = `
+      <button id="wq-back" class="btn-secondary">‹ חזרה</button>
+      <div class="card-block">
+        <p class="section-hint center">🧠 בוחן השבוע · שאלה ${s.idx + 1} מתוך ${s.qs.length}</p>
+        <div class="learn-progress"><div class="lp-bar" style="width:${Math.round((s.idx / s.qs.length) * 100)}%"></div></div>
+        <div class="practice-word">${U.esc(q.word.en)} ${q.word.pos ? `<span class="vc-pos">${U.esc(q.word.pos)}</span>` : ""}</div>
+        <p class="section-hint center">מה הפירוש בעברית?</p>
+        <div class="practice-opts">
+          ${q.opts.map((o) => `<button class="practice-opt" data-id="${o.id}">${U.esc(o.he)}</button>`).join("")}
+        </div>
+        <div id="wq-feedback" class="practice-feedback"></div>
+      </div>`;
+    root.querySelector("#wq-back").addEventListener("click", () => { view = { kind: "home" }; render(); });
+    root.querySelectorAll(".practice-opt").forEach((b) =>
+      b.addEventListener("click", () => {
+        const chosen = +b.dataset.id;
+        const fb = root.querySelector("#wq-feedback");
+        root.querySelectorAll(".practice-opt").forEach((x) => x.disabled = true);
+        const isRight = chosen === q.word.id;
+        if (isRight) { b.classList.add("correct"); s.correct++; mark(q.word.id, "got"); }
+        else {
+          b.classList.add("wrong");
+          root.querySelectorAll(".practice-opt").forEach((x) => { if (+x.dataset.id === q.word.id) x.classList.add("correct"); });
+          mark(q.word.id, "miss"); // ייכנס למאגר החזרה היומי
+        }
+        fb.innerHTML = `${isRight ? `<span class="pf-ok">✅ נכון!</span>` : `<span class="pf-no">הפירוש: <b>${U.esc(q.word.he)}</b></span>`}
+          <button id="wq-cont" class="btn-primary">המשך ←</button>`;
+        root.querySelector("#wq-cont").addEventListener("click", () => { s.idx++; render(); });
       })
     );
   }
