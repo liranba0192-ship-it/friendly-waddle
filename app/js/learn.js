@@ -53,9 +53,21 @@ App.learn = (function () {
     return sorted.find((r) => r.date === U.todayISO()) || sorted[0];
   }
 
+  // בסיס קבוע לחישוב מנת המילים היומית — כך גם שגרת קריאת הבוקר (שרצה בענן, בלי
+  // גישה ל-localStorage של המכשיר) יכולה לחשב בדיוק את אותה מנה של 10 מילים.
+  const VOCAB_EPOCH = "2026-01-01";
+  function daysSince(epochIso, todayIso) {
+    const [ey, em, ed] = epochIso.split("-").map(Number);
+    const [ty, tm, td] = todayIso.split("-").map(Number);
+    return Math.floor((Date.UTC(ty, tm - 1, td) - Date.UTC(ey, em - 1, ed)) / 86400000);
+  }
+  function todaysBatchIndex() {
+    const totalBatches = Math.max(1, Math.ceil(words.length / BATCH));
+    const days = Math.max(0, daysSince(VOCAB_EPOCH, U.todayISO()));
+    return days % totalBatches;
+  }
   function curBatchWords() {
-    const b = raw().batch || 0;
-    const start = (b * BATCH) % Math.max(words.length, 1);
+    const start = todaysBatchIndex() * BATCH;
     return words.slice(start, start + BATCH);
   }
 
@@ -78,20 +90,7 @@ App.learn = (function () {
     </div>`;
   }
 
-  // מתקדם אוטומטית ל-10 הבאות בכל יום קלנדרי חדש — כדי שלא נחזור על אותן מילים מאתמול
-  function ensureDailyBatch() {
-    const d = raw();
-    const today = U.todayISO();
-    if (!d.batchDate) { d.batchDate = today; save(d); return; }
-    if (d.batchDate !== today) {
-      d.batch = (d.batch || 0) + 1;   // יום חדש = מנה חדשה (10 מילים חדשות)
-      d.batchDate = today;
-      save(d);
-    }
-  }
-
   function renderHome() {
-    if (section === "en") ensureDailyBatch();
     root.innerHTML = sectionTabs() + (section === "en" ? enHomeHTML() : courseHomeHTML(courseCfg()));
     root.querySelectorAll("#learn-seg button").forEach((b) =>
       b.addEventListener("click", () => { section = b.dataset.sec; view = { kind: "home" }; render(); })
@@ -102,7 +101,7 @@ App.learn = (function () {
   // ========== ENGLISH ==========
   function enHomeHTML() {
     const d = raw();
-    const batch = d.batch || 0;
+    const batch = todaysBatchIndex();
     const totalBatches = Math.ceil(words.length / BATCH);
     const list = curBatchWords();
     const marks = d.marks || {};
@@ -159,13 +158,10 @@ App.learn = (function () {
         </div>
       </div>
       <div class="vocab-list">${cards}</div>
-      <div class="row-btns">
-        <button id="en-next" class="btn-secondary">➕ עוד 10 מילים עכשיו</button>
-        ${pool.length ? `<button id="en-practice" class="btn-primary">🎯 תרגול (${pool.length})</button>` : ""}
-      </div>
+      ${pool.length ? `<button id="en-practice" class="btn-primary full">🎯 תרגול (${pool.length})</button>` : ""}
       ${doneToday && markedCount === list.length
-        ? `<p class="section-hint center">מעולה! סיימת את המנה של היום 🎉 מחר יחכו לך 10 מילים חדשות אוטומטית.</p>`
-        : `<p class="section-hint center">⏭️ מחר תקבל אוטומטית 10 מילים חדשות — בלי חזרה על היום.</p>`}
+        ? `<p class="section-hint center">מעולה! סיימת את המנה של היום 🎉 מחר יחכו לך 10 מילים חדשות אוטומטית — אותן מילים שיופיעו גם בקריאת הבוקר.</p>`
+        : `<p class="section-hint center">⏭️ מחר תקבל אוטומטית 10 מילים חדשות — בלי חזרה על היום. אותן 10 מילים ישולבו גם בקריאת הבוקר.</p>`}
     `;
   }
 
@@ -183,14 +179,6 @@ App.learn = (function () {
         renderHome();
       })
     );
-    const next = root.querySelector("#en-next");
-    if (next) next.addEventListener("click", () => {
-      const d = raw();
-      d.batch = (d.batch || 0) + 1;
-      d.batchDate = U.todayISO(); // עדכון ידני היום → מחר עדיין יתקדם פעם אחת נוספת
-      save(d);
-      window.scrollTo(0, 0); renderHome();
-    });
     const pr = root.querySelector("#en-practice");
     if (pr) pr.addEventListener("click", () => { view = { kind: "practice" }; render(); });
     const rd = root.querySelector("[data-reading]");
