@@ -566,6 +566,8 @@ body { background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, 
 /* תרגול */
 .practice-word { font-size: 30px; font-weight: 800; color: var(--text); text-align: center; direction: ltr; margin: 14px 0 4px; }
 .practice-opts { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.flash-btns { display: flex; gap: 8px; margin-top: 14px; }
+.flash-btns button { flex: 1; }
 .practice-opt { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; font-size: 15px; cursor: pointer; color: var(--text); }
 .practice-opt:active { transform: scale(.98); }
 .practice-opt.correct { background: #10b981; color: #fff; border-color: transparent; }
