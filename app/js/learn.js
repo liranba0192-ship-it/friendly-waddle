@@ -17,7 +17,7 @@ App.learn = (function () {
   let practiceMode = "mc";            // mc | mc-rev | flashcard | type — נבחר בתפריט התרגול
 
   // ---------- storage ----------
-  function raw() { return S.get("learn", { batch: 0, marks: {}, lastBatchDate: null, doneLessons: [], featuredSince: {}, autoAdvancedHint: {} }); }
+  function raw() { return S.get("learn", { batch: 0, marks: {}, lastBatchDate: null, doneLessons: [], featuredSince: {}, autoAdvancedHint: {}, readDoneFiles: [] }); }
   function save(d) { S.set("learn", d); }
 
   function mark(id, val) {
@@ -26,6 +26,13 @@ App.learn = (function () {
   function reviewPool() {
     const m = raw().marks || {};
     return Object.keys(m).filter((k) => m[k] === "miss").map((k) => +k);
+  }
+  function isReadingDone(file) { return (raw().readDoneFiles || []).includes(file); }
+  function toggleReadingDone(file) {
+    const d = raw(); d.readDoneFiles = d.readDoneFiles || [];
+    const i = d.readDoneFiles.indexOf(file);
+    if (i >= 0) d.readDoneFiles.splice(i, 1); else d.readDoneFiles.push(file);
+    save(d);
   }
 
   // סדר אקראי-קבוע (seeded) של המילים — כך המנה היומית מרגישה אקראית אבל נשארת
@@ -201,7 +208,7 @@ App.learn = (function () {
         <div class="fin-today-row">
           <span class="fin-today-ico">📰</span>
           <div>
-            <div class="fin-today-title">${U.esc(rd.title || "Daily Reading")}</div>
+            <div class="fin-today-title">${U.esc(rd.title || "Daily Reading")} ${isReadingDone(rd.file) ? '<span class="lesson-done">✓</span>' : ""}</div>
             <div class="fin-today-tip">${rd.date === today ? "חדש להיום" : U.prettyDate(rd.date)} · קריאה באנגלית לתרגול</div>
           </div>
         </div>
@@ -251,6 +258,7 @@ App.learn = (function () {
         </div>
       </div>
       <div class="vocab-list">${cards}</div>
+      ${!doneToday ? `<button id="en-finish-batch" class="btn-primary full">✅ סיימתי את כל המנה של היום</button>` : ""}
       ${pool.length ? `<button id="en-practice" class="btn-primary full">🎯 תרגול (${pool.length})</button>` : ""}
       ${doneToday && markedCount === list.length
         ? `<p class="section-hint center">מעולה! סיימת את המנה של היום 🎉 מחר יחכו לך 10 מילים חדשות אוטומטית — אותן מילים שיופיעו גם בקריאת הבוקר.</p>`
@@ -272,6 +280,14 @@ App.learn = (function () {
         renderHome();
       })
     );
+    const fin = root.querySelector("#en-finish-batch");
+    if (fin) fin.addEventListener("click", () => {
+      const d = raw(); d.marks = d.marks || {};
+      curBatchWords().forEach((w) => { if (!d.marks[String(w.id)]) d.marks[String(w.id)] = "got"; });
+      d.lastBatchDate = U.todayISO();
+      save(d);
+      renderHome();
+    });
     const pr = root.querySelector("#en-practice");
     if (pr) pr.addEventListener("click", () => { view = { kind: "practice-menu" }; render(); });
     const rd = root.querySelector("[data-reading]");
@@ -284,13 +300,16 @@ App.learn = (function () {
 
   // ----- קריאת הבוקר (Markdown מתוך readings/) -----
   async function renderReading(file) {
+    const done = isReadingDone(file);
     root.innerHTML = `
       <button id="rd-back" class="btn-secondary">‹ חזרה</button>
       <div class="card-block lesson-body reading-article" id="rd-article"><p class="status">טוען…</p></div>
+      <button id="rd-done" class="btn-${done ? "secondary" : "primary"} full">${done ? "✓ הושלם — סמן כלא נקרא" : "✅ סיימתי לקרוא"}</button>
       <button class="close-fab" aria-label="סגור וחזור">✕</button>`;
     const goHome = () => { view = { kind: "home" }; render(); };
     root.querySelector("#rd-back").addEventListener("click", goHome);
     root.querySelector(".close-fab").addEventListener("click", goHome);
+    root.querySelector("#rd-done").addEventListener("click", () => { toggleReadingDone(file); renderReading(file); });
     try {
       const res = await fetch(`../readings/${file}?ts=${Date.now()}`, { cache: "no-cache" });
       if (!res.ok) throw new Error();
