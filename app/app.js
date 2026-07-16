@@ -18,7 +18,7 @@ window.App = window.App || {};
     applyTheme();
   };
   function applyTheme() {
-    document.documentElement.setAttribute("data-theme", localStorage.getItem("mb.theme") || "light");
+    document.documentElement.setAttribute("data-theme", localStorage.getItem("mb.theme") || "auto");
   }
 
   function titleFor(id) {
