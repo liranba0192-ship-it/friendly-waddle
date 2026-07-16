@@ -201,8 +201,11 @@ App.learn = (function () {
   async function renderReading(file) {
     root.innerHTML = `
       <button id="rd-back" class="btn-secondary">‹ חזרה</button>
-      <div class="card-block lesson-body reading-article" id="rd-article"><p class="status">טוען…</p></div>`;
-    root.querySelector("#rd-back").addEventListener("click", () => { view = { kind: "home" }; render(); });
+      <div class="card-block lesson-body reading-article" id="rd-article"><p class="status">טוען…</p></div>
+      <button class="close-fab" aria-label="סגור וחזור">✕</button>`;
+    const goHome = () => { view = { kind: "home" }; render(); };
+    root.querySelector("#rd-back").addEventListener("click", goHome);
+    root.querySelector(".close-fab").addEventListener("click", goHome);
     try {
       const res = await fetch(`../readings/${file}?ts=${Date.now()}`, { cache: "no-cache" });
       if (!res.ok) throw new Error();
@@ -399,8 +402,11 @@ App.learn = (function () {
       </div>
       <button id="ls-done" class="btn-${isDone ? "secondary" : "primary"} full">${isDone ? "✓ הושלם — סמן כלא נלמד" : "✅ סיימתי את השיעור"}</button>
       ${next ? `<button id="ls-next" class="btn-secondary full">לשיעור הבא: ${U.esc(next.title)} ←</button>` : ""}
+      <button class="close-fab" aria-label="סגור וחזור">✕</button>
     `;
-    root.querySelector("#ls-back").addEventListener("click", () => { view = { kind: "home" }; render(); });
+    const goHome = () => { view = { kind: "home" }; render(); };
+    root.querySelector("#ls-back").addEventListener("click", goHome);
+    root.querySelector(".close-fab").addEventListener("click", goHome);
     root.querySelector("#ls-nblm").addEventListener("click", () => openInNotebookLM(l));
     root.querySelectorAll(".rem-opt").forEach((b) =>
       b.addEventListener("click", () => makeLessonReminder(l, +b.dataset.days))

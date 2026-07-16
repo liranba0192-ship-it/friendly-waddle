@@ -457,6 +457,13 @@ body { background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, 
   box-shadow: 0 6px 18px color-mix(in srgb, var(--accent) 45%, transparent);
 }
 .help-fab:active { transform: scale(.92); }
+/* כפתור סגירה צף — נשאר קבוע במסך בלי קשר לגלילה, כדי לצאת ממאמר/שיעור בלי לגלול עד הסוף */
+.close-fab {
+  position: fixed; inset-inline-end: 14px; bottom: calc(var(--safe-bottom) + 74px); z-index: 40;
+  width: 50px; height: 50px; border-radius: 50%; cursor: pointer; font-size: 20px; font-weight: 700;
+  background: var(--surface); color: var(--text); border: 1px solid var(--border); box-shadow: var(--shadow);
+}
+.close-fab:active { transform: scale(.92); }
 .help-overlay { position: fixed; inset: 0; z-index: 95; background: rgba(0,0,0,.4); display: flex; align-items: flex-end; justify-content: center; }
 .help-panel {
   width: 100%; max-width: 760px; height: 85vh; display: flex; flex-direction: column;
