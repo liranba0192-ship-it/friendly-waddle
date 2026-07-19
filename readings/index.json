@@ -1,6 +1,12 @@
 {
   "readings": [
     {
+      "date": "2026-07-19",
+      "day": "ראשון",
+      "title": "The Lost Art of the Train Station Goodbye",
+      "file": "2026-07-19.md"
+    },
+    {
       "date": "2026-07-18",
       "day": "שבת",
       "title": "Plastic That Destroys Itself",
