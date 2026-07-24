@@ -90,6 +90,7 @@ App.learn = (function () {
   }
 
   function todaysReading() {
+    if (new Date().getDay() === 5) return null; // שישי — אין קריאה
     if (!readings.length) return null;
     const sorted = readings.slice().sort((a, b) => b.date.localeCompare(a.date));
     return sorted.find((r) => r.date === U.todayISO()) || sorted[0];
