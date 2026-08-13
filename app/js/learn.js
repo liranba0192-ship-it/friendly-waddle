@@ -6,7 +6,7 @@ window.App = window.App || {};
 App.learn = (function () {
   const U = App.util, S = App.store;
   let root;
-  let words = [], lessons = [], readings = [], aiLessons = [], loaded = false;
+  let words = [], lessons = [], aiLessons = [], loaded = false;
   let section = "en";                 // en | finance | ai
   let view = { kind: "home" };        // home | practice | weekquiz | lesson({id})
   const BATCH = 10;
@@ -26,13 +26,6 @@ App.learn = (function () {
   function reviewPool() {
     const m = raw().marks || {};
     return Object.keys(m).filter((k) => m[k] === "miss").map((k) => +k);
-  }
-  function isReadingDone(file) { return (raw().readDoneFiles || []).includes(file); }
-  function toggleReadingDone(file) {
-    const d = raw(); d.readDoneFiles = d.readDoneFiles || [];
-    const i = d.readDoneFiles.indexOf(file);
-    if (i >= 0) d.readDoneFiles.splice(i, 1); else d.readDoneFiles.push(file);
-    save(d);
   }
 
   // סדר אקראי-קבוע (seeded) של המילים — כך המנה היומית מרגישה אקראית אבל נשארת
@@ -72,11 +65,6 @@ App.learn = (function () {
       const a = await fetch(`data/ai-guide.json?ts=${Date.now()}`, { cache: "no-cache" }).then((r) => r.json());
       aiLessons = a.lessons || [];
     } catch { aiLessons = []; }
-    // קריאת הבוקר (נוצרת ע"י routine יומי) — טעינה נפרדת כדי שכשל לא יפיל את השאר
-    try {
-      const r = await fetch(`../readings/index.json?ts=${Date.now()}`, { cache: "no-cache" });
-      if (r.ok) readings = (await r.json()).readings || [];
-    } catch { readings = []; }
     // איפוס חד-פעמי: מעכשיו הסדר היומי אקראי-קבוע והאפוק זז להיום — מנקים סימונים
     // ישנים כדי שהמחזור החדש יתחיל נקי (לא נוגע ב-doneLessons/aiDone/weekQuiz).
     const d = raw();
@@ -87,13 +75,6 @@ App.learn = (function () {
       save(d);
     }
     loaded = true;
-  }
-
-  function todaysReading() {
-    if (new Date().getDay() === 5) return null; // שישי — אין קריאה
-    if (!readings.length) return null;
-    const sorted = readings.slice().sort((a, b) => b.date.localeCompare(a.date));
-    return sorted.find((r) => r.date === U.todayISO()) || sorted[0];
   }
 
   // בסיס קבוע לחישוב מנת המילים היומית — כך גם שגרת קריאת הבוקר (שרצה בענן, בלי
@@ -147,7 +128,6 @@ App.learn = (function () {
     if (section === "en" && view.kind === "practice") return renderPractice();
     if (section === "en" && view.kind === "weekquiz") return renderWeekQuiz();
     if (section === "en" && view.kind === "dictionary") return renderDictionary();
-    if (section === "en" && view.kind === "reading") return renderReading(view.file);
     if ((section === "finance" || section === "ai") && view.kind === "lesson") return renderLesson(view.id);
     renderHome();
   }
@@ -202,20 +182,6 @@ App.learn = (function () {
 
     const markedCount = list.filter((w) => marks[String(w.id)]).length;
 
-    const rd = todaysReading();
-    const readingCard = rd ? `
-      <button class="card-block fin-today reading-card" data-reading="${U.esc(rd.file)}">
-        <div class="fin-today-tag">📖 קריאת הבוקר · ~7 דק'</div>
-        <div class="fin-today-row">
-          <span class="fin-today-ico">📰</span>
-          <div>
-            <div class="fin-today-title">${U.esc(rd.title || "Daily Reading")} ${isReadingDone(rd.file) ? '<span class="lesson-done">✓</span>' : ""}</div>
-            <div class="fin-today-tip">${rd.date === today ? "חדש להיום" : U.prettyDate(rd.date)} · קריאה באנגלית לתרגול</div>
-          </div>
-        </div>
-        <div class="fin-today-cta">קרא עכשיו ←</div>
-      </button>` : "";
-
     const wq = weekQuizState();
     const wqDoneThisWeek = weekQuizDoneThisWeek();
     const wqCount = learnedWordsSoFar().length;
@@ -246,7 +212,6 @@ App.learn = (function () {
       </button>`;
 
     return `
-      ${readingCard}
       ${quizCard}
       ${dictCard}
       <div class="card-block learn-intro">
@@ -262,8 +227,8 @@ App.learn = (function () {
       ${!doneToday ? `<button id="en-finish-batch" class="btn-primary full">✅ סיימתי את כל המנה של היום</button>` : ""}
       ${pool.length ? `<button id="en-practice" class="btn-primary full">🎯 תרגול (${pool.length})</button>` : ""}
       ${doneToday && markedCount === list.length
-        ? `<p class="section-hint center">מעולה! סיימת את המנה של היום 🎉 מחר יחכו לך 10 מילים חדשות אוטומטית — אותן מילים שיופיעו גם בקריאת הבוקר.</p>`
-        : `<p class="section-hint center">⏭️ מחר תקבל אוטומטית 10 מילים חדשות — בלי חזרה על היום. אותן 10 מילים ישולבו גם בקריאת הבוקר.</p>`}
+        ? `<p class="section-hint center">מעולה! סיימת את המנה של היום 🎉 מחר יחכו לך 10 מילים חדשות אוטומטית.</p>`
+        : `<p class="section-hint center">⏭️ מחר תקבל אוטומטית 10 מילים חדשות — בלי חזרה על היום.</p>`}
     `;
   }
 
@@ -291,37 +256,10 @@ App.learn = (function () {
     });
     const pr = root.querySelector("#en-practice");
     if (pr) pr.addEventListener("click", () => { view = { kind: "practice-menu" }; render(); });
-    const rd = root.querySelector("[data-reading]");
-    if (rd) rd.addEventListener("click", () => { view = { kind: "reading", file: rd.dataset.reading }; render(); });
     const wq = root.querySelector("[data-weekquiz]");
     if (wq) wq.addEventListener("click", () => { weekQuizSession = null; view = { kind: "weekquiz" }; render(); });
     const dict = root.querySelector("[data-dict]");
     if (dict) dict.addEventListener("click", () => { dictFilter = "all"; dictSearch = ""; view = { kind: "dictionary" }; render(); });
-  }
-
-  // ----- קריאת הבוקר (Markdown מתוך readings/) -----
-  async function renderReading(file) {
-    const done = isReadingDone(file);
-    root.innerHTML = `
-      <button id="rd-back" class="btn-secondary">‹ חזרה</button>
-      <div class="card-block lesson-body reading-article" id="rd-article"><p class="status">טוען…</p></div>
-      <button id="rd-done" class="btn-${done ? "secondary" : "primary"} full">${done ? "✓ הושלם — סמן כלא נקרא" : "✅ סיימתי לקרוא"}</button>
-      <button class="close-fab" aria-label="סגור וחזור">✕</button>`;
-    const goHome = () => { view = { kind: "home" }; render(); };
-    root.querySelector("#rd-back").addEventListener("click", goHome);
-    root.querySelector(".close-fab").addEventListener("click", goHome);
-    root.querySelector("#rd-done").addEventListener("click", () => { toggleReadingDone(file); renderReading(file); });
-    try {
-      const res = await fetch(`../readings/${file}?ts=${Date.now()}`, { cache: "no-cache" });
-      if (!res.ok) throw new Error();
-      const md = await res.text();
-      const art = root.querySelector("#rd-article");
-      art.innerHTML = window.marked ? window.marked.parse(md) : `<pre>${U.esc(md)}</pre>`;
-      art.querySelectorAll("a[href^='http']").forEach((a) => { a.target = "_blank"; a.rel = "noopener noreferrer"; });
-    } catch {
-      const art = root.querySelector("#rd-article");
-      if (art) art.innerHTML = `<p class="status">לא ניתן לטעון את הקריאה 😕</p>`;
-    }
   }
 
   // בוחר n-1 הסחות אקראיות מתוך words (לפי מפתח he/en) + המילה הנכונה, מעורבב
