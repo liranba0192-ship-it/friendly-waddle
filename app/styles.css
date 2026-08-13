@@ -606,12 +606,6 @@ body { background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, 
 .fin-today.quiz-card .fin-today-cta { color: var(--amber); }
 .lesson-today { border-color: var(--accent); }
 .lesson-todaytag { font-size: 10px; background: var(--accent); color: var(--accent-ink); border-radius: 6px; padding: 1px 6px; font-weight: 700; }
-/* קריאת הבוקר (אנגלית) */
-.reading-card .fin-today-tag { color: var(--accent); }
-.reading-article { direction: ltr; text-align: left; }
-.reading-article h1, .reading-article h2, .reading-article h3 { text-align: left; }
-.reading-article .glossary, .reading-article blockquote { direction: rtl; text-align: right; }
-
 /* ===== מדריך AI / כותרות רמה + תזכורת שיעור ===== */
 .learn-level-h{
   font-weight:800; font-size:.95rem; margin:18px 4px 8px;
