@@ -1,6 +1,30 @@
 {
   "readings": [
     {
+      "date": "2026-08-13",
+      "day": "חמישי",
+      "title": "The Teen Trade: How Sneakers, Cards, and Old Clothes Became a Business",
+      "file": "2026-08-13.md"
+    },
+    {
+      "date": "2026-08-12",
+      "day": "רביעי",
+      "title": "Bug Detectives: The Teens Solving Nature's Smallest Mysteries",
+      "file": "2026-08-12.md"
+    },
+    {
+      "date": "2026-08-11",
+      "day": "שלישי",
+      "title": "The Upside of Boredom: What Doctors Want Teens to Know About Downtime",
+      "file": "2026-08-11.md"
+    },
+    {
+      "date": "2026-08-10",
+      "day": "שני",
+      "title": "Lantern Tours: The Old Harbor That Turned Its Ghost Stories Into a Business",
+      "file": "2026-08-10.md"
+    },
+    {
       "date": "2026-08-09",
       "day": "ראשון",
       "title": "Spun From Nature: The Silk Revolution in Sports Gear",
