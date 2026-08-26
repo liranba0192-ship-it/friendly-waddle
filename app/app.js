@@ -28,6 +28,7 @@ window.App = window.App || {};
 
   async function switchTab(id) {
     active = id;
+    localStorage.setItem("mb.lastTab", id);
     document.getElementById("appTitle").textContent = titleFor(id);
     for (const t of TABS) {
       document.getElementById("view-" + t.id).hidden = t.id !== id;
@@ -119,7 +120,7 @@ window.App = window.App || {};
 
   function startApp() {
     document.getElementById("auth-overlay").hidden = true;
-    const start = (location.hash || "").replace("#", "");
+    const start = (location.hash || "").replace("#", "") || localStorage.getItem("mb.lastTab") || "";
     switchTab(TABS.some((t) => t.id === start) ? start : "briefing");
   }
 
