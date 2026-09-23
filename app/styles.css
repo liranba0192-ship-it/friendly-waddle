@@ -620,3 +620,9 @@ body { background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, 
   color:inherit; font-size:.9rem; font-weight:600; cursor:pointer;
 }
 .rem-opt:active{ transform:scale(.97); }
+
+/* ---------- shop tab ---------- */
+.shop-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; font-size: 14px; }
+.shop-perk { font-weight: 700; }
+.shop-open { font-weight: 700; white-space: nowrap; color: var(--accent); }
+.shop-frame { display: block; width: 100%; height: calc(100dvh - var(--safe-top) - var(--safe-bottom) - 230px); min-height: 420px; border: 0; border-radius: 14px; background: #0a0a0a; }
