@@ -8,6 +8,7 @@ window.App = window.App || {};
     { id: "food", label: "תזונה", icon: "🥗", title: "תזונה", mod: () => App.food },
     { id: "weight", label: "שקילה", icon: "⚖️", title: "שקילה", mod: () => App.weight },
     { id: "learn", label: "לימוד", icon: "📚", title: "לימוד", mod: () => App.learn },
+    { id: "shop", label: "חנות", icon: "🛒", title: "חנות חלבונינץ", mod: () => App.shop },
   ];
   const mounted = {};
   let active = null, settingsMounted = false;
