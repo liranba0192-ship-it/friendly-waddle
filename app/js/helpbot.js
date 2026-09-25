@@ -30,17 +30,17 @@ App.helpbot = (function () {
     { k: ["בוקר", "תדריך", "ידע", "לימוד", "שגרה", "routine", "כל בוקר"], t: "תדריך הבוקר",
       a: "התדריך היומי מופיע בטאב <b>בית</b> (כרטיס «התדריך של היום»), והארכיון ב<b>אני ← תדריכי בוקר</b>. כדי שייווצר חדש כל בוקר אוטומטית צריך <b>שגרה (Routine)</b> פעילה ב-claude.ai/code/routines, מחוברת ל-repo friendly-waddle." },
     { k: ["גיבוי", "שחזור", "לשמור", "נתונים", "אבד", "backup"], t: "גיבוי ושחזור",
-      a: "הנתונים נשמרים במכשיר בלבד. בהגדרות ⚙️ (גלגל למעלה) → «ייצוא גיבוי» שומר קובץ, ו«שחזור מקובץ» מחזיר אותו. מומלץ לגבות מדי פעם." },
+      a: "כשמחוברים, הנתונים מסונכרנים לחשבון. בנוסף אפשר לגבות לקובץ: <b>אני ← תזכורות והגדרות ← גיבוי ושחזור</b> — «גבה עכשיו» שומר קובץ, ו«שחזר» מחזיר אותו." },
     { k: ["ערכה", "צבע", "כהה", "בהיר", "theme", "עיצוב"], t: "ערכת נושא",
-      a: "בהגדרות ⚙️ אפשר לבחור מצב בהיר / כהה / אוטומטי." },
+      a: "ב<b>אני ← תזכורות והגדרות ← תצוגה</b> אפשר לבחור כהה (ברירת מחדל), בהיר או לפי המכשיר." },
     { k: ["עדכון", "מתעדכן", "גרסה", "לרענן", "לא רואה"], t: "עדכונים",
       a: "האפליקציה מתעדכנת אוטומטית. אם לא רואים שינוי — סגור ופתח אותה מחדש פעם-פעמיים (היא מנקה מטמון ישן)." },
     { k: ["מי אתה", "בוט", "עזרה", "מה זה", "חלבונינץ"], t: "על האפליקציה",
       a: "אני בוט העזרה של <b>חלבונינץ</b> 🥑💪 — אפליקציית כושר ותזונה. שאל אותי איך לעשות משהו, או בחר נושא מהכפתורים." },
   ];
 
-  const QUICK = ["📚 מה ללמוד היום?", "הוספת מאכל", "סריקת ברקוד", "יעדי קלוריות", "תיעוד אימון", "ימי מנוחה", "תדריך הבוקר", "גיבוי"];
-  const TODAY_LEARN_TRIGGER = "📚 מה ללמוד היום?";
+  const QUICK = ["מה ללמוד היום?", "הוספת מאכל", "סריקת ברקוד", "יעדי קלוריות", "תיעוד אימון", "ימי מנוחה", "תדריך הבוקר", "חנות והנחה", "גיבוי"];
+  const TODAY_LEARN_TRIGGER = "מה ללמוד היום?";
 
   function build() {
     if (overlay) return; // הגנה מפני אתחול כפול
@@ -48,16 +48,17 @@ App.helpbot = (function () {
     overlay.className = "help-overlay";
     overlay.hidden = true;
     overlay.innerHTML = `
-      <div class="help-panel">
-        <div class="help-head">
-          <button id="help-close" class="scan-close">✕ סגור</button>
-          <span class="help-title">💬 עוזר חלבונינץ</span>
-          <span style="width:60px"></span>
+      <div class="help-panel" role="dialog" aria-modal="true" aria-labelledby="help-title">
+        <div class="sheet-grip" aria-hidden="true"><i></i></div>
+        <div class="help-head2">
+          <div class="itile hot" style="width:44px;height:44px;border-radius:14px">${App.icon("chat")}</div>
+          <div style="flex-grow:1;display:flex;flex-direction:column"><h2 class="t2" id="help-title">איך אפשר לעזור?</h2><span class="lbl">שאלות נפוצות על האפליקציה</span></div>
+          <button id="help-close" class="ibtn" aria-label="סגירה">${App.icon("x")}</button>
         </div>
-        <div id="help-msgs" class="help-msgs"></div>
+        <div id="help-msgs" class="help-msgs" aria-live="polite"></div>
         <div class="help-input-row">
-          <input id="help-input" type="text" placeholder="שאל אותי משהו…" autocomplete="off" />
-          <button id="help-send" class="btn-primary">שלח</button>
+          <label class="search-field"><input id="help-input" type="text" placeholder="שאל שאלה…" autocomplete="off" aria-label="שאל שאלה"></label>
+          <button id="help-send" class="ibtn hot" style="width:52px;height:52px;border-radius:14px" aria-label="שליחה">${App.icon("back")}</button>
         </div>
       </div>`;
     document.body.appendChild(overlay);
@@ -71,6 +72,8 @@ App.helpbot = (function () {
     inputEl = overlay.querySelector("#help-input");
     fab.addEventListener("click", open);
     overlay.querySelector("#help-close").addEventListener("click", close);
+    overlay.addEventListener("click", (e) => { if (e.target === overlay) close(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !overlay.hidden) close(); });
     overlay.querySelector("#help-send").addEventListener("click", send);
     inputEl.addEventListener("keydown", (e) => { if (e.key === "Enter") send(); });
   }
@@ -79,7 +82,7 @@ App.helpbot = (function () {
     overlay.hidden = false;
     if (!opened) {
       opened = true;
-      addBot("היי! 👋 אני עוזר <b>חלבונינץ</b>. במה אפשר לעזור? אפשר לכתוב שאלה או לבחור נושא:");
+      addBot("היי, אני העוזר של <b>חלבונינץ</b>. אפשר לכתוב שאלה או לבחור נושא:");
       addChips();
     }
     setTimeout(() => inputEl.focus(), 100);

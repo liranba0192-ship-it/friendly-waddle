@@ -4,7 +4,7 @@ window.App = window.App || {};
 /* טאב לימוד: אוצר מילים לאנגלית (10 מילים ביום, סימון הבנתי/לא הבנתי + תרגול)
    ומסלול ידע פיננסי מהיסוד (שיעורים). הכל אופליין מתוך data/vocab.json + data/finance.json */
 App.learn = (function () {
-  const U = App.util, S = App.store;
+  const U = App.util, S = App.store, I = App.icon;
   let root;
   let words = [], lessons = [], aiLessons = [], loaded = false;
   let section = "en";                 // en | finance | ai
@@ -133,15 +133,15 @@ App.learn = (function () {
   }
 
   function sectionTabs() {
-    return `<div class="seg learn-seg" id="learn-seg">
-      <button data-sec="en" class="${section === "en" ? "active" : ""}">🔤 אנגלית</button>
-      <button data-sec="finance" class="${section === "finance" ? "active" : ""}">💰 פיננסים</button>
-      <button data-sec="ai" class="${section === "ai" ? "active" : ""}">🤖 AI</button>
+    return `<div class="seg learn-seg" id="learn-seg" role="tablist" aria-label="מקטע לימוד">
+      <button role="tab" data-sec="en" class="${section === "en" ? "on" : ""}" aria-selected="${section === "en"}">אנגלית</button>
+      <button role="tab" data-sec="finance" class="${section === "finance" ? "on" : ""}" aria-selected="${section === "finance"}">פיננסים</button>
+      <button role="tab" data-sec="ai" class="${section === "ai" ? "on" : ""}" aria-selected="${section === "ai"}">AI</button>
     </div>`;
   }
 
   function renderHome() {
-    root.innerHTML = sectionTabs() + (section === "en" ? enHomeHTML() : courseHomeHTML(courseCfg()));
+    root.innerHTML = sectionTabs() + `<div class="stack" style="margin-top:12px">${section === "en" ? enHomeHTML() : courseHomeHTML(courseCfg())}</div>`;
     root.querySelectorAll("#learn-seg button").forEach((b) =>
       b.addEventListener("click", () => { section = b.dataset.sec; view = { kind: "home" }; render(); })
     );
@@ -149,115 +149,109 @@ App.learn = (function () {
   }
 
   // ========== ENGLISH ==========
+  let enIdx = null, enReveal = false;   // המילה המוצגת בכרטיס + האם התרגום גלוי
   function enHomeHTML() {
     const d = raw();
-    const batch = todaysBatchIndex();
-    const totalBatches = Math.ceil(words.length / BATCH);
     const list = curBatchWords();
     const marks = d.marks || {};
-    const today = U.todayISO();
-    const doneToday = d.lastBatchDate === today;
     const pool = reviewPool();
+    const marked = list.filter((w) => marks[String(w.id)]).length;
+    const got = list.filter((w) => marks[String(w.id)] === "got").length;
+    const allDone = list.length && marked === list.length;
+    if (enIdx == null || enIdx >= list.length) {
+      const first = list.findIndex((w) => !marks[String(w.id)]);
+      enIdx = first < 0 ? 0 : first;
+    }
+    const w = list[enIdx];
+    const st = w ? marks[String(w.id)] : null;
+    const reveal = enReveal || st === "miss";
 
-    const cards = list.map((w) => {
-      const st = marks[String(w.id)]; // got | miss | undefined
-      const revealed = st === "miss";
-      return `
-        <div class="vocab-card${st ? " marked-" + st : ""}" data-id="${w.id}">
-          <div class="vc-top">
-            <div class="vc-en">${U.esc(w.en)} ${w.pos ? `<span class="vc-pos">${U.esc(w.pos)}</span>` : ""}</div>
-            ${w.rp ? `<span class="vc-rp">${w.rp === "Prod" ? "Productive" : "Receptive"}</span>` : ""}
-          </div>
-          ${w.meaningEn ? `<div class="vc-meaning-en">${U.esc(w.meaningEn)}</div>` : ""}
-          <div class="vc-reveal" ${revealed ? "" : "hidden"}>
-            <div class="vc-he">🇮🇱 ${U.esc(w.he)}</div>
-            ${w.family ? `<div class="vc-family">משפחת מילים: <b>${U.esc(w.family)}</b></div>` : ""}
-          </div>
-          <div class="vc-btns">
-            <button class="vc-btn got${st === "got" ? " sel" : ""}" data-act="got" data-id="${w.id}">✅ הבנתי</button>
-            <button class="vc-btn miss${st === "miss" ? " sel" : ""}" data-act="miss" data-id="${w.id}">❌ לא הבנתי</button>
-          </div>
-        </div>`;
+    const dots = list.map((x, i) => {
+      const s = marks[String(x.id)];
+      return `<button class="wdot${i === enIdx ? " cur" : ""}${s ? " " + s : ""}" data-wi="${i}" aria-label="מילה ${i + 1}: ${U.esc(x.en)}${s === "got" ? " — הבנתי" : s === "miss" ? " — לא הבנתי" : ""}"${i === enIdx ? ' aria-current="true"' : ""}>${i + 1}</button>`;
     }).join("");
 
-    const markedCount = list.filter((w) => marks[String(w.id)]).length;
+    const card = !w ? `<section class="hero" style="padding:20px"><p class="status">טוען מילים…</p></section>` : `
+      <section class="hero word-card" aria-label="מילה יומית">
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;justify-content:space-between"><span class="lbl">מילה ${enIdx + 1} מתוך ${list.length}</span><span class="lbl">הבנתי ${got}</span></div>
+          <div class="bar"><i style="width:${Math.round((marked / (list.length || 1)) * 100)}%"></i></div>
+        </div>
+        <div class="word-en" lang="en">
+          <span class="num" style="font-size:40px;font-weight:800;line-height:1.1">${U.esc(w.en)}</span>
+          <span class="lbl" style="font-size:14px">${[w.pos, w.rp ? (w.rp === "Prod" ? "Productive" : "Receptive") : ""].filter(Boolean).map(U.esc).join(" · ")}</span>
+          ${w.meaningEn ? `<span class="word-mean">${U.esc(w.meaningEn)}</span>` : ""}
+        </div>
+        ${reveal ? `<div class="word-he"><span style="font-size:20px;font-weight:600">${U.esc(w.he)}</span>
+          ${w.family ? `<span class="lbl" lang="en" style="direction:ltr;text-align:left">משפחת מילים: ${U.esc(w.family)}</span>` : ""}</div>`
+          : `<button class="btn btn-t" id="en-reveal" style="align-self:flex-start;padding:0">${I("eye", 20)}הצג תרגום</button>`}
+        ${st === "miss" ? `<button class="btn btn-p" id="en-next">המילה הבאה ›</button>` : `
+        <div class="two-col" style="gap:8px">
+          <button class="btn btn-s${st === "miss" ? " on" : ""}" data-act="miss">לא הבנתי</button>
+          <button class="btn btn-p" data-act="got">${I("check", 20)}הבנתי</button>
+        </div>`}
+        <div class="wdots" role="group" aria-label="המילים של היום">${dots}</div>
+      </section>`;
 
-    const wq = weekQuizState();
-    const wqDoneThisWeek = weekQuizDoneThisWeek();
+    const done = allDone ? `
+      <section class="card" style="padding:16px;display:flex;align-items:center;gap:12px">
+        <div class="itile" style="color:var(--green)">${I("check")}</div>
+        <div style="flex:1;display:flex;flex-direction:column"><span class="t3">סיימת את 10 המילים של היום</span>
+          <span class="lbl">${got} הבנתי · ${marked - got} לחזרה · מחר מחכות 10 חדשות</span></div>
+      </section>` : "";
+
     const wqCount = learnedWordsSoFar().length;
-    const quizCard = (isQuizDay() && wqCount >= 4) ? `
-      <button class="card-block fin-today quiz-card" data-weekquiz>
-        <div class="fin-today-tag">🧠 בוחן השבוע · ${wqCount} מילים</div>
-        <div class="fin-today-row">
-          <span class="fin-today-ico">📝</span>
-          <div>
-            <div class="fin-today-title">${wqDoneThisWeek ? `כבר עשית השבוע — ${wq.score}/${wq.total} ✅` : "בוא נבדוק מה זכרת מכל השבוע"}</div>
-            <div class="fin-today-tip">בוחן קצרצר (עד 12 שאלות) מכל המילים שלמדת, עם עדיפות למילים שסימנת ❌</div>
-          </div>
-        </div>
-        <div class="fin-today-cta">${wqDoneThisWeek ? "עשה שוב ←" : "התחל בוחן ←"}</div>
-      </button>` : "";
+    const quizOpen = isQuizDay() && wqCount >= 4;
+    const wq = weekQuizState();
+    const tiles = `
+      <div class="tiles3">
+        <button class="card tile" data-dict>${`<div class="itile">${I("book")}</div>`}<span style="font-weight:600">מילון אישי</span><span class="lbl">${wqCount} מילים</span></button>
+        <button class="card tile" id="en-practice" ${pool.length ? "" : 'aria-disabled="true"'}><div class="itile">${I("history")}</div><span style="font-weight:600">תרגול</span><span class="lbl">${pool.length ? pool.length + " לחזרה" : "אין לחזרה"}</span></button>
+        <button class="card tile${quizOpen ? " hot" : ""}" data-weekquiz ${quizOpen ? "" : 'aria-disabled="true"'}><div class="itile${quizOpen ? " hot" : ""}">${I("bolt")}</div><span style="font-weight:600">בוחן שבועי</span>
+          <span class="lbl${quizOpen ? " po-lbl" : ""}">${!quizOpen ? "חמישי–שישי" : weekQuizDoneThisWeek() ? `עשית · ${wq.score}/${wq.total}` : "זמין היום"}</span></button>
+      </div>`;
 
-    const dictCard = `
-      <button class="card-block fin-today dict-entry-card" data-dict>
-        <div class="fin-today-tag">📔 המילון שלי</div>
-        <div class="fin-today-row">
-          <span class="fin-today-ico">📔</span>
-          <div>
-            <div class="fin-today-title">${learnedWordsSoFar().length} מילים שלמדת עד כה</div>
-            <div class="fin-today-tip">חפש, סנן וחזור על כל מילה שכבר ראית</div>
-          </div>
-        </div>
-        <div class="fin-today-cta">פתח את המילון ←</div>
-      </button>`;
-
-    return `
-      ${quizCard}
-      ${dictCard}
-      <div class="card-block learn-intro">
-        <h3>🔤 המנה היומית — 10 מילים ${doneToday && markedCount === list.length ? '<span class="lesson-done">✓ סיימת</span>' : ""}</h3>
-        <p class="section-hint">סמן ✅ אם הבנת, או ❌ אם לא — ואז יופיע התרגום + תרגול. מנה ${batch + 1} מתוך ${totalBatches}.</p>
-        <div class="learn-progress"><div class="lp-bar" style="width:${Math.round(((batch) / totalBatches) * 100)}%"></div></div>
-        <div class="learn-stats">
-          <span>📚 נלמדו: <b>${Object.values(marks).length}</b></span>
-          <span>🔁 לחזרה: <b>${pool.length}</b></span>
-        </div>
-      </div>
-      <div class="vocab-list">${cards}</div>
-      ${!doneToday ? `<button id="en-finish-batch" class="btn-primary full">✅ סיימתי את כל המנה של היום</button>` : ""}
-      ${pool.length ? `<button id="en-practice" class="btn-primary full">🎯 תרגול (${pool.length})</button>` : ""}
-      ${doneToday && markedCount === list.length
-        ? `<p class="section-hint center">מעולה! סיימת את המנה של היום 🎉 מחר יחכו לך 10 מילים חדשות אוטומטית.</p>`
-        : `<p class="section-hint center">⏭️ מחר תקבל אוטומטית 10 מילים חדשות — בלי חזרה על היום.</p>`}
-    `;
+    return `${card}${done}${tiles}
+      ${!allDone && list.length ? `<button class="btn btn-t" id="en-finish-batch" style="align-self:center">סמן את כל המנה כ"הבנתי"</button>` : ""}`;
   }
 
   function wireEnHome() {
-    root.querySelectorAll(".vc-btn").forEach((b) =>
-      b.addEventListener("click", () => {
-        const id = +b.dataset.id, act = b.dataset.act;
-        mark(id, act);
-        // אם הגיע ל-10 מסומנים — סמן שהמנה הושלמה היום
-        const list = curBatchWords();
-        const marks = raw().marks || {};
-        if (list.every((w) => marks[String(w.id)])) {
-          const d = raw(); d.lastBatchDate = U.todayISO(); save(d);
-        }
-        renderHome();
-      })
-    );
+    const list = curBatchWords();
+    const markAndCheck = (id, act) => {
+      mark(id, act);
+      const marks = raw().marks || {};
+      if (list.every((w) => marks[String(w.id)])) { const d = raw(); d.lastBatchDate = U.todayISO(); save(d); }
+    };
+    const nextUnmarked = () => {
+      const marks = raw().marks || {};
+      for (let k = 1; k <= list.length; k++) { const j = (enIdx + k) % list.length; if (!marks[String(list[j].id)]) return j; }
+      return Math.min(enIdx + 1, list.length - 1);
+    };
+    root.querySelectorAll("[data-act]").forEach((b) => b.addEventListener("click", () => {
+      const w = list[enIdx]; if (!w) return;
+      markAndCheck(w.id, b.dataset.act);
+      if (b.dataset.act === "got") { enIdx = nextUnmarked(); enReveal = false; }
+      else enReveal = true;
+      renderHome();
+    }));
+    const nx = root.querySelector("#en-next");
+    if (nx) nx.addEventListener("click", () => { enIdx = nextUnmarked(); enReveal = false; renderHome(); });
+    const rv = root.querySelector("#en-reveal");
+    if (rv) rv.addEventListener("click", () => { enReveal = true; renderHome(); });
+    root.querySelectorAll("[data-wi]").forEach((b) => b.addEventListener("click", () => { enIdx = +b.dataset.wi; enReveal = false; renderHome(); }));
     const fin = root.querySelector("#en-finish-batch");
     if (fin) fin.addEventListener("click", () => {
       const d = raw(); d.marks = d.marks || {};
-      curBatchWords().forEach((w) => { if (!d.marks[String(w.id)]) d.marks[String(w.id)] = "got"; });
-      d.lastBatchDate = U.todayISO();
-      save(d);
-      renderHome();
+      list.forEach((w) => { if (!d.marks[String(w.id)]) d.marks[String(w.id)] = "got"; });
+      d.lastBatchDate = U.todayISO(); save(d); renderHome();
     });
     const pr = root.querySelector("#en-practice");
-    if (pr) pr.addEventListener("click", () => { view = { kind: "practice-menu" }; render(); });
+    if (pr) pr.addEventListener("click", () => { if (!reviewPool().length) return; view = { kind: "practice-menu" }; render(); });
     const wq = root.querySelector("[data-weekquiz]");
-    if (wq) wq.addEventListener("click", () => { weekQuizSession = null; view = { kind: "weekquiz" }; render(); });
+    if (wq) wq.addEventListener("click", () => {
+      if (!(isQuizDay() && learnedWordsSoFar().length >= 4)) { alert("הבוחן השבועי נפתח בימי חמישי ושישי."); return; }
+      weekQuizSession = null; view = { kind: "weekquiz" }; render();
+    });
     const dict = root.querySelector("[data-dict]");
     if (dict) dict.addEventListener("click", () => { dictFilter = "all"; dictSearch = ""; view = { kind: "dictionary" }; render(); });
   }
@@ -662,76 +656,53 @@ App.learn = (function () {
     const d = raw();
     const done = d[cfg.doneKey] || [];
     const arr = cfg.arr;
-    if (!arr.length) return `<div class="card-block"><p class="status">התוכן בטעינה… נסה לרענן בעוד רגע.</p></div>`;
+    if (!arr.length) return `<section class="card" style="padding:16px"><p class="status">התוכן בטעינה… נסה לרענן בעוד רגע.</p></section>`;
     const autoHint = d.autoAdvancedHint && d.autoAdvancedHint[cfg.doneKey];
-    if (autoHint) {
-      const dd = raw(); delete dd.autoAdvancedHint[cfg.doneKey]; save(dd);
-    }
+    if (autoHint) { const dd = raw(); delete dd.autoAdvancedHint[cfg.doneKey]; save(dd); }
     let featuredIdx = arr.findIndex((l) => !done.includes(l.id));
-    if (featuredIdx < 0) featuredIdx = 0;
+    const allDone = featuredIdx < 0;
+    if (allDone) featuredIdx = 0;
     const featured = arr[featuredIdx];
-    const pct = arr.length ? Math.round((done.length / arr.length) * 100) : 0;
+    const pct = Math.round((done.length / arr.length) * 100);
 
-    const cardFor = (l, i) => {
-      const isDone = done.includes(l.id);
-      const isFeatured = i === featuredIdx;
-      const tag = "המשך";
-      return `
-        <button class="list-card lesson-card${isFeatured ? " lesson-today" : ""}" data-lesson="${l.id}">
-          <div class="lesson-ico">${l.icon}</div>
-          <div class="lc-main">
-            <div class="lc-title">${i + 1}. ${U.esc(l.title)} ${isDone ? '<span class="lesson-done">✓</span>' : ""}${isFeatured ? ` <span class="lesson-todaytag">${tag}</span>` : ""}</div>
-            <div class="lc-sub">${U.esc(l.tip || "")}</div>
-          </div>
-          <span class="lc-chevron">‹</span>
-        </button>`;
-    };
-
-    let listHTML;
-    if (cfg.levels) {
-      const order = [], groups = {};
-      arr.forEach((l, i) => {
-        const lv = l.level || "שיעורים";
-        if (!groups[lv]) { groups[lv] = []; order.push(lv); }
-        groups[lv].push(cardFor(l, i));
-      });
-      listHTML = order.map((lv) =>
-        `<p class="learn-level-h">${U.esc(lv)}</p><div class="list-cards">${groups[lv].join("")}</div>`
-      ).join("");
-    } else {
-      listHTML = `<div class="list-cards">${arr.map((l, i) => cardFor(l, i)).join("")}</div>`;
-    }
-
-    const featTag = done.length ? "▶️ המשך מכאן" : "▶️ התחל כאן";
-    const featuredCard = featured ? `
-      <button class="card-block fin-today" data-lesson="${featured.id}">
-        <div class="fin-today-tag">${featTag}</div>
-        <div class="fin-today-row">
-          <span class="fin-today-ico">${featured.icon}</span>
-          <div>
-            <div class="fin-today-title">${U.esc(featured.title)}</div>
-            <div class="fin-today-tip">${U.esc(featured.tip || "")}</div>
-          </div>
-        </div>
-        <div class="fin-today-cta">פתח שיעור ←</div>
-      </button>` : "";
+    const order = [], groups = {};
+    arr.forEach((l, i) => {
+      const lv = l.level || "שיעורים";
+      if (!groups[lv]) { groups[lv] = []; order.push(lv); }
+      groups[lv].push({ l, i });
+    });
+    const curLevel = featured.level || "שיעורים";
+    const levels = order.map((lv, li) => {
+      const items = groups[lv];
+      const n = items.filter((x) => done.includes(x.l.id)).length;
+      const complete = n === items.length, current = lv === curLevel && !allDone;
+      return `<details class="lvl"${current ? " open" : ""}>
+        <summary><span class="num lvl-n${complete ? " ok" : current ? " cur" : ""}">${complete ? I("check", 18) : li + 1}</span>
+          <span class="grow"><span style="font-weight:600">${U.esc(lv)}</span><span class="bar" style="height:4px"><i class="${complete ? "ok" : ""}" style="width:${Math.round((n / items.length) * 100)}%"></i></span></span>
+          <span class="lbl">${n}/${items.length}</span></summary>
+        ${items.map(({ l, i }) => `<button class="lesson-row${i === featuredIdx && !allDone ? " cur" : ""}" data-lesson="${l.id}">
+          <span class="lr-ico" aria-hidden="true">${done.includes(l.id) ? I("check", 18) : i + 1}</span>
+          <span class="grow"><span style="font-weight:500">${U.esc(l.title)}</span>${l.tip ? `<span class="lbl">${U.esc(l.tip)}</span>` : ""}</span>
+          <span class="chev">${I("chev")}</span></button>`).join("")}
+      </details>`;
+    }).join("");
 
     return `
-      ${autoHint ? `<p class="section-hint center">⏭️ סימנו אוטומטית "<b>${U.esc(autoHint)}</b>" כהושלם כי עברו ${STALE_DAYS} ימים בלי סימון — אפשר לחזור אליו בכל זמן מרשימת השיעורים למטה.</p>` : ""}
-      <div class="card-block learn-intro">
-        <h3>${cfg.title}</h3>
-        <p class="section-hint">${cfg.hint}</p>
-        <div class="learn-progress"><div class="lp-bar" style="width:${pct}%"></div></div>
-        <div class="learn-stats"><span>✅ הושלמו: <b>${done.length}/${arr.length}</b></span></div>
-      </div>
-      ${featuredCard}
-      <p class="section-hint" style="margin:14px 0 6px">כל השיעורים:</p>
-      ${listHTML}`;
+      ${autoHint ? `<p class="lbl" style="margin:0 4px">סימנו אוטומטית את "<b>${U.esc(autoHint)}</b>" כהושלם אחרי ${STALE_DAYS} ימים בלי סימון — אפשר לחזור אליו מהרשימה.</p>` : ""}
+      <section class="hero" style="padding:20px;display:flex;flex-direction:column;gap:14px">
+        <span class="lbl">${allDone ? "סיימת את כל המסלול" : done.length ? "המשך מאיפה שעצרת" : "התחל כאן"} · ${U.esc(curLevel)}</span>
+        <h2 class="t3" style="font-size:20px">שיעור ${featuredIdx + 1}: ${U.esc(featured.title)}</h2>
+        ${featured.tip ? `<span class="lbl">${U.esc(featured.tip)}</span>` : ""}
+        <div style="display:flex;align-items:center;gap:10px"><div class="bar" style="flex-grow:1;margin:0"><i style="width:${pct}%"></i></div><span class="lbl">${done.length}/${arr.length}</span></div>
+        <button class="btn btn-p" data-lesson="${featured.id}">${done.length ? "המשך שיעור" : "התחל שיעור"}</button>
+      </section>
+      <h2 class="sec-title">${U.esc(cfg.title.replace(/^\S+\s/, ""))}</h2>
+      <section class="card" style="padding:4px 0">${levels}</section>`;
   }
 
   function wireCourseHome() {
     root.querySelectorAll("[data-lesson]").forEach((b) =>
-      b.addEventListener("click", () => { view = { kind: "lesson", id: b.dataset.lesson }; render(); })
+      b.addEventListener("click", () => { view = { kind: "lesson", id: b.dataset.lesson }; render(); window.scrollTo(0, 0); })
     );
   }
 
@@ -746,15 +717,16 @@ App.learn = (function () {
     const next = arr[idx + 1];
     const body = window.marked ? window.marked.parse(l.md) : `<pre>${U.esc(l.md)}</pre>`;
     root.innerHTML = `
-      <button id="ls-back" class="btn-secondary">‹ חזרה לשיעורים</button>
-      <h2 class="view-h2">${l.icon} ${U.esc(l.title)}</h2>
+      <div class="subhead"><button class="ibtn ghost" id="ls-back" aria-label="חזרה לשיעורים">${I("back")}</button>
+        <div style="flex:1;display:flex;flex-direction:column;min-width:0"><span class="lbl" style="font-size:12px">שיעור ${idx + 1} מתוך ${arr.length}${l.level ? " · " + U.esc(l.level) : ""}</span>
+        <h1 class="t3">${U.esc(l.title)}</h1></div></div>
       <div class="card-block lesson-body">${body}</div>
       <div class="card-block">
-        <button id="ls-nblm" class="btn-secondary full">📓 פתח ב-NotebookLM (שמע/סיכום/מפת חשיבה)</button>
+        <button id="ls-nblm" class="btn btn-s full">פתח ב-NotebookLM (שמע, סיכום, מפת חשיבה)</button>
         <p class="section-hint" id="ls-nblm-hint" style="margin-top:8px"></p>
       </div>
       <div class="card-block reminder-card">
-        <div class="rem-title">🔔 תזכורת לחזור על השיעור</div>
+        <div class="rem-title">תזכורת לחזור על השיעור</div>
         <p class="section-hint">חזרה מרווחת עוזרת לזכור — קבע תזכורת ביומן:</p>
         <div class="rem-btns">
           <button class="rem-opt" data-days="1">מחר</button>
@@ -763,8 +735,8 @@ App.learn = (function () {
         </div>
         <p class="section-hint" id="rem-hint"></p>
       </div>
-      <button id="ls-done" class="btn-${isDone ? "secondary" : "primary"} full">${isDone ? "✓ הושלם — סמן כלא נלמד" : "✅ סיימתי את השיעור"}</button>
-      ${next ? `<button id="ls-next" class="btn-secondary full">לשיעור הבא: ${U.esc(next.title)} ←</button>` : ""}
+      <button id="ls-done" class="btn ${isDone ? "btn-s" : "btn-p"} full">${isDone ? "הושלם · סמן כלא נלמד" : "סיימתי את השיעור"}</button>
+      ${next ? `<button id="ls-next" class="btn btn-t full">לשיעור הבא: ${U.esc(next.title)} ›</button>` : ""}
       <button class="close-fab" aria-label="סגור וחזור">✕</button>
     `;
     const goHome = () => { view = { kind: "home" }; render(); };

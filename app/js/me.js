@@ -56,6 +56,12 @@ App.me = (function () {
     window.scrollTo(0, 0);
   }
   function isHome() { return !sub; }
+  // כשהמודול הפנימי (לימוד) נמצא בתת-מסך משלו — מסתירים את כותרת ה"חזרה" של "אני" כדי שלא יהיו שתיים
+  function chrome() {
+    if (!subEl) return;
+    const m = sub && SUBS[sub].mod();
+    subEl.querySelector(".subhead").hidden = !!(m && m.isHome && !m.isHome());
+  }
 
   function displayName(email) {
     if (!email) return "";
@@ -125,5 +131,5 @@ App.me = (function () {
     } catch {}
   }
 
-  return { mount, show, open, home, isHome };
+  return { mount, show, open, home, isHome, chrome };
 })();

@@ -2,30 +2,14 @@
 window.App = window.App || {};
 
 App.workout = (function () {
-  const U = App.util, S = App.store;
+  const U = App.util, S = App.store, I = App.icon;
   let root;
   let groups = [];          // [{name, exercises:[name,...]}] מהמאגר
   let loaded = false;
   let view = { kind: "home" }; // home | exercise({name,group}) | history
-  const timer = { active: false, paused: false, remaining: 0, _id: null };
+  const timer = { active: false, paused: false, done: false, remaining: 0, total: 0, _id: null };
   let selDate = null;
   const curDate = () => selDate || U.todayISO();
-
-  function dateStrip() {
-    const today = U.todayISO(), cur = curDate(), p2 = (x) => String(x).padStart(2, "0");
-    const base = new Date(), cells = [];
-    for (let i = 6; i >= 0; i--) {
-      const dt = new Date(base); dt.setDate(base.getDate() - i);
-      const iso = `${dt.getFullYear()}-${p2(dt.getMonth() + 1)}-${p2(dt.getDate())}`;
-      const [, , dd] = iso.split("-");
-      cells.push(`<button class="day-cell${iso === cur ? " sel" : ""}" data-day="${iso}">
-        <span class="day-name">${iso === today ? "היום" : "יום " + U.dayName(iso)}</span>
-        <span class="day-num">${+dd}</span>
-        ${isRest(iso) ? '<span class="day-rest">🛌</span>' : ""}
-      </button>`);
-    }
-    return `<div class="date-strip">${cells.join("")}</div>`;
-  }
 
   const TARGET_REPS = 12, MIN_REPS = 8, STEP_KG = 2.5;
 
@@ -105,7 +89,7 @@ App.workout = (function () {
   function suggestion(name) {
     const G = goalDef();
     const past = logsForName(name);
-    if (!past.length) return { text: `אימון ראשון (${G.label}) — בחר משקל שמאפשר ${G.repMin}–${G.repMax} חזרות בטכניקה טובה.` };
+    if (!past.length) return { text: `אימון ראשון (${goalName(G)}) — בחר משקל שמאפשר ${G.repMin}–${G.repMax} חזרות בטכניקה טובה.` };
     const last = past[0];
     const top = last.sets.reduce((m, s) => (s.reps >= m.reps ? s : m), last.sets[0]);
     if (top.reps >= G.repMax) {
@@ -156,148 +140,6 @@ App.workout = (function () {
     renderHome();
   }
 
-  // ---------- home (grouped) ----------
-  function weekSummary() {
-    const all = logs();
-    const base = new Date(); const p2 = (x) => String(x).padStart(2, "0");
-    const weekAgo = new Date(base); weekAgo.setDate(base.getDate() - 6);
-    const wIso = `${weekAgo.getFullYear()}-${p2(weekAgo.getMonth() + 1)}-${p2(weekAgo.getDate())}`;
-    const recent = all.filter((l) => l.date >= wIso);
-    const days = new Set(recent.map((l) => l.date)).size;
-    const sets = recent.reduce((a, l) => a + l.sets.length, 0);
-    const last = all.slice().sort((a, b) => b.date.localeCompare(a.date))[0];
-    const lastTxt = last ? (last.date === U.todayISO() ? "היום" : U.prettyDate(last.date)) : "—";
-    const mini = (label, val) => `<div class="stat-card mini"><div class="stat-label">${label}</div><div class="stat-value">${val}</div></div>`;
-    return `<div class="dash-summary">
-      ${mini("אימונים השבוע", days)}
-      ${mini("סטים השבוע", sets)}
-      ${mini("אימון אחרון", lastTxt)}
-    </div>`;
-  }
-
-  function renderHome() {
-    const latest = {};
-    for (const l of logs()) {
-      if (!latest[l.exerciseName] || l.date > latest[l.exerciseName].date) latest[l.exerciseName] = l;
-    }
-    const today = U.todayISO();
-
-    // סינון קבוצות לפי חלוקת האימון שנבחרה ליום
-    const curSplit = splitFor(curDate());
-    const splitDef = SPLITS.find((s) => s.key === curSplit) || SPLITS[0];
-    const groupsToShow = allGroups().filter((g) =>
-      !splitDef.match || splitDef.match.some((m) => g.name.includes(m))
-    );
-
-    const allLogs = logs();
-    const sections = groupsToShow.map((g) => {
-      // סיכום האימון הקודם של הקבוצה: התאריך האחרון בו תועד תרגיל מהקבוצה
-      const inGroup = new Set(g.exercises);
-      const gLogs = allLogs.filter((l) => inGroup.has(l.exerciseName) && l.date < curDate());
-      let summary = "";
-      if (gLogs.length) {
-        const lastDate = gLogs.reduce((m, l) => (l.date > m ? l.date : m), gLogs[0].date);
-        const onDate = gLogs.filter((l) => l.date === lastDate);
-        summary = `<div class="grp-summary">📋 אימון קודם · ${U.prettyDate(lastDate)}:
-          ${onDate.map((l) => `<span class="gs-ex">${U.esc(l.exerciseName)} <b>${l.sets.map((s) => `${s.weight}×${s.reps}`).join(", ")}</b></span>`).join("")}</div>`;
-      }
-
-      const items = g.exercises.map((name) => {
-        const last = latest[name];
-        let sub;
-        if (last) {
-          const sug = suggestion(name);
-          const lastTxt = `${last.date === today ? "היום ✅" : U.prettyDate(last.date)} · ${last.sets.map((s) => `${s.weight}×${s.reps}`).join(", ")}`;
-          sub = sug.weight ? `${lastTxt} <span class="po-target">🎯 ${sug.weight}×${sug.reps}</span>` : lastTxt;
-        } else sub = "טרם תועד";
-        return `
-          <button class="list-card" data-ex="${U.esc(name)}">
-            <div class="lc-main">
-              <div class="lc-title">${U.esc(name)}</div>
-              <div class="lc-sub">${sub}</div>
-            </div>
-            <span class="lc-chevron">‹</span>
-          </button>`;
-      }).join("");
-      return `
-        <details class="muscle-group" open>
-          <summary>${U.esc(g.name)} <span class="mg-count">${g.exercises.length}</span></summary>
-          ${summary}
-          <div class="list-cards">${items}</div>
-        </details>`;
-    }).join("");
-
-    // מה תועד ביום הנבחר
-    const dayLogs = logsForDate(curDate());
-    const doneHtml = dayLogs.length
-      ? dayLogs.map((l) => `
-        <div class="log-row">
-          <span class="log-date">${U.esc(l.exerciseName)}</span>
-          <span class="log-sets">${l.sets.map((s) => `${s.weight}×${s.reps}`).join(" · ")}</span>
-          <button class="del-x" data-del="${l.id}" aria-label="מחק">✕</button>
-        </div>`).join("")
-      : `<p class="status">לא תועד אימון ביום זה. בחר תרגיל למטה כדי לתעד.</p>`;
-    const isToday = curDate() === U.todayISO();
-    const dayTitle = isToday ? "האימון של היום" : `אימון מ-${U.prettyDate(curDate())} (יום ${U.dayName(curDate())})`;
-    const rest = isRest(curDate());
-    const walked = walkDone(curDate());
-    const dayBody = rest
-      ? `<div class="rest-banner">
-           🛌 יום מנוחה — תן לשרירים להתאושש 💪<br>
-           <span class="rest-tip">🚶 מומלץ: <b>30 דק' הליכה קלה</b> (התאוששות אקטיבית)</span>
-           <button id="wk-walk" class="btn-${walked ? "secondary" : "primary"} full" style="margin-top:12px">
-             ${walked ? "✅ סימנת שהלכת 30 דק'" : "סמן שביצעתי 30 דק' הליכה"}
-           </button>
-         </div>`
-      : doneHtml;
-
-    root.innerHTML = `
-      ${weekSummary()}
-      ${dateStrip()}
-      <div class="card-block">
-        <h3>${dayTitle}</h3>
-        ${dayBody}
-        <button id="wk-rest" class="btn-secondary full">${rest ? "↩️ בטל יום מנוחה" : "🛌 סמן כיום מנוחה"}</button>
-      </div>
-      <div class="row-btns">
-        <button id="wk-history" class="btn-secondary">📋 היסטוריה</button>
-        <button id="wk-add" class="btn-secondary">➕ הוסף תרגיל</button>
-      </div>
-      <p class="section-hint" style="margin-bottom:6px">מטרת אימון (קובעת עצימות):</p>
-      <div class="split-chips">
-        ${GOALS.map((g) => `<button class="split-chip${g.key === trainGoal() ? " sel" : ""}" data-goal="${g.key}">${g.label}</button>`).join("")}
-      </div>
-      <div class="goal-tip">🎯 ${goalDef().repMin}–${goalDef().repMax} חזרות · מנוחה ${goalDef().rest} — ${goalDef().tip}</div>
-      <p class="section-hint" style="margin-bottom:6px">חלוקת אימון להיום:</p>
-      <div class="split-chips">
-        ${SPLITS.map((s) => `<button class="split-chip${s.key === curSplit ? " sel" : ""}" data-split="${s.key}">${s.label}</button>`).join("")}
-      </div>
-      ${sections || `<p class="status">אין קבוצות לחלוקה זו.</p>`}
-    `;
-    root.querySelectorAll("[data-day]").forEach((b) =>
-      b.addEventListener("click", () => { selDate = b.dataset.day; render(); })
-    );
-    root.querySelector("#wk-rest").addEventListener("click", () => { toggleRest(curDate()); render(); });
-    const walkBtn = root.querySelector("#wk-walk");
-    if (walkBtn) walkBtn.addEventListener("click", () => { toggleWalk(curDate()); render(); });
-    root.querySelectorAll("[data-split]").forEach((b) =>
-      b.addEventListener("click", () => { setSplit(curDate(), b.dataset.split); render(); })
-    );
-    root.querySelectorAll("[data-goal]").forEach((b) =>
-      b.addEventListener("click", () => { setTrainGoal(b.dataset.goal); render(); })
-    );
-    root.querySelectorAll("[data-del]").forEach((b) =>
-      b.addEventListener("click", () => {
-        const d = raw(); d.logs = (d.logs || []).filter((l) => l.id !== b.dataset.del); save(d); render();
-      })
-    );
-    root.querySelectorAll("[data-ex]").forEach((b) =>
-      b.addEventListener("click", () => { view = { kind: "exercise", name: b.dataset.ex }; render(); })
-    );
-    root.querySelector("#wk-history").addEventListener("click", () => { view = { kind: "history" }; render(); });
-    root.querySelector("#wk-add").addEventListener("click", addExercise);
-  }
-
   function logsForDate(date) {
     return logs().filter((l) => l.date === date);
   }
@@ -331,7 +173,7 @@ App.workout = (function () {
     render();
   }
 
-  // ---------- rest timer ----------
+  // ---------- rest timer (כרטיס בתוך מסך התרגיל) ----------
   function beep() {
     try {
       const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -343,214 +185,375 @@ App.workout = (function () {
       osc.start(); osc.stop(ctx.currentTime + 0.6);
     } catch {}
   }
-
-  function timerEl() { return document.getElementById("rest-timer-banner"); }
-
+  const mmss = (n) => `${Math.floor(n / 60)}:${String(n % 60).padStart(2, "0")}`;
+  function timerCard() { return root && root.querySelector("#rest-card"); }
+  function paintTimer() {
+    const el = timerCard(); if (!el) return;
+    el.hidden = !timer.active && !timer.done;
+    const C = 2 * Math.PI * 26;
+    const frac = timer.total ? timer.remaining / timer.total : 0;
+    el.querySelector(".rt-num").textContent = timer.done ? "זמן!" : mmss(timer.remaining);
+    el.querySelector(".rt-arc").setAttribute("stroke-dasharray", `${(frac * C).toFixed(1)} ${C.toFixed(1)}`);
+  }
   function timerTick() {
     if (timer.paused) return;
     timer.remaining = Math.max(0, timer.remaining - 1);
-    const el = timerEl(); if (!el || el.hidden) return;
     if (timer.remaining === 0) {
-      clearInterval(timer._id); timer.active = false;
+      clearInterval(timer._id); timer.active = false; timer.done = true;
       try { if (navigator.vibrate) navigator.vibrate([200, 100, 200]); } catch {}
       beep();
-      el.querySelector(".rt-countdown").textContent = "✅ זמן!";
-      setTimeout(() => { el.hidden = true; }, 2500);
-    } else {
-      const m = Math.floor(timer.remaining / 60), s = timer.remaining % 60;
-      el.querySelector(".rt-countdown").textContent = `${m}:${String(s).padStart(2, "0")}`;
+      setTimeout(() => { timer.done = false; paintTimer(); }, 2500);
     }
+    paintTimer();
   }
-
   function startTimer(secs) {
     clearInterval(timer._id);
-    timer.active = true; timer.paused = false; timer.remaining = secs;
-    let el = timerEl();
-    if (!el) {
-      el = document.createElement("div");
-      el.id = "rest-timer-banner";
-      el.className = "rest-timer-banner";
-      document.body.appendChild(el);
-    }
-    const fmtSec = (n) => n >= 60 ? (n / 60) + "′" : n + "″";
-    el.innerHTML = `
-      <div class="rt-top">
-        <span class="rt-label">⏱️ מנוחה</span>
-        <span class="rt-countdown">0:00</span>
-        <button type="button" id="rt-pause" class="rt-btn">⏸</button>
-        <button type="button" id="rt-skip" class="rt-btn">⏭ דלג</button>
-      </div>
-      <div class="rt-presets">
-        ${[30, 60, 90, 120].map((n) => `<button type="button" class="rt-preset${secs === n ? " sel" : ""}" data-secs="${n}">${fmtSec(n)}</button>`).join("")}
-      </div>`;
-    el.hidden = false;
-    const m0 = Math.floor(secs / 60), s0 = secs % 60;
-    el.querySelector(".rt-countdown").textContent = `${m0}:${String(s0).padStart(2, "0")}`;
-    el.querySelector("#rt-pause").addEventListener("click", () => {
-      timer.paused = !timer.paused;
-      el.querySelector("#rt-pause").textContent = timer.paused ? "▶️" : "⏸";
-    });
-    el.querySelector("#rt-skip").addEventListener("click", () => {
-      clearInterval(timer._id); timer.active = false; el.hidden = true;
-    });
-    el.querySelectorAll(".rt-preset").forEach((b) =>
-      b.addEventListener("click", () => startTimer(+b.dataset.secs))
-    );
+    Object.assign(timer, { active: true, paused: false, done: false, remaining: secs, total: secs });
     timer._id = setInterval(timerTick, 1000);
+    paintTimer();
   }
-
   function stopTimer() {
-    clearInterval(timer._id); timer.active = false; timer.paused = false;
-    const el = timerEl(); if (el) el.hidden = true;
+    clearInterval(timer._id);
+    Object.assign(timer, { active: false, paused: false, done: false });
+    paintTimer();
   }
 
-  // ---------- single exercise ----------
-  function renderExercise(name) {
-    const sug = suggestion(name);
-    const past = logsForName(name);
-    const prev = past.find((l) => l.date < curDate()) || null; // האימון הקודם (לפני היום הנבחר)
-    const history = past.map((l) => `
-      <div class="log-row">
-        <span class="log-date">${U.prettyDate(l.date)} · יום ${U.dayName(l.date)}</span>
-        <span class="log-sets">${l.sets.map((s) => `${s.weight}×${s.reps}`).join(" · ")}</span>
-        <button class="del-x" data-del="${l.id}" aria-label="מחק">✕</button>
-      </div>`).join("") || `<p class="status">אין היסטוריה לתרגיל זה.</p>`;
+  // ---------- עזרי תצוגה ----------
+  const goalName = (g) => g.label.replace(/^\S+\s/, "");
+  function splitTitle(def) {
+    if (!def.match) return { big: "אימון חופשי", sub: "כל קבוצות השריר" };
+    const en = /\(([^)]+)\)/.exec(def.label);
+    return { big: en ? en[1] : def.label, sub: def.match.join(" · ") };
+  }
+  function weekDays() {
+    const p2 = (x) => String(x).padStart(2, "0");
+    const now = new Date();
+    const sun = new Date(now); sun.setDate(now.getDate() - now.getDay());
+    return Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(sun); d.setDate(sun.getDate() + i);
+      return `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`;
+    });
+  }
+  const HE_M = ["בינואר", "בפברואר", "במרץ", "באפריל", "במאי", "ביוני", "ביולי", "באוגוסט", "בספטמבר", "באוקטובר", "בנובמבר", "בדצמבר"];
+  function weekLabel(days) {
+    const [, m1, d1] = days[0].split("-").map(Number), [, m2, d2] = days[6].split("-").map(Number);
+    const jan1 = new Date(new Date().getFullYear(), 0, 1);
+    const wk = Math.ceil(((new Date() - jan1) / 86400000 + jan1.getDay() + 1) / 7);
+    return `שבוע ${wk} · ${d1}${m1 !== m2 ? " " + HE_M[m1 - 1] : ""}–${d2} ${HE_M[m2 - 1]}`;
+  }
+  const shortDay = (iso) => U.dayName(iso).charAt(0) + "׳";
+  const setsTxt = (sets) => {
+    const same = sets.every((s) => s.weight === sets[0].weight);
+    return same ? `${sets[0].weight} × ${sets.map((s) => s.reps).join(", ")}` : sets.map((s) => `${s.weight}×${s.reps}`).join(" · ");
+  };
+  function splitGroups(def) {
+    return allGroups().filter((g) => !def.match || def.match.some((m) => g.name.includes(m)));
+  }
+
+  // ---------- מסך הבית של הטאב ----------
+  function renderHome() {
+    const today = U.todayISO();
+    const cur = curDate();
+    const all = logs();
+    const days = weekDays();
+    const weekLogs = all.filter((l) => l.date >= days[0] && l.date <= days[6]);
+    const trainedDays = new Set(weekLogs.map((l) => l.date));
+    const last = all.slice().sort((a, b) => b.date.localeCompare(a.date))[0];
+    const lastTxt = !last ? "—" : last.date === today ? "היום" : daysAgo(last.date) === 1 ? "אתמול" : U.prettyDate(last.date).replace(/\.\d{4}$/, "");
+
+    const def = SPLITS.find((s) => s.key === splitFor(cur)) || SPLITS[0];
+    const title = splitTitle(def);
+    const groupsToShow = splitGroups(def);
+    const exCount = groupsToShow.reduce((a, g) => a + g.exercises.length, 0);
+    const dayLogs = logsForDate(cur);
+    const rest = isRest(cur);
+    const walked = walkDone(cur);
+    const isToday = cur === today;
+    const G = goalDef();
+
+    const latest = {};
+    for (const l of all) if (!latest[l.exerciseName] || l.date > latest[l.exerciseName].date) latest[l.exerciseName] = l;
+
+    const strip = days.map((iso) => {
+      const sel = iso === cur, trained = trainedDays.has(iso), r = isRest(iso), fut = iso > today;
+      const mark = trained ? `<span class="wd-mark ok">${I("check", 14)}</span>`
+        : r ? `<span class="wd-rest">מנוחה</span>` : `<i class="wd-dot${fut ? " fut" : ""}"></i>`;
+      return `<button class="wday${sel ? " sel" : ""}" data-day="${iso}" ${sel ? 'aria-current="date"' : ""} aria-label="יום ${U.dayName(iso)} ${U.prettyDate(iso)}${trained ? " — תועד אימון" : r ? " — יום מנוחה" : ""}">
+        <span>${shortDay(iso)}</span><b>${+iso.slice(8)}</b>${mark}</button>`;
+    }).join("");
+
+    const doneRows = dayLogs.map((l) => `
+      <div class="done-row"><span class="grow">${U.esc(l.exerciseName)}</span><span class="lbl">${setsTxt(l.sets)}</span>
+        <button class="ibtn ghost sm" data-del="${l.id}" aria-label="מחק את ${U.esc(l.exerciseName)}">${I("trash", 18)}</button></div>`).join("");
+
+    const heroBody = rest ? `
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+          <div style="display:flex;flex-direction:column;gap:6px"><span class="lbl">${isToday ? "האימון של היום" : "יום " + U.dayName(cur)}</span>
+            <h2 class="num" style="font-size:34px;font-weight:800">יום מנוחה</h2>
+            <span style="color:var(--muted-2)">מומלץ: 30 דק׳ הליכה קלה (התאוששות אקטיבית)</span></div>
+          <div class="itile lg">${I("rest")}</div>
+        </div>
+        <button class="btn ${walked ? "btn-s" : "btn-p"}" id="wk-walk">${walked ? I("check", 20) + "הליכה בוצעה" : "סמן שביצעתי 30 דק׳ הליכה"}</button>
+        <button class="btn btn-t" id="wk-rest" style="align-self:center">${I("x", 20)}בטל יום מנוחה</button>` : `
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+          <div style="display:flex;flex-direction:column;gap:6px;min-width:0"><span class="lbl">${isToday ? "האימון של היום" : "יום " + U.dayName(cur) + " · " + U.prettyDate(cur)}</span>
+            <h2 class="num" style="font-size:40px;font-weight:800">${U.esc(title.big)}</h2>
+            <span style="color:var(--muted-2)">${U.esc(title.sub)}</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0">
+            <span class="tag">${exCount} תרגילים</span>
+            ${dayLogs.length ? `<span class="tag hot">${dayLogs.length} תועדו</span>` : ""}
+            <span class="tag">${G.repMin}–${G.repMax} חזרות</span></div>
+        </div>
+        ${doneRows ? `<div class="done-list">${doneRows}</div>` : ""}
+        <button class="btn btn-p" id="wk-start">${I("play", 20)}${dayLogs.length ? "המשך אימון" : "התחל אימון"}</button>
+        <button class="btn btn-t" id="wk-rest" style="align-self:center">${I("rest", 20)}סמן כיום מנוחה</button>`;
+
+    const sections = groupsToShow.map((g) => {
+      const rows = g.exercises.map((name) => {
+        const last = latest[name];
+        const sug = last ? suggestion(name) : null;
+        const up = sug && sug.weight && last && sug.weight > Math.max(...last.sets.map((s) => s.weight));
+        const sub = last ? `אחרון ${last.sets[0].weight} ק״ג × ${last.sets.length} סטים · ${last.date === today ? "היום" : U.prettyDate(last.date).replace(/\.\d{4}$/, "")}` : "טרם תועד";
+        return `<button class="ex-row" data-ex="${U.esc(name)}">
+          <div class="itile ex-ico">${I("dumbbell")}</div>
+          <span class="grow"><span class="ex-name">${U.esc(name)}</span><span class="lbl">${sub}</span></span>
+          ${up ? `<span class="tag warm">+${U.round(sug.weight - Math.max(...last.sets.map((s) => s.weight)))}</span>` : `<span class="chev">${I("chev")}</span>`}
+        </button>`;
+      }).join("");
+      const openAttr = def.match || groupsToShow.length <= 3 ? " open" : "";
+      return `<details class="ex-group"${openAttr}><summary><span>${U.esc(g.name)}</span><span class="lbl">${g.exercises.length}</span></summary>${rows}</details>`;
+    }).join("");
 
     root.innerHTML = `
-      <button id="wk-back" class="btn-secondary">‹ חזרה לתרגילים</button>
-      <h2 class="view-h2">${U.esc(name)}</h2>
-      <div class="row-btns">
-        <button id="wk-video" class="btn-secondary">▶️ צפה בהדגמה</button>
-        <button id="wk-img" class="btn-secondary">🖼️ תמונות</button>
-      </div>
-      <div class="goal-tip">${goalDef().label} · יעד ${goalDef().repMin}–${goalDef().repMax} חזרות · מנוחה ${goalDef().rest}</div>
-      <div class="suggest-box">💡 ${sug.text}</div>
-      ${prev ? `<div class="card-block prev-card">
-        <h3>💪 האימון הקודם · ${U.prettyDate(prev.date)} (יום ${U.dayName(prev.date)})</h3>
-        <div class="prev-sets">${prev.sets.map((s, i) => `<span class="prev-chip">סט ${i + 1}: <b>${s.weight}</b>×<b>${s.reps}</b></span>`).join("")}</div>
-      </div>` : `<div class="card-block"><p class="status">זה האימון הראשון שלך בתרגיל הזה 💪</p></div>`}
-      <div class="card-block">
-        <h3>תיעוד ל-${curDate() === U.todayISO() ? "היום" : U.prettyDate(curDate())}</h3>
-        <div id="wk-sets"></div>
-        <button id="wk-addset" class="btn-secondary">➕ הוסף סט</button>
-        <button id="wk-savesession" class="btn-primary full">שמור אימון</button>
-      </div>
-      <div class="card-block">
-        <h3>היסטוריה</h3>
-        ${history}
-      </div>
-    `;
+      <header class="home-head" style="padding-bottom:8px">
+        <div><span class="lbl">${weekLabel(days)}</span><h1 class="t1">אימון</h1></div>
+        <button class="ibtn" id="wk-history" aria-label="היסטוריית אימונים">${I("history")}</button>
+      </header>
+      <div class="stack">
+        <div class="stat3">
+          <div class="card stat"><span class="lbl">אימונים השבוע</span><span class="num" style="font-size:30px">${trainedDays.size}</span></div>
+          <div class="card stat"><span class="lbl">סטים השבוע</span><span class="num" style="font-size:30px">${weekLogs.reduce((a, l) => a + l.sets.length, 0)}</span></div>
+          <div class="card stat"><span class="lbl">אחרון</span><span class="num" style="font-size:20px;line-height:30px">${lastTxt}</span></div>
+        </div>
+        <div class="week7" role="group" aria-label="השבוע">${strip}</div>
+        <section class="hero wk-hero" aria-label="האימון של היום">${heroBody}</section>
 
-    const setsEl = root.querySelector("#wk-sets");
-    const draft = [];
-    function addSetRow(weight = "", reps = "", prevSet = null) {
-      const i = draft.length;
-      draft.push({ weight: String(weight), reps: String(reps) });
-      const row = document.createElement("div");
-      row.className = "set-input-row";
-      row.innerHTML = `
-        <span class="set-num">סט ${i + 1}</span>
-        <div class="set-field">
-          <button type="button" class="qbtn" data-i="${i}" data-f="weight" data-d="-2.5">−</button>
-          <input type="number" inputmode="decimal" step="0.5" placeholder='ק"ג' value="${weight}" data-i="${i}" data-f="weight" />
-          <button type="button" class="qbtn" data-i="${i}" data-f="weight" data-d="2.5">+</button>
+        <h2 class="sec-title">מטרה</h2>
+        <div class="seg" role="group" aria-label="מטרת אימון">
+          ${GOALS.map((g) => `<button data-goal="${g.key}" class="${g.key === G.key ? "on" : ""}" aria-pressed="${g.key === G.key}">${goalName(g)}</button>`).join("")}
         </div>
-        <span class="set-x">×</span>
-        <div class="set-field">
-          <button type="button" class="qbtn" data-i="${i}" data-f="reps" data-d="-1">−</button>
-          <input type="number" inputmode="numeric" placeholder="חזרות" value="${reps}" data-i="${i}" data-f="reps" />
-          <button type="button" class="qbtn" data-i="${i}" data-f="reps" data-d="1">+</button>
+        <p class="lbl" style="margin:0 4px">${G.repMin}–${G.repMax} חזרות · מנוחה ${G.rest} — ${G.tip}</p>
+
+        <h2 class="sec-title">חלוקת אימון${isToday ? " להיום" : ""}</h2>
+        <div class="chips scroll" role="group" aria-label="חלוקת אימון">
+          ${SPLITS.map((s) => `<button class="chip${s.key === def.key ? " on" : ""}" data-split="${s.key}" aria-pressed="${s.key === def.key}">${s.label}</button>`).join("")}
         </div>
-        ${prevSet ? `<span class="set-prev">קודם ${prevSet.weight}×${prevSet.reps}</span>` : ""}`;
-      setsEl.appendChild(row);
-      row.querySelectorAll(".qbtn").forEach((b) =>
-        b.addEventListener("click", () => {
-          const idx = +b.dataset.i, field = b.dataset.f, delta = parseFloat(b.dataset.d);
-          const inp = row.querySelector(`input[data-i="${idx}"][data-f="${field}"]`);
-          const cur = parseFloat(inp.value) || 0;
-          const nv = field === "weight"
-            ? Math.max(0, Math.round((cur + delta) * 2) / 2)
-            : Math.max(1, Math.round(cur + delta));
-          inp.value = nv;
-          draft[idx][field] = String(nv);
-        })
-      );
+
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 4px 0">
+          <h2 class="sec-title" style="margin:0">תרגילים · ${U.esc(title.big)}</h2>
+          <button class="btn btn-t" id="wk-add" style="font-size:14px">${I("plus", 18)}הוסף</button>
+        </div>
+        <section class="card ex-list">${sections || `<p class="status">אין קבוצות לחלוקה זו.</p>`}</section>
+      </div>`;
+
+    root.querySelectorAll("[data-day]").forEach((b) => b.addEventListener("click", () => { selDate = b.dataset.day; render(); }));
+    root.querySelector("#wk-rest").addEventListener("click", () => { toggleRest(cur); render(); });
+    const walkBtn = root.querySelector("#wk-walk");
+    if (walkBtn) walkBtn.addEventListener("click", () => { toggleWalk(cur); render(); });
+    const startBtn = root.querySelector("#wk-start");
+    if (startBtn) startBtn.addEventListener("click", () => {
+      const doneNames = new Set(dayLogs.map((l) => l.exerciseName));
+      const first = groupsToShow.flatMap((g) => g.exercises).find((n) => !doneNames.has(n));
+      if (first) { view = { kind: "exercise", name: first }; render(); }
+    });
+    root.querySelectorAll("[data-split]").forEach((b) => b.addEventListener("click", () => { setSplit(cur, b.dataset.split); render(); }));
+    root.querySelectorAll("[data-goal]").forEach((b) => b.addEventListener("click", () => { setTrainGoal(b.dataset.goal); render(); }));
+    root.querySelectorAll("[data-del]").forEach((b) => b.addEventListener("click", () => {
+      const d = raw(); d.logs = (d.logs || []).filter((l) => l.id !== b.dataset.del); save(d); render();
+    }));
+    root.querySelectorAll("[data-ex]").forEach((b) => b.addEventListener("click", () => { view = { kind: "exercise", name: b.dataset.ex }; render(); window.scrollTo(0, 0); }));
+    root.querySelector("#wk-history").addEventListener("click", () => { view = { kind: "history" }; render(); window.scrollTo(0, 0); });
+    root.querySelector("#wk-add").addEventListener("click", addExercise);
+  }
+  function daysAgo(iso) {
+    const [y, m, d] = iso.split("-").map(Number);
+    const n = new Date();
+    return Math.round((Date.UTC(n.getFullYear(), n.getMonth(), n.getDate()) - Date.UTC(y, m - 1, d)) / 86400000);
+  }
+
+  // ---------- מסך תרגיל ----------
+  function renderExercise(name) {
+    const G = goalDef();
+    const sug = suggestion(name);
+    const past = logsForName(name);
+    const prev = past.find((l) => l.date < curDate()) || null;
+    const def = SPLITS.find((s) => s.key === splitFor(curDate())) || SPLITS[0];
+    const order = splitGroups(def).flatMap((g) => g.exercises);
+    const idx = order.indexOf(name);
+    const nextName = idx >= 0 && idx < order.length - 1 ? order[idx + 1] : null;
+    const targetSets = prev ? prev.sets.length : 3;
+    const best = past.length ? Math.max(...past.map((l) => Math.max(...l.sets.map((s) => s.weight)))) : 0;
+    const bestId = past.find((l) => l.sets.some((s) => s.weight === best));
+
+    // טיוטת הסטים של היום — נשמרת בין רינדורים של אותו תרגיל
+    if (!view.draft) view.draft = [];
+    const draft = view.draft;
+    if (!view.cur) {
+      const base = (prev && prev.sets[0]) || (sug.weight ? { weight: sug.weight, reps: sug.reps } : { weight: 0, reps: G.repMin });
+      view.cur = { weight: base.weight, reps: base.reps };
     }
-    // אתחול: שורה לכל סט מהאימון הקודם (מלא מראש כדי שתשפר), אחרת שורה אחת לפי ההצעה
-    if (prev && prev.sets.length) prev.sets.forEach((ps) => addSetRow(ps.weight, ps.reps, ps));
-    else addSetRow(sug.weight || "", sug.reps || "");
-    setsEl.addEventListener("input", (e) => {
-      const t = e.target;
-      if (t.dataset.i != null) draft[+t.dataset.i][t.dataset.f] = t.value;
-    });
+    const prevSet = prev ? prev.sets[Math.min(draft.length, prev.sets.length - 1)] : null;
 
-    root.querySelector("#wk-video").addEventListener("click", () =>
-      window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(name + " תרגיל טכניקה הדגמה")}`, "_blank", "noopener")
-    );
-    root.querySelector("#wk-img").addEventListener("click", () =>
-      window.open(`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(name + " exercise")}`, "_blank", "noopener")
-    );
-    root.querySelector("#wk-addset").addEventListener("click", () => {
-      addSetRow("", "", prev && prev.sets[draft.length]);
-      startTimer(goalDef().restSecs);
+    const history = past.map((l) => `
+      <div class="hist-row">
+        <span class="lbl" style="width:64px">${shortDay(l.date)} ${U.prettyDate(l.date).replace(/\.\d{4}$/, "")}</span>
+        <span class="grow" style="font-weight:500">${setsTxt(l.sets)}</span>
+        ${bestId && l.id === bestId.id ? `<span class="tag ok">שיא</span>` : ""}
+        <button class="ibtn ghost sm" data-del="${l.id}" aria-label="מחק רישום מ-${U.prettyDate(l.date)}">${I("trash", 18)}</button>
+      </div>`).join("");
+
+    root.innerHTML = `
+      <div class="subhead">
+        <button class="ibtn ghost" id="wk-back" aria-label="חזרה לאימון">${I("back")}</button>
+        <div style="flex:1;display:flex;flex-direction:column;min-width:0">
+          <span class="lbl" style="font-size:12px">${idx >= 0 ? `תרגיל ${idx + 1} מתוך ${order.length} · ` : ""}${U.esc(splitTitle(def).big)}</span>
+          <h1 class="t3" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${U.esc(name)}</h1>
+        </div>
+      </div>
+      <div class="stack" style="padding-bottom:96px">
+        <section class="hero demo" aria-label="הדגמה">
+          <button class="demo-play" id="wk-video" aria-label="צפה בהדגמה ביוטיוב">${I("play", 28)}</button>
+          <span class="tag demo-cap">הדגמה ביוטיוב</span>
+          <button class="btn btn-s demo-img" id="wk-img">${I("search", 18)}תמונות</button>
+        </section>
+        <div class="stat3">
+          <div class="card stat"><span class="lbl">סטים</span><span class="num" style="font-size:22px">${targetSets}</span></div>
+          <div class="card stat"><span class="lbl">חזרות</span><span class="num" style="font-size:22px">${G.repMin}–${G.repMax}</span></div>
+          <div class="card stat"><span class="lbl">מנוחה</span><span class="num" style="font-size:22px">${mmss(G.restSecs)}</span></div>
+        </div>
+        <section class="po-card" aria-label="המלצת התקדמות">
+          <div class="itile hot">${I("up")}</div>
+          <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+            <span class="lbl po-lbl">המלצה להיום · Progressive Overload</span>
+            ${sug.weight ? `<span class="num" style="font-size:24px">${sug.weight} ק״ג × ${sug.reps}</span>` : ""}
+            <span class="po-txt">${sug.text}</span>
+          </div>
+        </section>
+
+        <h2 class="sec-title">סטים · ${draft.length}/${Math.max(targetSets, draft.length)}</h2>
+        <section class="card" style="padding:4px 0">
+          ${draft.map((s, i) => `<div class="set-done">
+            <span class="num set-n">${i + 1}</span>
+            <span class="num grow" style="font-size:18px;font-weight:600">${s.weight} <span class="lbl">ק״ג</span> × ${s.reps}</span>
+            <button class="ibtn ghost sm" data-undo="${i}" aria-label="מחק סט ${i + 1}">${I("x", 18)}</button>
+          </div>`).join("")}
+          <div class="set-cur">
+            <div style="display:flex;align-items:center;justify-content:space-between"><span class="t3">סט ${draft.length + 1}</span>
+              ${prevSet ? `<span class="lbl">בפעם הקודמת ${prevSet.weight} × ${prevSet.reps}</span>` : ""}</div>
+            <div class="two-col" style="gap:8px">
+              <label class="step-wrap"><span class="lbl">משקל (ק״ג)</span>
+                <span class="step"><button type="button" data-step="w" data-d="2.5" aria-label="הוסף 2.5 ק״ג">${I("plus")}</button>
+                  <input class="num" id="cur-w" type="number" inputmode="decimal" step="0.5" min="0" value="${view.cur.weight}" aria-label="משקל בקילוגרמים">
+                  <button type="button" data-step="w" data-d="-2.5" aria-label="הפחת 2.5 ק״ג">${I("minus")}</button></span></label>
+              <label class="step-wrap"><span class="lbl">חזרות</span>
+                <span class="step"><button type="button" data-step="r" data-d="1" aria-label="הוסף חזרה">${I("plus")}</button>
+                  <input class="num" id="cur-r" type="number" inputmode="numeric" min="1" value="${view.cur.reps}" aria-label="מספר חזרות">
+                  <button type="button" data-step="r" data-d="-1" aria-label="הפחת חזרה">${I("minus")}</button></span></label>
+            </div>
+            <button class="btn btn-s" id="wk-logset" style="border-color:var(--accent)">${I("check", 20)}סיימתי סט · התחל מנוחה</button>
+          </div>
+        </section>
+
+        <section class="card rest-card" id="rest-card" aria-label="טיימר מנוחה" aria-live="polite" hidden>
+          <div class="rt-ring"><svg width="64" height="64" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="26" fill="none" class="ring-track" stroke-width="6"/><circle class="rt-arc ring-val" cx="32" cy="32" r="26" fill="none" stroke-width="6" stroke-linecap="round" stroke-dasharray="0 999" transform="rotate(-90 32 32)"/></svg></div>
+          <div style="flex-grow:1;display:flex;flex-direction:column;gap:4px"><span class="lbl">מנוחה</span><span class="num rt-num" style="font-size:30px">0:00</span></div>
+          <button class="ibtn" id="rt-minus" aria-label="הפחת 15 שניות" style="font:600 13px var(--font-display)">−15</button>
+          <button class="ibtn" id="rt-plus" aria-label="הוסף 15 שניות" style="font:600 13px var(--font-display)">+15</button>
+          <button class="ibtn ghost" id="rt-skip" aria-label="סיים מנוחה">${I("x", 20)}</button>
+        </section>
+
+        <h2 class="sec-title">היסטוריה</h2>
+        <section class="card" style="padding:4px 0">${history || `<p class="status">זה האימון הראשון שלך בתרגיל הזה.</p>`}</section>
+      </div>
+      <div class="dock">
+        ${nextName ? `<button class="btn btn-s" id="wk-next" style="width:120px">הבא</button>` : ""}
+        <button class="btn btn-p" id="wk-save" style="flex-grow:1">${draft.length ? `שמור תרגיל · ${draft.length} סטים` : "שמור תרגיל"}</button>
+      </div>`;
+    paintTimer();
+
+    const wIn = root.querySelector("#cur-w"), rIn = root.querySelector("#cur-r");
+    wIn.addEventListener("input", () => { view.cur.weight = parseFloat(wIn.value) || 0; });
+    rIn.addEventListener("input", () => { view.cur.reps = parseInt(rIn.value, 10) || 0; });
+    root.querySelectorAll("[data-step]").forEach((b) => b.addEventListener("click", (e) => {
+      e.preventDefault();
+      const d = parseFloat(b.dataset.d);
+      if (b.dataset.step === "w") { view.cur.weight = Math.max(0, Math.round((view.cur.weight + d) * 2) / 2); wIn.value = view.cur.weight; }
+      else { view.cur.reps = Math.max(1, view.cur.reps + d); rIn.value = view.cur.reps; }
+    }));
+    root.querySelector("#wk-logset").addEventListener("click", () => {
+      if (!(view.cur.weight >= 0) || !(view.cur.reps > 0)) { alert("הזן משקל וחזרות."); return; }
+      draft.push({ weight: view.cur.weight, reps: view.cur.reps });
+      const nextPrev = prev && prev.sets[Math.min(draft.length, prev.sets.length - 1)];
+      if (nextPrev && draft.length < prev.sets.length) view.cur = { weight: Math.max(view.cur.weight, nextPrev.weight), reps: view.cur.reps };
+      render();
+      startTimer(G.restSecs);
     });
-    root.querySelector("#wk-back").addEventListener("click", () => { stopTimer(); view = { kind: "home" }; render(); });
-    root.querySelector("#wk-savesession").addEventListener("click", () => {
-      const sets = draft
-        .map((s) => ({ weight: parseFloat(s.weight), reps: parseInt(s.reps, 10) }))
-        .filter((s) => s.weight > 0 && s.reps > 0);
-      if (!sets.length) { alert("הזן לפחות סט אחד עם משקל וחזרות."); return; }
-      stopTimer();
+    root.querySelectorAll("[data-undo]").forEach((b) => b.addEventListener("click", () => { draft.splice(+b.dataset.undo, 1); render(); }));
+    root.querySelector("#rt-minus").addEventListener("click", () => { timer.remaining = Math.max(1, timer.remaining - 15); paintTimer(); });
+    root.querySelector("#rt-plus").addEventListener("click", () => { timer.remaining += 15; timer.total = Math.max(timer.total, timer.remaining); paintTimer(); });
+    root.querySelector("#rt-skip").addEventListener("click", stopTimer);
+    root.querySelector("#wk-video").addEventListener("click", () =>
+      window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(name + " תרגיל טכניקה הדגמה")}`, "_blank", "noopener"));
+    root.querySelector("#wk-img").addEventListener("click", () =>
+      window.open(`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(name + " exercise")}`, "_blank", "noopener"));
+    root.querySelector("#wk-back").addEventListener("click", () => {
+      if (draft.length && !confirm("יש סטים שלא נשמרו. לצאת בלי לשמור?")) return;
+      stopTimer(); view = { kind: "home" }; render(); window.scrollTo(0, 0);
+    });
+    const saveSession = () => {
+      const sets = draft.filter((s) => s.weight >= 0 && s.reps > 0);
+      if (!sets.length) return false;
       const d = raw();
       (d.logs ??= []).push({ id: U.uid(), exerciseName: name, date: curDate(), sets });
       save(d);
-      render();
+      return true;
+    };
+    root.querySelector("#wk-save").addEventListener("click", () => {
+      if (!draft.length) { alert("סמן לפחות סט אחד (סיימתי סט) לפני השמירה."); return; }
+      saveSession(); stopTimer(); view = { kind: "home" }; render(); window.scrollTo(0, 0);
     });
-    root.querySelectorAll("[data-del]").forEach((b) =>
-      b.addEventListener("click", () => {
-        if (!confirm("למחוק את הרישום?")) return;
-        const d = raw();
-        d.logs = (d.logs || []).filter((l) => l.id !== b.dataset.del);
-        save(d);
-        render();
-      })
-    );
+    const nextBtn = root.querySelector("#wk-next");
+    if (nextBtn) nextBtn.addEventListener("click", () => {
+      if (draft.length) saveSession();
+      stopTimer(); view = { kind: "exercise", name: nextName }; render(); window.scrollTo(0, 0);
+    });
+    root.querySelectorAll("[data-del]").forEach((b) => b.addEventListener("click", () => {
+      if (!confirm("למחוק את הרישום?")) return;
+      const d = raw(); d.logs = (d.logs || []).filter((l) => l.id !== b.dataset.del); save(d); render();
+    }));
   }
 
-  // ---------- full history ----------
+  // ---------- היסטוריה מלאה ----------
   function renderHistory() {
     const all = logs().slice().sort((a, b) => b.date.localeCompare(a.date));
-    // קיבוץ לפי תאריך
     const byDate = {};
     for (const l of all) (byDate[l.date] ??= []).push(l);
     const dates = Object.keys(byDate).sort((a, b) => b.localeCompare(a));
-
     const body = dates.length ? dates.map((date) => `
-      <div class="card-block">
-        <h3>${U.prettyDate(date)} · יום ${U.dayName(date)}</h3>
-        ${byDate[date].map((l) => `
-          <div class="log-row">
-            <span class="log-date">${U.esc(l.exerciseName)}</span>
-            <span class="log-sets">${l.sets.map((s) => `${s.weight}×${s.reps}`).join(" · ")}</span>
-            <button class="del-x" data-del="${l.id}" aria-label="מחק">✕</button>
-          </div>`).join("")}
-      </div>`).join("") : `<p class="status">עדיין אין אימונים מתועדים 🏋️</p>`;
-
+      <h2 class="sec-title">${U.dayName(date)} · ${U.prettyDate(date)}</h2>
+      <section class="card" style="padding:4px 0">
+        ${byDate[date].map((l) => `<div class="hist-row"><span class="grow" style="font-weight:600">${U.esc(l.exerciseName)}</span>
+          <span class="lbl">${setsTxt(l.sets)}</span>
+          <button class="ibtn ghost sm" data-del="${l.id}" aria-label="מחק את ${U.esc(l.exerciseName)}">${I("trash", 18)}</button></div>`).join("")}
+      </section>`).join("") : `<p class="status">עדיין אין אימונים מתועדים.</p>`;
     root.innerHTML = `
-      <button id="wk-back" class="btn-secondary">‹ חזרה לתרגילים</button>
-      <h2 class="view-h2">📋 היסטוריית אימונים</h2>
-      ${body}
-    `;
+      <div class="subhead"><button class="ibtn ghost" id="wk-back" aria-label="חזרה לאימון">${I("back")}</button><h1 class="t3" style="flex:1">היסטוריית אימונים</h1></div>
+      <div class="stack">${body}</div>`;
     root.querySelector("#wk-back").addEventListener("click", () => { view = { kind: "home" }; render(); });
-    root.querySelectorAll("[data-del]").forEach((b) =>
-      b.addEventListener("click", () => {
-        if (!confirm("למחוק את הרישום?")) return;
-        const d = raw();
-        d.logs = (d.logs || []).filter((l) => l.id !== b.dataset.del);
-        save(d);
-        render();
-      })
-    );
+    root.querySelectorAll("[data-del]").forEach((b) => b.addEventListener("click", () => {
+      if (!confirm("למחוק את הרישום?")) return;
+      const d = raw(); d.logs = (d.logs || []).filter((l) => l.id !== b.dataset.del); save(d); render();
+    }));
   }
 
   // סיכום להיום — לכרטיס "האימון של היום" במסך הבית

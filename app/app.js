@@ -4,8 +4,8 @@ window.App = window.App || {};
 (function () {
   const TABS = [
     { id: "home", label: "בית", icon: "home", title: "", mod: () => App.home },
-    { id: "workout", label: "אימון", icon: "dumbbell", title: "אימון", mod: () => App.workout },
-    { id: "food", label: "תזונה", icon: "fork", title: "תזונה", mod: () => App.food },
+    { id: "workout", label: "אימון", icon: "dumbbell", title: "", mod: () => App.workout },
+    { id: "food", label: "תזונה", icon: "fork", title: "", mod: () => App.food },
     { id: "shop", label: "חנות", icon: "bag", title: "", mod: () => App.shop },
     { id: "me", label: "אני", icon: "user", title: "", mod: () => App.me },
   ];
@@ -31,6 +31,7 @@ window.App = window.App || {};
     const tab = TABS.find((t) => t.id === active);
     const m = tab && tab.mod();
     const sub = !!(m && m.isHome && !m.isHome());
+    if (m && m.chrome) m.chrome();
     // סרגל הטאבים מוסתר רק במסכי משנה "ממוקדים" (מסך תרגיל, מסך מאכל) — לפי העיצוב
     document.body.classList.toggle("subview", !!(m && m.hideTabbar && m.hideTabbar()));
     const header = document.querySelector(".app-header");
@@ -158,23 +159,49 @@ window.App = window.App || {};
       return;
     }
 
+    const I = App.icon;
+    let method = localStorage.getItem("mb.authMethod") || "email";
     el.innerHTML = `
-      <label class="field">אימייל או מספר טלפון
-        <input id="au-ident" type="text" inputmode="email" autocomplete="username"
-          placeholder="someone@example.com / 050-0000000" />
-      </label>
-      <label class="field">סיסמה
-        <input id="au-pass" type="password" autocomplete="current-password" placeholder="סיסמה" />
-      </label>
-      <button id="au-login" class="btn-primary full">התחבר</button>
-      <button id="au-signup" class="btn-secondary full">הרשמה</button>
-      <p class="auth-msg" id="au-msg"></p>`;
+      <form class="auth-form" id="au-form" novalidate>
+        <div class="seg" role="tablist" aria-label="שיטת כניסה">
+          <button type="button" role="tab" data-m="email">אימייל</button>
+          <button type="button" role="tab" data-m="phone">טלפון</button>
+        </div>
+        <label class="fl"><span class="lbl" id="au-idlbl"></span>
+          <span class="search-field"><span id="au-idico"></span><input id="au-ident" autocomplete="username" style="direction:ltr;text-align:right"></span></label>
+        <label class="fl"><span class="lbl">סיסמה</span>
+          <span class="search-field">${I("lock")}<input id="au-pass" type="password" autocomplete="current-password" placeholder="לפחות 6 תווים">
+            <button type="button" class="ibtn ghost sm" id="au-eye" aria-label="הצג סיסמה" aria-pressed="false">${I("eye", 20)}</button></span></label>
+        <button id="au-login" type="submit" class="btn btn-p full">התחברות</button>
+        <p class="auth-msg" id="au-msg" role="alert"></p>
+        <div class="auth-foot"><span class="lbl" style="font-size:15px">אין לך חשבון?</span><button type="button" id="au-signup" class="btn btn-t">הרשמה</button></div>
+      </form>`;
+    const setMethod = (m) => {
+      method = m; localStorage.setItem("mb.authMethod", m);
+      el.querySelectorAll("[data-m]").forEach((b) => { const on = b.dataset.m === m; b.classList.toggle("on", on); b.setAttribute("aria-selected", on); });
+      const inp = el.querySelector("#au-ident");
+      inp.type = m === "email" ? "email" : "tel";
+      inp.inputMode = m === "email" ? "email" : "tel";
+      inp.placeholder = m === "email" ? "name@example.com" : "050-000-0000";
+      el.querySelector("#au-idlbl").textContent = m === "email" ? "אימייל" : "מספר טלפון";
+      el.querySelector("#au-idico").innerHTML = I(m === "email" ? "mail" : "phone");
+    };
+    el.querySelectorAll("[data-m]").forEach((b) => b.addEventListener("click", () => setMethod(b.dataset.m)));
+    setMethod(method);
+    el.querySelector("#au-eye").addEventListener("click", (e) => {
+      const p = el.querySelector("#au-pass"), show = p.type === "password";
+      p.type = show ? "text" : "password";
+      e.currentTarget.setAttribute("aria-pressed", show);
+      e.currentTarget.setAttribute("aria-label", show ? "הסתר סיסמה" : "הצג סיסמה");
+    });
+    el.querySelector("#au-form").addEventListener("submit", (e) => { e.preventDefault(); el.querySelector("#au-login").click(); });
 
     const msg = (t) => { const m = el.querySelector("#au-msg"); if (m) m.textContent = t; };
     const ident = () => toEmail(el.querySelector("#au-ident").value);
     const pass  = () => el.querySelector("#au-pass").value;
 
-    el.querySelector("#au-login").addEventListener("click", async () => {
+    el.querySelector("#au-login").addEventListener("click", async (e) => {
+      if (e) e.preventDefault();
       if (!el.querySelector("#au-ident").value.trim() || !pass()) { msg("נא למלא אימייל/טלפון וסיסמה"); return; }
       msg("מתחבר…");
       try {
@@ -198,6 +225,8 @@ window.App = window.App || {};
     applyTheme();
     buildTabbar();
     initSwipeNav();
+    const mark = document.getElementById("auth-mark");
+    if (mark) mark.innerHTML = App.icon("bolt", 40);
     const gear = document.getElementById("settingsBtn");
     gear.innerHTML = App.icon("bell", 22);
     gear.addEventListener("click", () => switchTab("me", "settings"));

@@ -2,7 +2,7 @@
 window.App = window.App || {};
 
 App.briefing = (function () {
-  const U = App.util, S = App.store;
+  const U = App.util, S = App.store, I = App.icon;
   let root, segEl, listEl, statusEl, freshEl, articleEl, backBtn, closeFab, inArticle = false, loadSeq = 0;
   let section = "fitness";           // fitness | gk
   let gkLessons = [], fitnessItems = [];
@@ -29,18 +29,18 @@ App.briefing = (function () {
 
   function html() {
     return `
-      <div class="seg" id="brf-seg">
-        <button data-sec="fitness">💪 כושר ותזונה</button>
-        <button data-sec="gk">🧠 ידע כללי</button>
-      </div>
       <div id="brf-list">
-        <div id="brf-fresh" class="briefing-fresh" hidden></div>
+        <div class="seg" id="brf-seg" role="tablist" aria-label="סוג תוכן" style="margin-bottom:12px">
+          <button role="tab" data-sec="fitness">תדריך בוקר</button>
+          <button role="tab" data-sec="gk">ידע כללי</button>
+        </div>
+        <p id="brf-fresh" class="lbl" style="margin:0 4px 10px" hidden></p>
         <p id="brf-status" class="status">טוען…</p>
-        <ul id="brf-items" class="briefing-list"></ul>
+        <div id="brf-items" class="stack"></div>
       </div>
+      <button id="brf-back" class="btn btn-t" hidden style="padding:0 4px">${I("back", 20)}לכל התדריכים</button>
       <article id="brf-article" class="article" hidden></article>
-      <button id="brf-back" class="btn-secondary" hidden>‹ חזרה לרשימה</button>
-      <button id="brf-close-fab" class="close-fab" hidden aria-label="סגור וחזור לרשימה">✕</button>
+      <button id="brf-close-fab" class="close-fab" hidden aria-label="סגור וחזור לרשימה">${I("x", 22)}</button>
     `;
   }
 
@@ -69,7 +69,7 @@ App.briefing = (function () {
   }
 
   function renderSeg() {
-    segEl.querySelectorAll("button").forEach((b) => b.classList.toggle("active", b.dataset.sec === section));
+    segEl.querySelectorAll("button").forEach((b) => { const on = b.dataset.sec === section; b.classList.toggle("on", on); b.setAttribute("aria-selected", on); });
   }
 
   async function load() {
@@ -106,83 +106,65 @@ App.briefing = (function () {
 
   function renderFitnessList() {
     const items = fitnessItems;
-    listEl.innerHTML = "";             // ניקוי סינכרוני ממש לפני ההוספה (מונע כפילויות)
-    if (!items.length) return empty("עדיין אין תדריכים 📭<br><small>התדריך הראשון ייווצר בהרצת הבוקר הבאה.</small>");
+    listEl.innerHTML = "";
+    if (!items.length) return empty("עדיין אין תדריכים.<br><small>התדריך הראשון ייווצר בהרצת הבוקר הבאה.</small>");
     statusEl.hidden = true;
-
-    // חיווי טריות — מתי נוצר התדריך האחרון
     const d = daysAgo(items[0].date);
-    let txt, stale = false;
-    if (d <= 0) txt = "✅ התדריך מעודכן להיום";
-    else if (d === 1) txt = "🕒 התדריך האחרון: אתמול";
-    else { txt = `⚠️ התדריך האחרון לפני ${d} ימים — ייתכן שהשגרה לא רצה`; stale = true; }
     freshEl.hidden = false;
-    freshEl.className = "briefing-fresh" + (stale ? " stale" : "");
-    freshEl.textContent = txt;
-
+    freshEl.textContent = d <= 0 ? "התדריך מעודכן להיום" : d === 1 ? "התדריך האחרון: אתמול" : `התדריך האחרון לפני ${d} ימים — ייתכן שהשגרה לא רצה`;
+    freshEl.style.color = d > 1 ? "var(--danger)" : "";
     const today = U.todayISO();
-    const frag = document.createDocumentFragment();
-
-    // כפתור הצעת תזכורת
-    const cta = document.createElement("li");
-    cta.innerHTML = `<button class="cta-reminder">🔔 קבל תזכורת ללימוד כל בוקר — להגדרה</button>`;
-    cta.querySelector("button").addEventListener("click", () => App.openSettings && App.openSettings());
-    frag.appendChild(cta);
-
-    // רצף למידה
+    const parts = (it) => (it.title || "תדריך יומי").split("·").map((x) => x.trim()).filter(Boolean);
+    const [top, ...rest] = items;
+    const tp = parts(top);
     const st = streakOf(items);
-    if (st >= 2) {
-      const li = document.createElement("li");
-      li.innerHTML = `<div class="brf-streak">🔥 רצף למידה: ${st} ימים ברצף!</div>`;
-      frag.appendChild(li);
-    }
-
-    for (const item of items) {
-      const li = document.createElement("li");
-      const card = document.createElement("button");
-      card.className = "briefing-card" + (item.date === today ? " today" : "");
-      const tags = (item.title || "").split("·").map((t) => t.trim()).filter(Boolean).slice(0, 3)
-        .map((t) => `<span class="brf-tag">${U.esc(t)}</span>`).join("");
-      const badge = isRead(item.date)
-        ? `<span class="brf-tag brf-read">✓ נקרא</span>`
-        : `<span class="brf-tag brf-new">🆕 חדש</span>`;
-      card.innerHTML = `
-        <div class="date-row">
-          <span>${U.prettyDate(item.date)}${item.date === today ? " · היום" : ""} · ⏱️ ~7 דק'</span>
-          ${badge}
+    const gk = gkLessons.length ? gkLessons[gkLessons.length - 1] : null;
+    const MONTHS = ["ינו׳", "פבר׳", "מרץ", "אפר׳", "מאי", "יוני", "יולי", "אוג׳", "ספט׳", "אוק׳", "נוב׳", "דצמ׳"];
+    listEl.innerHTML = `
+      <article class="hero" style="padding:20px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          ${top.date === today ? `<span class="tag hot">היום</span>` : ""}
+          <span class="lbl">${U.dayName(top.date)} ${U.prettyDate(top.date).replace(/\.\d{4}$/, "")} · 4 דק׳ קריאה${isRead(top.date) ? " · נקרא" : ""}</span>
         </div>
-        <h2>${U.esc(item.title || "תדריך יומי")}</h2>
-        <div class="brf-tags">${tags}<span class="brf-tag">יום ${U.dayName(item.date)}</span></div>`;
-      card.addEventListener("click", () => open(item));
-      li.appendChild(card);
-      frag.appendChild(li);
-    }
-    listEl.appendChild(frag);
+        <h2 class="t1" style="font-size:24px">${U.esc(tp[0])}</h2>
+        ${tp.length > 1 ? `<div style="display:flex;gap:6px;flex-wrap:wrap">${tp.slice(1).map((x) => `<span class="tag">${U.esc(x)}</span>`).join("")}</div>` : ""}
+        <button class="btn btn-p" data-open="${top.date}">${isRead(top.date) ? "קרא שוב" : "קרא את התדריך"}</button>
+      </article>
+      ${gk ? `<button class="card row-card" data-gk>
+        <div class="itile">${I("book")}</div>
+        <div class="grow"><span class="lbl">ידע כללי · ~3 דק׳</span><span style="font-weight:600">${U.esc(gk.title)}</span></div>
+        <span class="chev">${I("chev")}</span></button>` : ""}
+      <section class="card list-group">
+        <button class="list-row" data-remind><div class="itile">${I("bell")}</div>
+          <span class="grow"><span style="font-weight:600">תזכורת לימוד</span><span class="lbl">${st >= 2 ? `רצף של ${st} ימים — ` : ""}קבע שעה ביומן</span></span><span class="chev">${I("chev")}</span></button>
+      </section>
+      ${rest.length ? `<h2 class="sec-title">תדריכים קודמים</h2>
+      <section class="card list-group">${rest.map((it) => {
+        const p = parts(it), [, m, dd] = it.date.split("-").map(Number);
+        return `<button class="list-row" data-open="${it.date}">
+          <div class="date-chip"><span class="num" style="font-size:20px">${dd}</span><span class="lbl" style="font-size:11px">${MONTHS[m - 1]}</span></div>
+          <span class="grow"><span style="font-weight:600">${U.esc(p[0])}</span><span class="lbl">${U.esc(p.slice(1).join(" · ") || "תדריך בוקר")}${isRead(it.date) ? " · נקרא" : ""}</span></span>
+          <span class="chev">${I("chev")}</span></button>`;
+      }).join("")}</section>` : ""}`;
+    listEl.querySelectorAll("[data-open]").forEach((b) => b.addEventListener("click", () => open(items.find((x) => x.date === b.dataset.open))));
+    const g = listEl.querySelector("[data-gk]");
+    if (g) g.addEventListener("click", () => openGK(gk));
+    listEl.querySelector("[data-remind]").addEventListener("click", () => App.openSettings && App.openSettings());
   }
 
   function renderGKList() {
-    const items = gkLessons.slice().reverse(); // החדש ביותר קודם
+    const items = gkLessons.slice().reverse();
     listEl.innerHTML = "";
-    if (!items.length) return empty("עדיין אין נושאי ידע כללי 🧠<br><small>הנושא הראשון יגיע עם ההרצה הבאה של השגרה היומית.</small>");
+    if (!items.length) return empty("עדיין אין נושאי ידע כללי.<br><small>הנושא הראשון יגיע עם ההרצה הבאה של השגרה היומית.</small>");
     statusEl.hidden = true;
     freshEl.hidden = false;
-    freshEl.className = "briefing-fresh";
-    freshEl.textContent = `📚 ${items.length} נושא${items.length === 1 ? "" : "ים"} שנלמדו עד כה`;
-
-    const frag = document.createDocumentFragment();
-    items.forEach((gk, i) => {
-      const li = document.createElement("li");
-      const card = document.createElement("button");
-      card.className = "briefing-card gk-card" + (i === 0 ? " today" : "");
-      card.innerHTML = `
-        <div class="date-row"><span>🧠 ידע כללי · ⏱️ ~3 דק'</span>${i === 0 ? `<span class="brf-tag brf-new">חדש</span>` : ""}</div>
-        <h2>${U.esc(gk.icon || "🧠")} ${U.esc(gk.title)}</h2>
-        <div class="brf-tags"><span class="brf-tag">${U.esc(gk.tip || "")}</span></div>`;
-      card.addEventListener("click", () => openGK(gk));
-      li.appendChild(card);
-      frag.appendChild(li);
-    });
-    listEl.appendChild(frag);
+    freshEl.style.color = "";
+    freshEl.textContent = `${items.length} נושאים עד כה`;
+    listEl.innerHTML = `<section class="card list-group">${items.map((gk, i) => `
+      <button class="list-row" data-i="${i}"><div class="itile">${I("book")}</div>
+        <span class="grow"><span style="font-weight:600">${U.esc(gk.title)}</span>${gk.tip ? `<span class="lbl">${U.esc(gk.tip)}</span>` : ""}</span>
+        ${i === 0 ? `<span class="tag hot">חדש</span>` : `<span class="chev">${I("chev")}</span>`}</button>`).join("")}</section>`;
+    listEl.querySelectorAll("[data-i]").forEach((b) => b.addEventListener("click", () => openGK(items[+b.dataset.i])));
   }
 
   async function open(item) {
@@ -200,7 +182,7 @@ App.briefing = (function () {
       const md = await res.text();
       articleEl.innerHTML = window.marked.parse(md) + `
         <div class="card-block">
-          <button id="brf-nblm" class="btn-secondary full">📓 פתח ב-NotebookLM (שמע/סיכום/מפת חשיבה)</button>
+          <button id="brf-nblm" class="btn btn-s full">פתח ב-NotebookLM (שמע, סיכום, מפת חשיבה)</button>
           <p class="section-hint" id="brf-nblm-hint" style="margin-top:8px"></p>
         </div>`;
       articleEl.querySelectorAll("a[href^='http']").forEach((a) => {
@@ -224,9 +206,9 @@ App.briefing = (function () {
     closeFab.hidden = false;
     window.scrollTo(0, 0);
     const body = window.marked ? window.marked.parse(gk.md) : `<pre>${U.esc(gk.md)}</pre>`;
-    articleEl.innerHTML = `<h2 class="view-h2">${U.esc(gk.icon || "🧠")} ${U.esc(gk.title)}</h2>` + body + `
+    articleEl.innerHTML = `<h2 class="view-h2">${U.esc(gk.title)}</h2>` + body + `
       <div class="card-block">
-        <button id="brf-nblm" class="btn-secondary full">📓 פתח ב-NotebookLM (שמע/סיכום/מפת חשיבה)</button>
+        <button id="brf-nblm" class="btn btn-s full">פתח ב-NotebookLM (שמע, סיכום, מפת חשיבה)</button>
         <p class="section-hint" id="brf-nblm-hint" style="margin-top:8px"></p>
       </div>`;
     articleEl.querySelectorAll("a[href^='http']").forEach((a) => { a.target = "_blank"; a.rel = "noopener noreferrer"; });
