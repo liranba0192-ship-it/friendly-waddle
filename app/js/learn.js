@@ -806,5 +806,24 @@ App.learn = (function () {
     return { done, total: list.length || 10, next: next ? next.en : "" };
   }
 
-  return { mount, show, todayProgress, home: () => { view = { kind: "home" }; if (root) render(); }, isHome: () => view.kind === "home" };
+  // פתיחה מבחוץ (כרטיסי הלימוד בבית): מקטע מסוים, ואופציונלית שיעור מסוים
+  function openSection(sec, lessonId) {
+    section = ["en", "finance", "ai"].includes(sec) ? sec : "en";
+    view = lessonId ? { kind: "lesson", id: lessonId } : { kind: "home" };
+    if (root) render();
+  }
+  // השיעור הבא בכל מסלול — לכרטיסים במסך הבית
+  async function courseNext(sec) {
+    await ensure();
+    const arr = sec === "ai" ? aiLessons : lessons;
+    const doneKey = sec === "ai" ? "aiDone" : "doneLessons";
+    if (!arr.length) return null;
+    const done = raw()[doneKey] || [];
+    let i = arr.findIndex((l) => !done.includes(l.id));
+    const finished = i < 0;
+    if (finished) i = arr.length - 1;
+    return { id: arr[i].id, title: arr[i].title, level: arr[i].level || "", n: i + 1, done: done.length, total: arr.length, finished };
+  }
+
+  return { mount, show, todayProgress, openSection, courseNext, home: () => { view = { kind: "home" }; if (root) render(); }, isHome: () => view.kind === "home" };
 })();

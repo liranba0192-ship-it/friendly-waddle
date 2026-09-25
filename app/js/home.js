@@ -1,13 +1,17 @@
 "use strict";
 window.App = window.App || {};
 
-// טאב בית — "דשבורד היום": קלוריות ומאקרו, מים, משקל, האימון של היום, התדריך של היום, 10 המילים.
-// התדריך (App.briefing) מותקן כאן כתת-מסך.
+// טאב בית — "דשבורד היום": קלוריות ומאקרו, מים, משקל, האימון של היום, התדריך, ולימוד (אנגלית/פיננסים/AI).
+// התדריך (App.briefing) והלימוד (App.learn) מותקנים כאן כתתי-מסך.
 App.home = (function () {
   const U = App.util, S = App.store, I = App.icon;
   const HE_MONTHS = ["בינואר", "בפברואר", "במרץ", "באפריל", "במאי", "ביוני", "ביולי", "באוגוסט", "בספטמבר", "באוקטובר", "בנובמבר", "בדצמבר"];
-  let root, mainEl, subEl, brfEl, briefingMounted = false, inSub = false;
-  let latestBriefing = null, briefingLoaded = false, words = null;
+  const SUBS = {
+    briefing: { title: "תדריכי בוקר", mod: () => App.briefing },
+    learn: { title: "לימוד", mod: () => App.learn },
+  };
+  let root, mainEl, subEl, mounted = {}, inSub = null;
+  let latestBriefing = null, briefingLoaded = false, words = null, fin = null, ai = null;
 
   function mount(el) {
     root = el;
@@ -16,13 +20,12 @@ App.home = (function () {
       <div id="home-sub" hidden>
         <div class="subhead">
           <button class="ibtn ghost" id="home-back" aria-label="חזרה לבית">${I("back")}</button>
-          <span class="t3">תדריכי בוקר</span>
+          <span class="t3" id="home-sub-title"></span>
         </div>
-        <div id="home-brf"></div>
+        ${Object.keys(SUBS).map((k) => `<div id="home-sub-${k}" hidden></div>`).join("")}
       </div>`;
     mainEl = root.querySelector("#home-main");
     subEl = root.querySelector("#home-sub");
-    brfEl = root.querySelector("#home-brf");
     root.querySelector("#home-back").addEventListener("click", home);
     render();
     loadAsync();
@@ -38,26 +41,39 @@ App.home = (function () {
     briefingLoaded = true;
     try { if (App.workout && App.workout.ready) await App.workout.ready(); } catch {}
     try { words = App.learn && App.learn.todayProgress ? await App.learn.todayProgress() : null; } catch { words = null; }
+    try { fin = await App.learn.courseNext("finance"); ai = await App.learn.courseNext("ai"); } catch { fin = ai = null; }
     if (!inSub) render();
   }
 
-  // ---------- תת-מסך: תדריכים ----------
-  function open(sub, opts) {
-    if (sub !== "briefing") return;
-    inSub = true;
+  // ---------- תתי-מסכים: תדריכים / לימוד ----------
+  async function open(sub, opts) {
+    if (!SUBS[sub]) return;
+    inSub = sub;
     mainEl.hidden = true;
     subEl.hidden = false;
-    if (!briefingMounted) { App.briefing.mount(brfEl); briefingMounted = true; }
-    else App.briefing.show();
-    if (opts && opts.item) App.briefing.openItem(opts.item);
-    else App.briefing.showList();
+    root.querySelector("#home-sub-title").textContent = SUBS[sub].title;
+    for (const k of Object.keys(SUBS)) root.querySelector(`#home-sub-${k}`).hidden = k !== sub;
+    const box = root.querySelector(`#home-sub-${sub}`);
+    const m = SUBS[sub].mod();
+    if (sub === "learn") m.openSection((opts && opts.sec) || "en", opts && opts.lesson);
+    if (!mounted[sub]) { await m.mount(box); mounted[sub] = true; }
+    else if (sub === "briefing") m.show();
+    if (sub === "briefing") { if (opts && opts.item) m.openItem(opts.item); else m.showList(); }
     App.updateChrome();
+    window.scrollTo(0, 0);
+  }
+  // כשהמודול הפנימי בתת-מסך משלו (שיעור, מאמר) — מסתירים את כותרת ה"חזרה לבית" כדי שלא יהיו שתיים
+  function chrome() {
+    if (!subEl) return;
+    const m = inSub && SUBS[inSub].mod();
+    subEl.querySelector(".subhead").hidden = !!(m && m.isHome && !m.isHome());
   }
   function home() {
-    inSub = false;
+    inSub = null;
     subEl.hidden = true;
     mainEl.hidden = false;
     render();
+    loadAsync();   // רענון התקדמות הלימוד/התדריך אחרי חזרה מתת-מסך
     App.updateChrome();
     window.scrollTo(0, 0);
   }
@@ -111,6 +127,16 @@ App.home = (function () {
       <div><span>${name}</span><span class="lbl">${Math.round(val)}/${target} ג׳</span></div>
       <div class="bar"><i class="${cls}" style="width:${pct}%"></i></div>
     </div>`;
+  }
+
+  function courseCard(sec, name, icon, c) {
+    const pct = c ? Math.round((c.done / c.total) * 100) : 0;
+    return `<button class="card mini-card" data-learn="${sec}" ${c && !c.finished ? `data-lesson="${c.id}"` : ""}>
+      <span class="lbl">${I(icon, 18, "accent")}${name}${c ? ` · ${c.done}/${c.total}` : ""}</span>
+      <span class="t3 clamp2">${c ? (c.finished ? "סיימת את המסלול" : U.esc(c.title)) : "טוען…"}</span>
+      <div class="bar" style="margin-top:auto"><i style="width:${pct}%"></i></div>
+      <span class="lbl" style="color:var(--accent-text);font-weight:600">${c && c.done ? "המשך שיעור ›" : "התחל ›"}</span>
+    </button>`;
   }
 
   // ---------- רינדור ----------
@@ -174,7 +200,7 @@ App.home = (function () {
     }
 
     const wordsCard = words ? `
-      <button class="card stack-card" data-go="me" data-sub="learn" style="text-align:start;color:var(--text);font:inherit;cursor:pointer;width:100%">
+      <button class="card stack-card" data-learn="en" style="text-align:start;color:var(--text);font:inherit;cursor:pointer;width:100%">
         <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
           <div style="display:flex;align-items:center;gap:10px">
             <div class="itile">${I("lang")}</div>
@@ -223,7 +249,12 @@ App.home = (function () {
 
         ${wkCard}
         ${brfCard}
+        <h2 class="sec-title">לימוד</h2>
         ${wordsCard}
+        <div class="two-col">
+          ${courseCard("finance", "פיננסים", "gift", fin)}
+          ${courseCard("ai", "AI", "chat", ai)}
+        </div>
       </div>`;
 
     mainEl.querySelectorAll("[data-go]").forEach((b) =>
@@ -231,6 +262,8 @@ App.home = (function () {
     );
     const brf = mainEl.querySelector("[data-brief]");
     if (brf) brf.addEventListener("click", () => open("briefing", latestBriefing ? { item: latestBriefing } : null));
+    mainEl.querySelectorAll("[data-learn]").forEach((b) =>
+      b.addEventListener("click", () => open("learn", { sec: b.dataset.learn, lesson: b.dataset.lesson || null })));
     mainEl.querySelector("#home-water").addEventListener("click", () => {
       const all = S.get("food.water", {});
       all[today] = (all[today] || 0) + 250;
@@ -239,5 +272,5 @@ App.home = (function () {
     });
   }
 
-  return { mount, show, open, home, isHome };
+  return { mount, show, open, home, isHome, chrome };
 })();
