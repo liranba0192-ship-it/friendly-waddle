@@ -818,7 +818,7 @@ body.subview .content { padding-bottom: calc(var(--safe-bottom) + 40px); }
 .shop-foot { font-size: 12px; color: var(--muted); text-align: center; margin: 4px 8px 0; line-height: 1.6; }
 .water-ico { color: var(--water); } .ico.accent { color: var(--accent-text); }
 .mini-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
-.mini-card > div { display: flex; flex-direction: column; gap: 8px; }
+.mini-card > div:not(.bar) { display: flex; flex-direction: column; gap: 8px; }
 .mini-card > div > .num + .lbl { display: inline; }
 .numline { display: flex; align-items: baseline; gap: 4px; }
 .chip { white-space: nowrap; flex-shrink: 0; }
@@ -985,3 +985,5 @@ body.subview .content { padding-bottom: calc(var(--safe-bottom) + 40px); }
 .auth-form .search-field { padding-inline-end: 4px; }
 .auth-foot { display: flex; justify-content: center; align-items: center; gap: 4px; margin-top: 8px; }
 .auth-msg { color: var(--danger) !important; min-height: 20px; margin: 0; }
+.clamp2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.3; }
+.mini-card .bar { width: 100%; }

@@ -10,7 +10,7 @@ window.App = window.App || {};
     { id: "me", label: "אני", icon: "user", title: "", mod: () => App.me },
   ];
   // טאבים ישנים (לפני העיצוב החדש) → טאב + תת-מסך חדשים
-  const LEGACY = { briefing: ["home"], weight: ["food", "weight"], learn: ["me", "learn"] };
+  const LEGACY = { briefing: ["home"], weight: ["food", "weight"], learn: ["home", "learn"] };
   const mounted = {};
   let active = null;
 
@@ -55,11 +55,11 @@ window.App = window.App || {};
     const view = document.getElementById("view-" + id);
     if (!mounted[id]) { await tab.mod().mount(view); mounted[id] = true; }
     else if (tab.mod().show) await tab.mod().show();
-    if (sub && tab.mod().open) await tab.mod().open(sub, opts);
+    window.scrollTo(0, 0);
     view.classList.remove("enter");
     void view.offsetWidth;
     view.classList.add("enter");
-    window.scrollTo(0, 0);
+    if (sub && tab.mod().open) await tab.mod().open(sub, opts);
     history.replaceState(null, "", "#" + id);
     updateChrome();
   }
