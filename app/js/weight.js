@@ -1,17 +1,21 @@
 "use strict";
 window.App = window.App || {};
 
+// מקטע משקל (בתוך טאב תזונה): משקל נוכחי והתקדמות ליעד, גרף, תובנות, מחשבון יעד קלוריות, היסטוריה.
 App.weight = (function () {
-  const U = App.util, S = App.store, N = App.nutrition;
-  let root;
+  const U = App.util, S = App.store, N = App.nutrition, I = App.icon;
+  const RANGES = [["שבוע", 7], ["חודש", 31], ["3 ח׳", 92], ["הכל", 0]];
+  const RATES = [-0.75, -0.5, -0.25, 0, 0.25, 0.5];
+  const ACT = [[1.2, "ישיבה רוב היום"], [1.375, "קלה · 1–3 אימונים בשבוע"], [1.55, "בינונית · 3–5 אימונים בשבוע"], [1.725, "גבוהה · 6–7 אימונים בשבוע"], [1.9, "גבוהה מאוד / עבודה פיזית"]];
+  let root, range = 31, entryOpen = false;
 
   // רשומות שקילה: [{id,date,kg}] — מותר כמה שרוצים, גם באותו יום.
   function logs() {
-    let l = S.get("weight.logs", []);
+    const l = S.get("weight.logs", []);
     let changed = false;
-    for (const w of l) if (!w.id) { w.id = U.uid(); changed = true; } // מיגרציה מפורמט ישן (לפי תאריך)
+    for (const w of l) if (!w.id) { w.id = U.uid(); changed = true; }
     if (changed) S.set("weight.logs", l);
-    return l.slice().sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
+    return l.slice().sort((a, b) => a.date.localeCompare(b.date) || String(a.id).localeCompare(String(b.id)));
   }
   function save(v) { S.set("weight.logs", v); }
   function goal() { return S.get("weight.goal", null); }
@@ -29,266 +33,243 @@ App.weight = (function () {
     dt.setUTCDate(dt.getUTCDate() + n); const p2 = (x) => String(x).padStart(2, "0");
     return `${dt.getUTCFullYear()}-${p2(dt.getUTCMonth() + 1)}-${p2(dt.getUTCDate())}`;
   }
+  const goodDown = () => N.profile().goalDir !== "gain";
 
-  function insightsCard(data, g) {
-    if (!data.length) return "";
+  function stats(data, g) {
     const last = data[data.length - 1], first = data[0];
-    const cutoff = addDays(U.todayISO(), -6);
-    const wk = data.filter((w) => w.date >= cutoff);
+    const wk = data.filter((w) => w.date >= addDays(U.todayISO(), -6));
     const avg7 = U.round((wk.length ? wk : [last]).reduce((a, w) => a + w.kg, 0) / (wk.length || 1));
-    let weekly = null; const span = dBetween(first.date, last.date);
-    if (span >= 3) weekly = (last.kg - first.kg) / span * 7;
-    const trend = weekly == null ? "—" : (Math.abs(weekly) < 0.05 ? "➡️ יציב" : (weekly < 0 ? `⬇️ ${U.round(weekly)}` : `⬆️ +${U.round(weekly)}`));
-    const h = App.nutrition.profile().height;
-    let bmi = "—";
-    if (h > 0) { const v = last.kg / ((h / 100) ** 2); const c = v < 18.5 ? "תת" : v < 25 ? "תקין" : v < 30 ? "עודף" : "השמנה"; bmi = `${U.round(v)} · ${c}`; }
-    let rem = "—", eta = "—", motiv = "";
+    const span = dBetween(first.date, last.date);
+    const weekly = span >= 3 ? (last.kg - first.kg) / span * 7 : null;
+    const h = N.profile().height;
+    const bmi = h > 0 ? last.kg / ((h / 100) ** 2) : null;
+    let etaWeeks = null, reached = false, wrongWay = false;
     if (g) {
-      rem = `${Math.abs(U.round(last.kg - g))} ק"ג`;
-      if (Math.abs(last.kg - g) < 0.2) { motiv = "🎉 הגעת ליעד! כל הכבוד!"; eta = "הגעת ✅"; }
-      else if (weekly && ((g < last.kg && weekly < 0) || (g > last.kg && weekly > 0))) {
-        eta = U.prettyDate(addDays(U.todayISO(), Math.round(Math.abs((last.kg - g) / weekly) * 7)));
-        motiv = "💪 אתה בכיוון הנכון — ממשיכים!";
-      } else if (weekly) { motiv = "⚠️ המשקל לא בכיוון היעד. כוונן את הקלוריות במחשבון למטה."; }
+      if (Math.abs(last.kg - g) < 0.2) reached = true;
+      else if (weekly && ((g < last.kg && weekly < 0) || (g > last.kg && weekly > 0))) etaWeeks = Math.max(1, Math.round(Math.abs((last.kg - g) / weekly)));
+      else if (weekly) wrongWay = true;
     }
-    return `<div class="card-block">
-      <h3>📈 תובנות</h3>
-      <div class="totals-grid">
-        ${miniStat("ממוצע 7 ימים", avg7 + ' ק"ג')}
-        ${miniStat("מגמה לשבוע", trend)}
-        ${miniStat("BMI", bmi)}
-        ${miniStat("נותרו ליעד", rem)}
-        ${miniStat("צפי הגעה ליעד", eta)}
-      </div>
-      ${motiv ? `<div class="motiv-line">${motiv}</div>` : ""}
-    </div>`;
+    return { last, first, avg7, weekly, bmi, etaWeeks, reached, wrongWay };
   }
 
   function render() {
     const data = logs();
-    const last = data[data.length - 1];
-    const first = data[0];
     const g = goal();
-    let change = "";
-    if (data.length >= 2) {
-      const diff = U.round(last.kg - first.kg);
-      change = `${diff > 0 ? "+" : ""}${diff} ק"ג`;
+    const today = U.todayISO();
+
+    let hero;
+    if (!data.length) {
+      hero = `<section class="hero" style="padding:20px;display:flex;flex-direction:column;gap:14px" aria-label="משקל">
+        <span class="lbl">עוד אין שקילות</span><h2 class="t2">הזן שקילה ראשונה כדי לראות התקדמות</h2>
+        ${entryForm()}</section>`;
+    } else {
+      const st = stats(data, g);
+      const diff = U.round(st.last.kg - st.first.kg);
+      const good = diff === 0 ? null : (diff < 0) === goodDown();
+      let prog = "";
+      if (g) {
+        const total = Math.abs(st.first.kg - g) || 1;
+        const pct = Math.max(0, Math.min(100, Math.round((1 - Math.abs(st.last.kg - g) / total) * 100)));
+        prog = `<div style="display:flex;flex-direction:column;gap:8px">
+          <div class="bar"><i style="width:${pct}%"></i></div>
+          <div style="display:flex;justify-content:space-between"><span class="lbl">התחלה ${U.round(st.first.kg)}</span><span class="lbl">${pct}% מהדרך</span><span class="lbl">יעד <b style="color:var(--text)">${g}</b></span></div>
+        </div>`;
+      }
+      hero = `<section class="hero" style="padding:20px;display:flex;flex-direction:column;gap:18px" aria-label="משקל נוכחי">
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <span class="lbl">משקל נוכחי · ${st.last.date === today ? "היום" : U.prettyDate(st.last.date)}</span>
+            <span class="numline"><span class="num" style="font-size:56px;font-weight:800">${U.round(st.last.kg)}</span><span class="lbl" style="font-size:16px">ק״ג</span></span>
+          </div>
+          ${diff ? `<span class="pill ${good ? "good" : "bad"}">${I(diff < 0 ? "down" : "up", 16)}${Math.abs(diff)} ק״ג</span>` : ""}
+        </div>
+        ${prog}
+        ${entryOpen ? entryForm() : `<button class="btn btn-p" id="wt-open">${I("plus")}הזן שקילה</button>`}
+        <button class="btn btn-t" id="wt-goal" style="align-self:center;min-height:40px">${g ? "שנה משקל יעד (" + g + ")" : "הגדר משקל יעד"}</button>
+      </section>`;
     }
 
-    const rows = data.slice().reverse().map((w) => `
-      <div class="log-row">
-        <span class="log-date">${U.prettyDate(w.date)} · יום ${U.dayName(w.date)}</span>
-        <span class="log-sets">${U.round(w.kg)} ק"ג</span>
-        <button class="del-x" data-del="${w.id}" aria-label="מחק">✕</button>
-      </div>`).join("") || `<p class="status">עדיין אין שקילות.</p>`;
-
-    root.innerHTML = `
-      <div class="totals-grid">
-        ${miniStat("משקל נוכחי", last ? U.round(last.kg) + ' ק"ג' : "—")}
-        ${miniStat("שינוי", change || "—")}
-        ${miniStat("יעד", g ? g + ' ק"ג' : "—")}
-      </div>
-
-      <div class="card-block">
-        <h3>גרף התקדמות</h3>
-        <div id="wt-chart">${chart(data, g)}</div>
-      </div>
-
-      ${insightsCard(data, g)}
-
-      <div class="card-block">
-        <h3>שקילה חדשה</h3>
-        <div class="add-row inline">
-          <input id="wt-date" type="date" value="${U.todayISO()}" />
-          <input id="wt-kg" type="number" inputmode="decimal" step="0.1" placeholder='ק"ג' />
-          <button id="wt-save" class="btn-primary">שמור</button>
+    let chartCard = "", insights = "";
+    if (data.length) {
+      const from = range ? addDays(today, -range + 1) : "0000";
+      const shown = data.filter((w) => w.date >= from);
+      chartCard = `<section class="card" style="padding:16px;display:flex;flex-direction:column;gap:14px" aria-label="גרף התקדמות">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+          <h2 class="t3">התקדמות</h2>
+          <div class="chips" role="group" aria-label="טווח">${RANGES.map(([l, d]) => `<button class="chip sm${d === range ? " on" : ""}" data-range="${d}" aria-pressed="${d === range}">${l}</button>`).join("")}</div>
         </div>
-        <p class="section-hint">אפשר להוסיף כמה שקילות שרוצים — גם כמה באותו יום.</p>
-      </div>
+        ${chart(shown, g)}
+      </section>`;
+      const st = stats(data, g);
+      const trendGood = st.weekly == null ? null : (st.weekly < 0) === goodDown();
+      const bmiCat = st.bmi == null ? "" : st.bmi < 18.5 ? "תת-משקל" : st.bmi < 25 ? "תקין" : st.bmi < 30 ? "עודף" : "השמנה";
+      insights = `<h2 class="sec-title">תובנות</h2>
+        <div class="two-col" style="gap:8px">
+          <div class="card stat"><span class="lbl">ממוצע 7 ימים</span><span class="num" style="font-size:24px">${st.avg7}</span></div>
+          <div class="card stat"><span class="lbl">מגמה</span><span class="num" style="font-size:24px${trendGood == null ? "" : `;color:var(${trendGood ? "--green" : "--danger"})`}">${st.weekly == null ? "—" : (st.weekly > 0 ? "+" : "") + U.round(st.weekly)}<span class="lbl"> ק״ג/שבוע</span></span></div>
+          <div class="card stat"><span class="lbl">BMI</span><span class="num" style="font-size:24px">${st.bmi == null ? "—" : U.round(st.bmi)}<span class="lbl"> ${bmiCat}</span></span></div>
+          <div class="card stat"><span class="lbl">${g ? "צפי להגעה ליעד" : "נותרו ליעד"}</span><span class="num" style="font-size:24px">${!g ? "—" : st.reached ? "הגעת" : st.etaWeeks ? `~${st.etaWeeks}<span class="lbl"> שבועות</span>` : `${Math.abs(U.round(st.last.kg - g))}<span class="lbl"> ק״ג</span>`}</span></div>
+        </div>
+        ${st.wrongWay ? `<p class="lbl" style="margin:0 4px">המשקל לא זז בכיוון היעד — כדאי לעדכן את יעד הקלוריות במחשבון.</p>` : ""}`;
+    }
 
-      <button id="wt-remind" class="cta-reminder full">🔔 קבע תזכורת שקילה שבועית — להגדרה</button>
+    const hist = data.slice().reverse();
+    root.innerHTML = `
+      <div class="stack">
+        ${hero}
+        ${chartCard}
+        ${insights}
+        <h2 class="sec-title">מחשבון יעד קלוריות</h2>
+        ${calculatorCard(data)}
+        <button class="btn btn-t" id="wt-remind" style="align-self:center">${I("bell", 20)}תזכורת שקילה שבועית</button>
+        ${hist.length ? `<details class="card hist-box"><summary><span class="t3">היסטוריית שקילות</span><span class="lbl">${hist.length}</span></summary>
+          ${hist.map((w) => `<div class="hist-row"><span class="grow">${U.dayName(w.date)} · ${U.prettyDate(w.date)}</span>
+            <span class="num" style="font-size:16px">${U.round(w.kg)} <span class="lbl">ק״ג</span></span>
+            <button class="ibtn ghost sm" data-del="${w.id}" aria-label="מחק שקילה מ-${U.prettyDate(w.date)}">${I("trash", 18)}</button></div>`).join("")}
+        </details>` : ""}
+      </div>`;
 
-      <button id="wt-goal" class="btn-secondary full">🎯 הגדר משקל יעד</button>
-
-      ${calculatorCard()}
-
-      <div class="card-block">
-        <h3>היסטוריית שקילות</h3>
-        ${rows}
-      </div>
-    `;
-
-    root.querySelector("#wt-save").addEventListener("click", () => {
-      const date = root.querySelector("#wt-date").value || U.todayISO();
+    const open = root.querySelector("#wt-open");
+    if (open) open.addEventListener("click", () => { entryOpen = true; render(); const k = root.querySelector("#wt-kg"); if (k) k.focus(); });
+    const saveBtn = root.querySelector("#wt-save");
+    if (saveBtn) saveBtn.addEventListener("click", () => {
+      const date = root.querySelector("#wt-date").value || today;
       const kg = parseFloat(root.querySelector("#wt-kg").value);
       if (!(kg > 0)) { alert('הזן משקל בק"ג.'); return; }
-      const list = logs();
-      list.push({ id: U.uid(), date, kg });
-      save(list);
-      render();
+      const list = logs(); list.push({ id: U.uid(), date, kg }); save(list);
+      entryOpen = false; render();
     });
-    root.querySelectorAll("[data-del]").forEach((b) =>
-      b.addEventListener("click", () => { save(logs().filter((w) => w.id !== b.dataset.del)); render(); })
-    );
-    root.querySelector("#wt-remind").addEventListener("click", () => App.openSettings && App.openSettings());
-    root.querySelector("#wt-goal").addEventListener("click", () => {
-      const v = prompt('משקל יעד בק"ג:', g || "");
+    const cancel = root.querySelector("#wt-cancel");
+    if (cancel) cancel.addEventListener("click", () => { entryOpen = false; render(); });
+    const goalBtn = root.querySelector("#wt-goal");
+    if (goalBtn) goalBtn.addEventListener("click", () => {
+      const v = prompt('משקל יעד בק"ג (ריק = ללא יעד):', g || "");
       if (v === null) return;
-      const n = parseFloat(v);
-      saveGoal(n > 0 ? n : null);
-      render();
+      const n = parseFloat(v); saveGoal(n > 0 ? n : null); render();
     });
-
-    bindCalculator();
+    root.querySelectorAll("[data-range]").forEach((b) => b.addEventListener("click", () => { range = +b.dataset.range; render(); }));
+    root.querySelectorAll("[data-del]").forEach((b) => b.addEventListener("click", () => {
+      if (!confirm("למחוק את השקילה?")) return;
+      save(logs().filter((w) => w.id !== b.dataset.del)); render();
+    }));
+    root.querySelector("#wt-remind").addEventListener("click", () => App.openSettings && App.openSettings());
+    bindCalculator(data);
   }
 
-  function miniStat(label, val) {
-    return `<div class="stat-card mini"><div class="stat-label">${label}</div><div class="stat-value">${val}</div></div>`;
+  function entryForm() {
+    return `<div class="entry-form">
+      <div class="two-col" style="gap:8px">
+        <label class="fl"><span class="lbl">משקל (ק״ג)</span><input id="wt-kg" type="number" inputmode="decimal" step="0.1" placeholder="78.4"></label>
+        <label class="fl"><span class="lbl">תאריך</span><input id="wt-date" type="date" value="${U.todayISO()}"></label>
+      </div>
+      <div style="display:flex;gap:8px"><button class="btn btn-p" id="wt-save" style="flex:1">שמור שקילה</button>${logs().length ? `<button class="btn btn-s" id="wt-cancel">ביטול</button>` : ""}</div>
+      <span class="lbl">אפשר כמה שקילות ביום — הגרף מציג את כולן.</span>
+    </div>`;
   }
 
-  // ---------- מחשבון יעדים קלוריים (עבר מטאב האוכל) ----------
-  function calculatorCard() {
+  // ---------- מחשבון יעד קלוריות ----------
+  function curRate(p) { return p.goalDir === "maintain" ? 0 : (p.goalDir === "gain" ? 1 : -1) * (p.goalRate || 0.5); }
+  function calculatorCard(data) {
     const p = N.profile();
     const w = N.latestWeight();
+    const rate = curRate(p);
     const tg = N.targets();
-    return `
-      <div class="card-block">
-        <h3>🎯 יעד קלוריות — כמה לרדת/לעלות בשבוע</h3>
-        <p class="section-hint">בוחרים קצב שבועי והאפליקציה מחשבת כמה לאכול ביום. היעד מופיע בטאב האוכל.</p>
-        <div class="grid2">
-          <label class="field">משקל נוכחי (ק"ג)
-            <input id="ca-weight" type="number" inputmode="decimal" step="0.1" value="${w || ""}" placeholder="מהשקילה" />
-          </label>
-          <label class="field">גובה (ס"מ)<input id="ca-height" type="number" value="${p.height}" /></label>
-          <label class="field">גיל<input id="ca-age" type="number" value="${p.age}" /></label>
-          <label class="field">מין
-            <select id="ca-sex">
-              <option value="male" ${p.sex === "male" ? "selected" : ""}>זכר</option>
-              <option value="female" ${p.sex === "female" ? "selected" : ""}>נקבה</option>
-            </select>
-          </label>
-        </div>
-        <label class="field">רמת פעילות
-          <select id="ca-activity">
-            <option value="1.2" ${p.activity == 1.2 ? "selected" : ""}>ישיבה רוב היום</option>
-            <option value="1.375" ${p.activity == 1.375 ? "selected" : ""}>קלה — 1-3 אימונים בשבוע</option>
-            <option value="1.55" ${p.activity == 1.55 ? "selected" : ""}>בינונית — 3-5 אימונים</option>
-            <option value="1.725" ${p.activity == 1.725 ? "selected" : ""}>גבוהה — 6-7 אימונים</option>
-            <option value="1.9" ${p.activity == 1.9 ? "selected" : ""}>מאוד גבוהה / עבודה פיזית</option>
-          </select>
-        </label>
-        <div class="grid2">
-          <label class="field">מטרה
-            <select id="ca-dir">
-              <option value="lose" ${p.goalDir === "lose" ? "selected" : ""}>ירידה במשקל</option>
-              <option value="maintain" ${p.goalDir === "maintain" ? "selected" : ""}>שמירה</option>
-              <option value="gain" ${p.goalDir === "gain" ? "selected" : ""}>עלייה במסה</option>
-            </select>
-          </label>
-          <label class="field">קצב חופשי (ק"ג בשבוע)
-            <input id="ca-rate" type="number" inputmode="decimal" step="0.05" min="0" value="${p.goalRate}" placeholder="לדוגמה 0.5" />
-          </label>
-        </div>
-        <label class="field">אחוז שומן מהקלוריות
-          <input id="ca-fatpct" type="number" inputmode="decimal" step="1" min="15" max="45" value="${p.fatPct || 30}" placeholder="ברירת מחדל 30%" />
-        </label>
-        <p class="section-hint">חלבון תמיד מחושב לפי ק"ג משקל גוף (סטנדרט תזונת ספורט) — לא מושפע מהאחוז הזה. הפחמימות ממלאות את מה שנשאר.</p>
-        <div id="ca-result" class="suggest-box" hidden></div>
-        <button id="ca-calc" class="btn-secondary full">חשב יעד</button>
-        <button id="ca-apply" class="btn-primary full" hidden>החל את היעדים ✅</button>
-        <p class="section-hint" style="margin-top:10px">יעד נוכחי: 🔥 ${tg.kcal} קק"ל · 🥩 ${tg.protein} ג' · 🍞 ${tg.carbs || 0} ג' · 🥑 ${tg.fat || 0} ג'</p>
-      </div>`;
+    return `<section class="card calc" style="padding:16px;display:flex;flex-direction:column;gap:14px" aria-label="מחשבון יעד קלוריות">
+      ${w ? "" : `<label class="fl"><span class="lbl">משקל נוכחי (ק״ג)</span><input id="ca-weight" type="number" inputmode="decimal" step="0.1" placeholder="מהשקילה"></label>`}
+      <div class="two-col" style="gap:10px">
+        <label class="fl"><span class="lbl">גובה (ס״מ)</span><input id="ca-height" type="number" inputmode="numeric" value="${p.height}"></label>
+        <label class="fl"><span class="lbl">גיל</span><input id="ca-age" type="number" inputmode="numeric" value="${p.age}"></label>
+      </div>
+      <div class="fl"><span class="lbl">מין</span>
+        <div class="seg" role="group" aria-label="מין"><button data-sex="male" class="${p.sex === "male" ? "on" : ""}" aria-pressed="${p.sex === "male"}">זכר</button><button data-sex="female" class="${p.sex === "female" ? "on" : ""}" aria-pressed="${p.sex === "female"}">נקבה</button></div></div>
+      <label class="fl"><span class="lbl">רמת פעילות</span>
+        <select id="ca-activity">${ACT.map(([v, l]) => `<option value="${v}" ${Number(p.activity) === v ? "selected" : ""}>${l}</option>`).join("")}</select></label>
+      <div class="fl"><span class="lbl">קצב (ק״ג לשבוע)</span>
+        <div class="rate-grid" role="group" aria-label="קצב">${RATES.map((r) => `<button class="chip${r === rate ? " on" : ""}" data-rate="${r}" aria-pressed="${r === rate}">${r === 0 ? "שמירה" : (r > 0 ? "+" : "−") + Math.abs(r)}</button>`).join("")}</div></div>
+      <details class="adv"><summary class="lbl">מתקדם · אחוז שומן מהקלוריות</summary>
+        <label class="fl" style="margin-top:8px"><span class="lbl">אחוז שומן (ברירת מחדל 30%)</span><input id="ca-fatpct" type="number" inputmode="decimal" min="15" max="45" value="${p.fatPct || 30}"></label>
+        <span class="lbl">החלבון מחושב לפי ק״ג משקל גוף, והפחמימות ממלאות את השאר.</span></details>
+      <div class="po-card" style="align-items:center;justify-content:space-between">
+        <div style="display:flex;flex-direction:column;gap:4px"><span class="lbl po-lbl">יעד מומלץ</span>
+          <span class="num" style="font-size:28px" id="ca-kcal">—</span><span class="lbl" id="ca-macros"></span></div>
+        <button class="btn btn-s" id="ca-apply" style="min-height:44px;font-size:14px">עדכן יעד</button>
+      </div>
+      <span class="lbl" id="ca-warn"></span>
+      <span class="lbl">יעד נוכחי: ${tg.kcal} קק״ל · חלבון ${tg.protein} ג׳ · פחמימות ${tg.carbs || 0} ג׳ · שומן ${tg.fat || 0} ג׳</span>
+    </section>`;
   }
 
   function bindCalculator() {
-    let computed = null;
     const p = N.profile();
-    const readProfile = () => ({
-      sex: root.querySelector("#ca-sex").value,
+    let sex = p.sex, rate = curRate(p), computed = null;
+    const read = () => ({
+      sex,
       age: parseInt(root.querySelector("#ca-age").value, 10) || p.age,
       height: parseFloat(root.querySelector("#ca-height").value) || p.height,
       activity: parseFloat(root.querySelector("#ca-activity").value),
-      goalDir: root.querySelector("#ca-dir").value,
-      goalRate: parseFloat(root.querySelector("#ca-rate").value),
+      goalDir: rate === 0 ? "maintain" : rate > 0 ? "gain" : "lose",
+      goalRate: Math.abs(rate) || p.goalRate || 0.5,
       fatPct: parseFloat(root.querySelector("#ca-fatpct").value) || 30,
     });
-    root.querySelector("#ca-calc").addEventListener("click", () => {
-      const weight = parseFloat(root.querySelector("#ca-weight").value);
-      if (!(weight > 0)) { alert('הזן משקל נוכחי בק"ג (או רשום שקילה למעלה).'); return; }
-      const prof = readProfile();
-      N.saveProfile(prof);
-      computed = N.computeTargets(prof, weight);
-      const dirTxt = prof.goalDir === "lose" ? "ירידה" : prof.goalDir === "gain" ? "עלייה" : "שמירה";
-      const box = root.querySelector("#ca-result");
-      box.hidden = false;
-      box.innerHTML = `
-        תחזוקה (TDEE): <b>${computed.tdee}</b> קק"ל ביום.<br>
-        ל${dirTxt}${prof.goalDir !== "maintain" ? ` של ${prof.goalRate} ק"ג בשבוע` : ""} — יעד יומי:<br>
-        🔥 <b>${computed.kcal} קק"ל</b> · 🥩 <b>${computed.protein} ג'</b> ·
-        🍞 <b>${computed.carbs} ג'</b> · 🥑 <b>${computed.fat} ג'</b>
-        ${computed.warn ? `<br>⚠️ ${computed.warn}` : ""}`;
-      root.querySelector("#ca-apply").hidden = false;
-    });
+    const weightNow = () => N.latestWeight() || parseFloat((root.querySelector("#ca-weight") || {}).value);
+    function recalc() {
+      const w = weightNow();
+      const kEl = root.querySelector("#ca-kcal");
+      if (!(w > 0)) { computed = null; kEl.textContent = "—"; root.querySelector("#ca-macros").textContent = "הזן משקל כדי לחשב"; return; }
+      computed = N.computeTargets(read(), w);
+      kEl.innerHTML = `${computed.kcal.toLocaleString("he-IL")} <span class="lbl">קק״ל ליום</span>`;
+      root.querySelector("#ca-macros").textContent = `חלבון ${computed.protein} ג׳ · פחמימות ${computed.carbs} ג׳ · שומן ${computed.fat} ג׳ · תחזוקה ${computed.tdee}`;
+      root.querySelector("#ca-warn").textContent = computed.warn || "";
+    }
+    root.querySelectorAll("[data-sex]").forEach((b) => b.addEventListener("click", () => {
+      sex = b.dataset.sex;
+      root.querySelectorAll("[data-sex]").forEach((x) => { x.classList.toggle("on", x === b); x.setAttribute("aria-pressed", x === b); });
+      recalc();
+    }));
+    root.querySelectorAll("[data-rate]").forEach((b) => b.addEventListener("click", () => {
+      rate = parseFloat(b.dataset.rate);
+      root.querySelectorAll("[data-rate]").forEach((x) => { x.classList.toggle("on", x === b); x.setAttribute("aria-pressed", x === b); });
+      recalc();
+    }));
+    root.querySelectorAll(".calc input, .calc select").forEach((el) => el.addEventListener("input", recalc));
+    recalc();
     root.querySelector("#ca-apply").addEventListener("click", () => {
-      if (!computed) return;
+      if (!computed) { alert("הזן משקל כדי לחשב יעד."); return; }
+      N.saveProfile(read());
       N.saveTargets({ kcal: computed.kcal, protein: computed.protein, carbs: computed.carbs, fat: computed.fat });
-      alert("היעדים עודכנו! ✅ תראה אותם בטאב האוכל.");
+      alert("היעד עודכן — הוא מופיע ביומן ובמסך הבית.");
       render();
     });
   }
 
   // ---------- גרף ----------
   function chart(data, goalKg) {
-    if (data.length < 2) return `<p class="status">צריך לפחות 2 שקילות כדי לראות גרף 📈<br><small>הוסף עוד שקילה למטה.</small></p>`;
-    const W = 340, H = 200, padX = 30, padT = 18, padB = 26;
+    if (data.length < 2) return `<p class="status">צריך לפחות 2 שקילות בטווח הזה כדי לראות גרף.</p>`;
+    const W = 340, H = 180, padL = 8, padR = 30, padT = 16, padB = 16;
     const ys = data.map((d) => d.kg);
     let lo = Math.min(...ys), hi = Math.max(...ys);
-    if (goalKg) { lo = Math.min(lo, goalKg); hi = Math.max(hi, goalKg); }
+    if (goalKg && goalKg >= lo - 3 && goalKg <= hi + 3) { lo = Math.min(lo, goalKg); hi = Math.max(hi, goalKg); }
     if (hi - lo < 1) { hi += 0.5; lo -= 0.5; }
     const pad2 = (hi - lo) * 0.12; hi += pad2; lo -= pad2;
-    const px = (i) => padX + (i / (data.length - 1)) * (W - padX * 2);
+    const t0 = new Date(data[0].date).getTime(), t1 = new Date(data[data.length - 1].date).getTime() || t0 + 1;
+    const px = (d, i) => padL + (t1 > t0 ? (new Date(d.date).getTime() - t0) / (t1 - t0) : i / (data.length - 1)) * (W - padL - padR);
     const py = (kg) => padT + (1 - (kg - lo) / (hi - lo)) * (H - padT - padB);
-    const linePts = data.map((d, i) => `${px(i)},${py(d.kg)}`).join(" ");
-    const areaPts = `${px(0)},${H - padB} ${linePts} ${px(data.length - 1)},${H - padB}`;
-    // קווי רשת אופקיים
+    const pts = data.map((d, i) => `${px(d, i).toFixed(1)},${py(d.kg).toFixed(1)}`);
+    const area = `${padL},${H - padB} ${pts.join(" ")} ${px(data[data.length - 1], data.length - 1).toFixed(1)},${H - padB}`;
     const grid = [0, 0.5, 1].map((f) => {
       const y = padT + f * (H - padT - padB);
-      const val = U.round(hi - f * (hi - lo));
-      return `<line x1="${padX}" y1="${y}" x2="${W - padX}" y2="${y}" class="ch-grid"/>
-              <text x="${padX - 4}" y="${y + 3}" class="ch-txt" text-anchor="end">${val}</text>`;
+      return `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" class="ch-grid"/><text x="${W - 2}" y="${y + 4}" class="ch-txt" text-anchor="end">${U.round(hi - f * (hi - lo))}</text>`;
     }).join("");
-    const dots = data.map((d, i) => `<circle cx="${px(i)}" cy="${py(d.kg)}" r="3.5" class="ch-dot" />`).join("");
-    // קווי הקו צבועים: ירוק = כיוון טוב (לפי המטרה), אדום = כיוון הפוך
-    const goalDir = App.nutrition.profile().goalDir;
-    const goodDown = goalDir !== "gain"; // ירידה/שמירה → ירידה טובה; עלייה במסה → עלייה טובה
-    let segs = "";
-    for (let i = 1; i < data.length; i++) {
-      const delta = data[i].kg - data[i - 1].kg;
-      let col = "var(--muted)";
-      if (Math.abs(delta) >= 0.05) col = ((delta < 0) === goodDown) ? "#10b981" : "#ef4444";
-      segs += `<line x1="${px(i - 1)}" y1="${py(data[i - 1].kg)}" x2="${px(i)}" y2="${py(data[i].kg)}" stroke="${col}" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>`;
-    }
-    // ערך אחרון מודגש
-    const lastI = data.length - 1, lastV = data[lastI].kg;
-    const lastLabel = `<circle cx="${px(lastI)}" cy="${py(lastV)}" r="5" class="ch-dot-last"/>
-      <text x="${px(lastI)}" y="${py(lastV) - 9}" class="ch-last-txt" text-anchor="middle">${U.round(lastV)}</text>`;
-    const goalLine = goalKg
-      ? `<line x1="${padX}" y1="${py(goalKg)}" x2="${W - padX}" y2="${py(goalKg)}" class="ch-goal" />
-         <text x="${W - padX}" y="${py(goalKg) - 4}" class="ch-txt" text-anchor="end">🎯 ${goalKg}</text>`
-      : "";
-    const svg = `<svg viewBox="0 0 ${W} ${H}" class="chart" preserveAspectRatio="xMidYMid meet" dir="ltr">
-      <defs><linearGradient id="wtarea" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="var(--accent)" stop-opacity="0.30"/>
-        <stop offset="1" stop-color="var(--accent)" stop-opacity="0"/>
-      </linearGradient></defs>
-      ${grid}
-      ${goalLine}
-      <polygon points="${areaPts}" fill="url(#wtarea)" stroke="none"/>
-      ${segs}
-      ${dots}${lastLabel}
+    const last = data[data.length - 1];
+    const goalLine = goalKg && goalKg > lo && goalKg < hi
+      ? `<line x1="${padL}" y1="${py(goalKg)}" x2="${W - padR}" y2="${py(goalKg)}" class="ch-goal"/><text x="${padL + 2}" y="${py(goalKg) - 4}" class="ch-txt">יעד ${goalKg}</text>` : "";
+    return `<svg viewBox="0 0 ${W} ${H}" class="chart" role="img" aria-label="גרף משקל: מ-${U.round(data[0].kg)} ל-${U.round(last.kg)} ק״ג" dir="ltr" style="direction:ltr">
+      <defs><linearGradient id="wtarea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--accent)" stop-opacity=".28"/><stop offset="1" stop-color="var(--accent)" stop-opacity="0"/></linearGradient></defs>
+      ${grid}${goalLine}
+      <polygon points="${area}" fill="url(#wtarea)"/>
+      <polyline points="${pts.join(" ")}" fill="none" class="ch-line" stroke-width="3"/>
+      <circle cx="${px(last, data.length - 1)}" cy="${py(last.kg)}" r="5" class="ch-dot-last"/>
     </svg>`;
-    const legend = `<div class="ch-legend"><span><span class="ld" style="background:#10b981"></span> כיוון טוב</span><span><span class="ld" style="background:#ef4444"></span> כיוון הפוך</span></div>`;
-    return svg + legend;
   }
 
   return { mount, show, isHome: () => true };

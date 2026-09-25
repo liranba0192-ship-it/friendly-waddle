@@ -31,83 +31,77 @@ App.more = (function () {
   function show() { render(); }
 
   function render() {
-    const em = App.sync && App.sync.email();
+    const I = App.icon;
+    const theme = localStorage.getItem("mb.theme") || "dark";
+    const last = S.get("backup.last", null);
+    const days = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];
+    const row = (id, icon, title, sub, timeId, time, extra) => `
+      <div class="set-row">
+        <div class="itile">${I(icon)}</div>
+        <span class="grow"><span style="font-weight:600">${title}</span><span class="lbl">${sub}</span></span>
+        ${extra || ""}
+        <input type="time" id="${timeId}" value="${time}" aria-label="שעת ${title}" class="time-in">
+        <button class="ibtn" id="${id}" aria-label="הוסף תזכורת ${title} ליומן">${I("plus", 20)}</button>
+      </div>`;
     root.innerHTML = `
-      <div class="card-block">
-        <h3>🌅 תזכורת לימוד בוקר (יומי)</h3>
-        <p class="section-hint">בחר שעה והורד קובץ תזכורת. פתח אותו ב-iOS → ייווסף ללוח השנה כתזכורת חוזרת כל בוקר (אמין גם כשהאפליקציה סגורה).</p>
-        <div class="add-row inline">
-          <input id="rm-time" type="time" value="${reminderTime()}" />
-          <button id="rm-make" class="btn-primary">צור תזכורת</button>
-        </div>
-        <p class="section-hint" id="rm-hint"></p>
-      </div>
+      <div class="stack">
+        <h2 class="sec-title">תזכורות</h2>
+        <section class="card list-group">
+          ${row("rm-make", "book", "לימוד", "כל יום", "rm-time", reminderTime())}
+          ${row("wm-make", "scale", "שקילה", "פעם בשבוע", "wm-time", weighTime(),
+            `<select id="wm-day" aria-label="יום השקילה" class="day-in">${days.map((d, i) => `<option value="${i}" ${i === weighDay() ? "selected" : ""}>${d}</option>`).join("")}</select>`)}
+          ${row("fm-make", "fork", "יומן אוכל", "כל יום", "fm-time", foodTime())}
+        </section>
+        <p class="lbl" id="rm-hint" style="margin:0 4px">לחיצה על + מורידה קובץ תזכורת. פותחים אותו באייפון והוא נכנס ללוח השנה כתזכורת חוזרת — עובד גם כשהאפליקציה סגורה.</p>
+        <span id="wm-hint" hidden></span><span id="fm-hint" hidden></span>
 
-      <div class="card-block">
-        <h3>⚖️ תזכורת שקילה (שבועי)</h3>
-        <p class="section-hint">בחר יום ושעה לשקילה שבועית קבועה — מומלץ אותו יום ושעה בכל שבוע (למשל ראשון בבוקר).</p>
-        <div class="grid2">
-          <label class="field">יום
-            <select id="wm-day">
-              ${["ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"].map((d,i)=>`<option value="${i}" ${i===weighDay()?"selected":""}>יום ${d}</option>`).join("")}
-            </select>
-          </label>
-          <label class="field">שעה
-            <input id="wm-time" type="time" value="${weighTime()}" />
-          </label>
-        </div>
-        <button id="wm-make" class="btn-primary full">צור תזכורת שקילה</button>
-        <p class="section-hint" id="wm-hint"></p>
-      </div>
+        <h2 class="sec-title">גיבוי ושחזור</h2>
+        <section class="card" style="padding:16px;display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="itile" style="color:var(--green)">${I("check")}</div>
+            <div style="display:flex;flex-direction:column"><span style="font-weight:600">${last ? "גיבוי אחרון · " + U.prettyDate(last.slice(0, 10)) : "עוד לא נוצר גיבוי"}</span>
+              <span class="lbl">${App.sync && App.sync.email && App.sync.email() ? "הנתונים מסונכרנים לחשבון שלך. הגיבוי הוא עותק נוסף בקובץ." : "קובץ עם כל הנתונים שלך"}</span></div>
+          </div>
+          <div class="two-col" style="gap:8px">
+            <button class="btn btn-s" id="bk-export">${I("down", 20)}גבה עכשיו</button>
+            <label class="btn btn-s" for="bk-file" style="cursor:pointer">${I("up", 20)}שחזר</label>
+          </div>
+          <input type="file" id="bk-file" accept="application/json,.json" hidden>
+        </section>
 
-      <div class="card-block">
-        <h3>🍽️ תזכורת יומן אוכל (יומי)</h3>
-        <p class="section-hint">תזכורת קלילה פעם ביום לתעד מה אכלת — לא יותר מזה, בלי הצפה.</p>
-        <div class="add-row inline">
-          <input id="fm-time" type="time" value="${foodTime()}" />
-          <button id="fm-make" class="btn-primary">צור תזכורת</button>
-        </div>
-        <p class="section-hint" id="fm-hint"></p>
-      </div>
-
-      <div class="card-block">
-        <h3>🎨 מראה</h3>
-        <p class="section-hint">העיצוב מתאים את עצמו אוטומטית למצב בהיר/כהה של האייפון. אפשר לכפות מצב:</p>
-        <div class="seg" id="theme-seg">
-          <button data-theme="auto">אוטומטי</button>
-          <button data-theme="dark">כהה</button>
-          <button data-theme="light">בהיר</button>
-        </div>
-      </div>
-
-      ${em ? `<div class="card-block">
-        <h3>👤 חשבון</h3>
-        <p class="section-hint">מחובר כ: <b>${U.esc(em)}</b></p>
-        <button id="sy-logout" class="btn-secondary full">🚪 התנתק</button>
-      </div>` : ""}
-
-      <div class="card-block">
-        <h3>ℹ️ אודות</h3>
-        <p class="section-hint">חלבונינץ — תדריך יומי, מעקב אימונים, יומן תזונה, שקילה ולימוד.</p>
-        <p class="section-hint">גרסה <b>18</b> · טאב בוקר: תדריך יומי + 🧠 ידע כללי יומי · טאב לימוד: אנגלית · 100 שיעורי פיננסים · 100 שיעורי AI — הכל עם תזכורות חזרה · טיימר מנוחה · התחברות · בוט עזרה (כולל 📚 חבילת למידה יומית ל-NotebookLM) 🌿</p>
-      </div>
-    `;
+        <h2 class="sec-title">תצוגה</h2>
+        <section class="card" style="padding:16px;display:flex;flex-direction:column;gap:10px">
+          <span style="font-weight:600">ערכת צבעים</span>
+          <div class="seg" id="theme-seg" role="group" aria-label="ערכת צבעים">
+            <button data-theme="dark" class="${theme === "dark" ? "on" : ""}" aria-pressed="${theme === "dark"}">כהה</button>
+            <button data-theme="light" class="${theme === "light" ? "on" : ""}" aria-pressed="${theme === "light"}">בהיר</button>
+            <button data-theme="auto" class="${theme === "auto" ? "on" : ""}" aria-pressed="${theme === "auto"}">לפי המכשיר</button>
+          </div>
+        </section>
+        <span class="lbl" style="text-align:center;padding-top:8px">חלבונינץ · תדריך יומי, אימונים, תזונה, שקילה ולימוד</span>
+      </div>`;
 
     root.querySelector("#rm-make").addEventListener("click", makeReminder);
     root.querySelector("#wm-make").addEventListener("click", makeWeighReminder);
     root.querySelector("#fm-make").addEventListener("click", makeFoodReminder);
-
-    const seg = root.querySelector("#theme-seg");
-    const cur = localStorage.getItem("mb.theme") || "auto";
-    seg.querySelectorAll("button").forEach((b) => {
-      if (b.dataset.theme === cur) b.classList.add("active");
-      b.addEventListener("click", () => { App.setTheme(b.dataset.theme); render(); });
+    root.querySelectorAll("#theme-seg button").forEach((b) =>
+      b.addEventListener("click", () => { App.setTheme(b.dataset.theme); render(); }));
+    root.querySelector("#bk-export").addEventListener("click", () => {
+      const data = S.exportAll();
+      U.download(`halbonintz-backup-${U.todayISO()}.json`, JSON.stringify(data, null, 2), "application/json");
+      S.set("backup.last", new Date().toISOString());
+      render();
     });
-
-    const logoutBtn = root.querySelector("#sy-logout");
-    if (logoutBtn) logoutBtn.addEventListener("click", async () => {
-      if (App.sync) await App.sync.signOut().catch(() => {});
-      location.reload();
+    root.querySelector("#bk-file").addEventListener("change", async (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (!f) return;
+      try {
+        const obj = JSON.parse(await f.text());
+        if (!confirm("לשחזר מהגיבוי? הנתונים הנוכחיים יוחלפו בנתונים מהקובץ.")) return;
+        S.importAll(obj);
+        alert("השחזור הושלם. האפליקציה תיטען מחדש.");
+        location.reload();
+      } catch (err) { alert("הקובץ לא תקין: " + (err.message || err)); }
     });
   }
 
@@ -120,8 +114,7 @@ App.more = (function () {
       time, freq: "DAILY",
     });
     U.download("learning-daily.ics", ics, "text/calendar");
-    root.querySelector("#rm-hint").innerHTML =
-      `הקובץ ירד. ב-iOS פתח אותו ולחץ «הוסף הכל» כדי לקבל תזכורת כל בוקר ב-${time}. ✅`;
+    root.querySelector("#rm-hint").textContent = `הקובץ ירד — פתח אותו ולחץ «הוסף הכל» כדי לקבל תזכורת לימוד כל יום ב-${time}.`;
   }
 
   function makeFoodReminder() {
@@ -133,8 +126,7 @@ App.more = (function () {
       time, freq: "DAILY",
     });
     U.download("food-log-daily.ics", ics, "text/calendar");
-    root.querySelector("#fm-hint").innerHTML =
-      `הקובץ ירד. ב-iOS פתח אותו ולחץ «הוסף הכל» — תזכורת קלילה כל יום ב-${time}. ✅`;
+    root.querySelector("#rm-hint").textContent = `הקובץ ירד — פתח אותו ולחץ «הוסף הכל» כדי לקבל תזכורת יומן אוכל כל יום ב-${time}.`;
   }
 
   function makeWeighReminder() {
@@ -148,8 +140,7 @@ App.more = (function () {
     });
     U.download("weigh-weekly.ics", ics, "text/calendar");
     const dayName = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"][day];
-    root.querySelector("#wm-hint").innerHTML =
-      `הקובץ ירד. ב-iOS פתח אותו ולחץ «הוסף הכל» — תזכורת כל יום ${dayName} ב-${time}. ✅`;
+    root.querySelector("#rm-hint").textContent = `הקובץ ירד — פתח אותו ולחץ «הוסף הכל» כדי לקבל תזכורת שקילה כל יום ${dayName} ב-${time}.`;
   }
 
   return { mount, show };
