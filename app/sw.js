@@ -1,6 +1,6 @@
 // Service Worker — "רשת קודם": תמיד מביא את הגרסה העדכנית כשיש אינטרנט,
 // ונופל למטמון רק במצב לא-מקוון. כך האפליקציה לא "נתקעת" על גרסה ישנה.
-const CACHE = "morning-briefing-v65";
+const CACHE = "morning-briefing-v66";
 const SHELL = [
   ".",
   "index.html",
@@ -10,6 +10,7 @@ const SHELL = [
   "vendor/marked.min.js",
   "vendor/supabase.js",
   "js/store.js",
+  "js/icons.js",
   "js/sync.js",
   "js/nutrition.js",
   "js/scanner.js",
@@ -21,6 +22,13 @@ const SHELL = [
   "js/learn.js",
   "js/helpbot.js",
   "js/shop.js",
+  "js/home.js",
+  "js/me.js",
+  "fonts/fonts.css",
+  "fonts/heebo-hebrew-NGS6v5_NC0k9P9H0TbFzsQ.woff2",
+  "fonts/heebo-latin-NGS6v5_NC0k9P9H2TbE.woff2",
+  "fonts/rubik-hebrew-iJWKBXyIfDnIV7nDrXyi0A.woff2",
+  "fonts/rubik-latin-iJWKBXyIfDnIV7nBrXw.woff2",
   "data/foods.json",
   "data/exercises.json",
   "data/vocab.json",

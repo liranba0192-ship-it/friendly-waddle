@@ -3,56 +3,80 @@ window.App = window.App || {};
 
 (function () {
   const TABS = [
-    { id: "briefing", label: "בוקר", icon: "🌅", title: "חלבונינץ", mod: () => App.briefing },
-    { id: "workout", label: "אימון", icon: "💪", title: "אימון", mod: () => App.workout },
-    { id: "food", label: "תזונה", icon: "🥗", title: "תזונה", mod: () => App.food },
-    { id: "weight", label: "שקילה", icon: "⚖️", title: "שקילה", mod: () => App.weight },
-    { id: "learn", label: "לימוד", icon: "📚", title: "לימוד", mod: () => App.learn },
-    { id: "shop", label: "חנות", icon: "🛒", title: "חנות חלבונינץ", mod: () => App.shop },
+    { id: "home", label: "בית", icon: "home", title: "", mod: () => App.home },
+    { id: "workout", label: "אימון", icon: "dumbbell", title: "אימון", mod: () => App.workout },
+    { id: "food", label: "תזונה", icon: "fork", title: "תזונה", mod: () => App.food },
+    { id: "shop", label: "חנות", icon: "bag", title: "", mod: () => App.shop },
+    { id: "me", label: "אני", icon: "user", title: "", mod: () => App.me },
   ];
+  // טאבים ישנים (לפני העיצוב החדש) → טאב + תת-מסך חדשים
+  const LEGACY = { briefing: ["home"], weight: ["food", "weight"], learn: ["me", "learn"] };
   const mounted = {};
-  let active = null, settingsMounted = false;
+  let active = null;
 
-  // --- theme ---
+  // --- theme (ברירת מחדל: כהה) ---
   App.setTheme = function (theme) {
     localStorage.setItem("mb.theme", theme);
     applyTheme();
   };
   function applyTheme() {
-    document.documentElement.setAttribute("data-theme", localStorage.getItem("mb.theme") || "auto");
+    document.documentElement.setAttribute("data-theme", localStorage.getItem("mb.theme") || "dark");
+    requestAnimationFrame(() => {
+      const meta = document.getElementById("themeColor");
+      if (meta) meta.setAttribute("content", getComputedStyle(document.body).backgroundColor || "#0a0a0a");
+    });
   }
 
-  function titleFor(id) {
-    const t = TABS.find((x) => x.id === id);
-    return `${t.icon} ${t.title}`;
+  function updateChrome() {
+    const tab = TABS.find((t) => t.id === active);
+    const m = tab && tab.mod();
+    const sub = !!(m && m.isHome && !m.isHome());
+    // סרגל הטאבים מוסתר רק במסכי משנה "ממוקדים" (מסך תרגיל, מסך מאכל) — לפי העיצוב
+    document.body.classList.toggle("subview", !!(m && m.hideTabbar && m.hideTabbar()));
+    const header = document.querySelector(".app-header");
+    header.hidden = sub || !tab.title;
   }
+  App.updateChrome = () => requestAnimationFrame(updateChrome);
 
-  async function switchTab(id) {
+  async function switchTab(id, sub, opts) {
+    if (LEGACY[id]) { [id, sub] = [LEGACY[id][0], sub || LEGACY[id][1]]; }
+    if (!TABS.some((t) => t.id === id)) id = "home";
     active = id;
     localStorage.setItem("mb.lastTab", id);
-    document.getElementById("appTitle").textContent = titleFor(id);
+    const tab = TABS.find((t) => t.id === id);
+    document.getElementById("appTitle").textContent = tab.title;
     for (const t of TABS) {
       document.getElementById("view-" + t.id).hidden = t.id !== id;
-      document.getElementById("tab-" + t.id).classList.toggle("active", t.id === id);
+      const b = document.getElementById("tab-" + t.id);
+      b.classList.toggle("active", t.id === id);
+      if (t.id === id) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
     }
-    const tab = TABS.find((t) => t.id === id);
     const view = document.getElementById("view-" + id);
     if (!mounted[id]) { await tab.mod().mount(view); mounted[id] = true; }
     else if (tab.mod().show) await tab.mod().show();
+    if (sub && tab.mod().open) await tab.mod().open(sub, opts);
     view.classList.remove("enter");
     void view.offsetWidth;
     view.classList.add("enter");
     window.scrollTo(0, 0);
-    location.hash = id;
+    history.replaceState(null, "", "#" + id);
+    updateChrome();
   }
+  // ניווט בין טאבים ותת-מסכים: App.nav.go("food", "weight")
+  App.nav = { go: (tab, sub, opts) => switchTab(tab, sub, opts), active: () => active };
+  App.openSettings = () => switchTab("me", "settings");
 
   function buildTabbar() {
     const nav = document.getElementById("tabbar");
     nav.innerHTML = TABS.map((t) =>
-      `<button id="tab-${t.id}" class="tab"><span class="tab-icon">${t.icon}</span><span class="tab-label">${t.label}</span></button>`
+      `<button id="tab-${t.id}" class="tab"><span class="tab-icon">${App.icon(t.icon, 24)}</span><span class="tab-label">${t.label}</span></button>`
     ).join("");
     TABS.forEach((t) =>
-      document.getElementById("tab-" + t.id).addEventListener("click", () => switchTab(t.id))
+      document.getElementById("tab-" + t.id).addEventListener("click", () => {
+        // לחיצה על הטאב הפעיל כשנמצאים בתת-מסך — חזרה למסך הראשי של הטאב
+        if (t.id === active && t.mod().home) { t.mod().home(); updateChrome(); window.scrollTo(0, 0); return; }
+        switchTab(t.id);
+      })
     );
   }
 
@@ -96,17 +120,6 @@ window.App = window.App || {};
     }, { passive: true });
   }
 
-  // --- settings overlay ---
-  function openSettings() {
-    const ov = document.getElementById("settings-overlay");
-    ov.hidden = false;
-    const body = document.getElementById("settings-body");
-    if (!settingsMounted) { App.more.mount(body); settingsMounted = true; }
-    else if (App.more.show) App.more.show();
-  }
-  function closeSettings() { document.getElementById("settings-overlay").hidden = true; }
-  App.openSettings = openSettings;
-
   // --- auth helpers ---
   // אם הקלט נראה כמספר טלפון — הופך אותו ל-email סינתטי לשימוש ב-Supabase
   function toEmail(raw) {
@@ -121,8 +134,8 @@ window.App = window.App || {};
 
   function startApp() {
     document.getElementById("auth-overlay").hidden = true;
-    const start = (location.hash || "").replace("#", "") || localStorage.getItem("mb.lastTab") || "";
-    switchTab(TABS.some((t) => t.id === start) ? start : "briefing");
+    const start = (location.hash || "").replace("#", "") || localStorage.getItem("mb.lastTab") || "home";
+    switchTab(start);
   }
 
   function renderAuthForm() {
@@ -185,8 +198,11 @@ window.App = window.App || {};
     applyTheme();
     buildTabbar();
     initSwipeNav();
-    document.getElementById("settingsBtn").addEventListener("click", openSettings);
-    document.getElementById("settings-close").addEventListener("click", closeSettings);
+    const gear = document.getElementById("settingsBtn");
+    gear.innerHTML = App.icon("bell", 22);
+    gear.addEventListener("click", () => switchTab("me", "settings"));
+    // מודולים משנים תת-מסך בלחיצה פנימית — מעדכנים סרגל/כותרת אחרי כל לחיצה
+    document.addEventListener("click", () => App.updateChrome());
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("sw.js").catch(() => {});
     }

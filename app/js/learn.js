@@ -824,5 +824,15 @@ App.learn = (function () {
     }
   }
 
-  return { mount, show, isHome: () => view.kind === "home" };
+  // התקדמות המנה היומית — לכרטיס "10 המילים של היום" במסך הבית
+  async function todayProgress() {
+    await ensure();
+    const list = curBatchWords();
+    const marks = raw().marks || {};
+    const done = list.filter((w) => marks[String(w.id)]).length;
+    const next = list.find((w) => !marks[String(w.id)]);
+    return { done, total: list.length || 10, next: next ? next.en : "" };
+  }
+
+  return { mount, show, todayProgress, home: () => { view = { kind: "home" }; if (root) render(); }, isHome: () => view.kind === "home" };
 })();
