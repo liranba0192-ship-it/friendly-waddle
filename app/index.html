@@ -2,18 +2,17 @@
 <html lang="he" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>חלבונינץ 🌅</title>
   <meta name="description" content="תדריך ידע יומי, מעקב אימונים (Progressive Overload), יומן אוכל ושקילה." />
 
   <link rel="manifest" href="manifest.webmanifest" />
-  <meta name="theme-color" content="#0d9488" media="(prefers-color-scheme: dark)" />
-  <meta name="theme-color" content="#14b8a6" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0a0a0a" id="themeColor" />
 
   <!-- iOS "add to home screen" -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="חלבונינץ" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
   <link rel="icon" href="icons/icon-192.png" />
@@ -22,33 +21,19 @@
 </head>
 <body>
   <header class="app-header">
-    <button id="settingsBtn" class="settings-gear" aria-label="הגדרות">⚙️</button>
-    <img class="app-logo" src="icons/logo-mark.svg" alt="לוגו" />
     <h1 id="appTitle" class="app-title">חלבונינץ</h1>
+    <button id="settingsBtn" class="settings-gear" aria-label="הגדרות ותזכורות"></button>
   </header>
 
   <main class="content">
-    <section id="view-briefing" class="view"></section>
+    <section id="view-home" class="view"></section>
     <section id="view-workout" class="view" hidden></section>
     <section id="view-food" class="view" hidden></section>
-    <section id="view-weight" class="view" hidden></section>
-    <section id="view-learn" class="view" hidden></section>
     <section id="view-shop" class="view" hidden></section>
+    <section id="view-me" class="view" hidden></section>
   </main>
 
   <nav id="tabbar" class="tabbar" aria-label="ניווט"></nav>
-
-  <!-- מגירת הגדרות (נפתחת מגלגל-השיניים בכותרת) -->
-  <div id="settings-overlay" class="settings-overlay" hidden>
-    <div class="settings-panel">
-      <div class="settings-head">
-        <button id="settings-close" class="scan-close">✕ סגור</button>
-        <span class="settings-title">⚙️ הגדרות</span>
-        <span style="width:60px"></span>
-      </div>
-      <div id="settings-body" class="settings-body"></div>
-    </div>
-  </div>
 
   <!-- מסך כניסה — גלוי עד להתחברות, מוסתר אחריה -->
   <div id="auth-overlay" class="auth-overlay">
@@ -61,6 +46,7 @@
 
   <script src="vendor/marked.min.js"></script>
   <script src="js/store.js"></script>
+  <script src="js/icons.js"></script>
   <script src="js/sync.js"></script>
   <script src="js/nutrition.js"></script>
   <script src="js/scanner.js"></script>
@@ -72,6 +58,8 @@
   <script src="js/learn.js"></script>
   <script src="js/helpbot.js"></script>
   <script src="js/shop.js"></script>
+  <script src="js/home.js"></script>
+  <script src="js/me.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

@@ -553,5 +553,21 @@ App.workout = (function () {
     );
   }
 
-  return { mount, show, isHome: () => view.kind === "home" };
+  // סיכום להיום — לכרטיס "האימון של היום" במסך הבית
+  function todaySummary() {
+    const today = U.todayISO();
+    const splitDef = SPLITS.find((s) => s.key === splitFor(today)) || SPLITS[0];
+    const exCount = allGroups().filter((g) => !splitDef.match || splitDef.match.some((m) => g.name.includes(m)))
+      .reduce((a, g) => a + g.exercises.length, 0);
+    const done = logsForDate(today);
+    return {
+      rest: isRest(today),
+      splitLabel: splitDef.key === "all" ? "אימון חופשי" : splitDef.label,
+      exerciseCount: exCount,
+      doneCount: done.length,
+      doneSets: done.reduce((a, l) => a + l.sets.length, 0),
+    };
+  }
+
+  return { mount, show, todaySummary, ready: ensure, hideTabbar: () => view.kind === "exercise", home: () => { view = { kind: "home" }; if (root) render(); }, isHome: () => view.kind === "home" };
 })();

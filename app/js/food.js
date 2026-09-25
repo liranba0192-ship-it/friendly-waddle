@@ -6,6 +6,7 @@ App.food = (function () {
   let root, db = [], loaded = false, view = "main", selectedFood = null, selDate = null, editPrefill = null;
   let editEntryId = null;    // מזהה רשומת יומן בעריכה — פותח את דף המאכל המלא, לא רק שדה גרמים
   let lastQuery = "";        // מילת החיפוש האחרונה — כדי לחזור אליה מדף מאכל
+  let mode = "log";          // log (יומן) | weight (שקילה — App.weight מותקן כאן)
 
   function entries() { return S.get("food.entries", []); }   // [{id,date,name,grams,kcal,protein,carbs,fat}]
   function custom() { return S.get("food.custom", []); }     // user foods (per 100g, optional unit)
@@ -36,7 +37,26 @@ App.food = (function () {
   async function mount(el) { root = el; await ensureDB(); render(); }
   async function show() { await ensureDB(); render(); }
 
+  function modeSeg() {
+    return `<div class="seg" role="tablist" aria-label="תצוגה" style="margin-bottom:12px">
+      <button role="tab" data-mode="log" class="${mode === "log" ? "on" : ""}" aria-selected="${mode === "log"}">יומן</button>
+      <button role="tab" data-mode="weight" class="${mode === "weight" ? "on" : ""}" aria-selected="${mode === "weight"}">משקל</button>
+    </div>`;
+  }
+  function wireModeSeg() {
+    root.querySelectorAll("[data-mode]").forEach((b) =>
+      b.addEventListener("click", () => { mode = b.dataset.mode; view = "main"; render(); window.scrollTo(0, 0); })
+    );
+  }
+  function renderWeight() {
+    root.innerHTML = modeSeg() + `<div id="fd-weight"></div>`;
+    wireModeSeg();
+    App.weight.mount(root.querySelector("#fd-weight"));
+  }
+  function open(sub) { mode = sub === "weight" ? "weight" : "log"; view = "main"; render(); }
+
   function render() {
+    if (mode === "weight") return renderWeight();
     if (view === "custom") return renderCustom();
     if (view === "detail") return renderDetail(selectedFood);
     renderMain();
@@ -112,6 +132,7 @@ App.food = (function () {
       </div>`).join("") || `<p class="status">אין ארוחות ליום זה.</p>`;
 
     root.innerHTML = `
+      ${modeSeg()}
       ${dateStrip()}
 
       <div class="dash-grid">
@@ -155,9 +176,10 @@ App.food = (function () {
       </div>
 
       <button id="fd-custom" class="btn-secondary full">➕ הוסף מאכל משלך למאגר</button>
-      <p class="section-hint" style="text-align:center;margin-top:10px">💡 יעדים ומחשבון קלוריות — בטאב <b>שקילה ⚖️</b></p>
+      <p class="section-hint" style="text-align:center;margin-top:10px">💡 יעדים ומחשבון קלוריות — במקטע <b>משקל</b> למעלה</p>
     `;
 
+    wireModeSeg();
     // date strip
     root.querySelectorAll("[data-day]").forEach((b) =>
       b.addEventListener("click", () => { selDate = b.dataset.day; render(); })
@@ -452,5 +474,5 @@ App.food = (function () {
   // פתיחת מאכל ישירות בדף הפרטים (לסורק)
   function openFood(food) { editEntryId = null; selectedFood = food; view = "detail"; if (root) render(); }
 
-  return { mount, show, findByBarcode, openFood, isHome: () => view === "main" };
+  return { mount, show, open, findByBarcode, openFood, hideTabbar: () => mode === "log" && view !== "main", home: () => { view = "main"; if (root) render(); }, isHome: () => view === "main" };
 })();
