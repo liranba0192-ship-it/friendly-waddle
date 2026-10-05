@@ -29,6 +29,7 @@ window.App = window.App || {};
 
   function updateChrome() {
     const tab = TABS.find((t) => t.id === active);
+    if (!tab) return; // עוד לא נכנסו לאפליקציה (מסך כניסה / נעילה)
     const m = tab && tab.mod();
     const sub = !!(m && m.isHome && !m.isHome());
     if (m && m.chrome) m.chrome();
@@ -133,7 +134,14 @@ window.App = window.App || {};
     return trimmed;
   }
 
-  function startApp() {
+  async function startApp() {
+    let acc = { ok: true };
+    try { acc = await App.billing.check(); } catch {}
+    if (!acc.ok) {
+      document.getElementById("auth-overlay").hidden = false;
+      App.billing.paywall(document.getElementById("auth-body"), acc, startApp);
+      return;
+    }
     document.getElementById("auth-overlay").hidden = true;
     const start = (location.hash || "").replace("#", "") || localStorage.getItem("mb.lastTab") || "home";
     switchTab(start);

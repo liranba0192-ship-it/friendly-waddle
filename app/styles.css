@@ -987,3 +987,10 @@ body.subview .content { padding-bottom: calc(var(--safe-bottom) + 40px); }
 .auth-msg { color: var(--danger) !important; min-height: 20px; margin: 0; }
 .clamp2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.3; }
 .mini-card .bar { width: 100%; }
+
+/* ---- מנוי / מסך נעילה ---- */
+.pay-box { width: 100%; display: flex; flex-direction: column; gap: 10px; text-align: center; }
+.pay-box .btn { display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; }
+.pay-ref { direction: ltr; unicode-bidi: embed; word-break: break-all; color: var(--text); }
+.sub-note { font-size: 13px; color: var(--muted-2); }
+.sub-note.warn { color: var(--accent-text); font-weight: 600; }

@@ -18,6 +18,24 @@ App.me = (function () {
     if (sub === "settings" && settingsEl) settingsEl.scrollIntoView({ block: "start" });
   }
 
+  // שורת מנוי + קישור ניהול (רק למנהל)
+  function renderSub() {
+    const box = root.querySelector("#me-sub");
+    const sub = App.billing && App.billing.cached();
+    if (sub) {
+      const left = App.billing.daysLeft(sub);
+      const warn = left !== null && left <= 14;
+      const txt = left !== null && left < 0 ? "המנוי הסתיים" : `המנוי שלך בתוקף עד ${App.billing.fmt(sub.paid_until)}`;
+      box.innerHTML = `<section class="card"><span style="font-weight:600">${txt}</span>
+        <span class="sub-note${warn ? " warn" : ""}" style="display:block;margin-top:4px">${warn ? `נותרו ${Math.max(left, 0)} ימים — כדאי לחדש בקרוב.` : "תודה שאתה איתנו."}</span></section>`;
+    }
+    if (App.sync && App.sync.isAdmin) App.sync.isAdmin().then((yes) => {
+      if (!yes || !root.contains(box)) return;
+      box.insertAdjacentHTML("beforeend", `<a class="card list-row" href="admin.html" style="margin-top:12px;text-decoration:none;color:inherit"><div class="itile">${I("user")}</div>
+        <span class="grow"><span style="font-weight:600">ניהול חברים</span><span class="lbl">מנויים, תשלומים וחסימות</span></span><span class="chev">${I("chev")}</span></a>`);
+    });
+  }
+
   function render() {
     const email = App.sync && App.sync.email ? App.sync.email() : null;
     const name = email ? email.split("@")[0] : "חלבונינץ";
@@ -31,6 +49,7 @@ App.me = (function () {
             <span class="perk">${I("gift", 16)}5% הנחה בחנות · מנוי</span>
           </div>
         </section>
+        <div id="me-sub"></div>
         <div id="me-settings"></div>
         <h2 class="sec-title">עזרה וחשבון</h2>
         <section class="card list-group">
@@ -40,6 +59,7 @@ App.me = (function () {
             <span class="grow"><span style="font-weight:600">התנתקות</span><span class="lbl">${U.esc(email)}</span></span></button>` : ""}
         </section>
       </div>`;
+    renderSub();
     settingsEl = root.querySelector("#me-settings");
     App.more.mount(settingsEl);
     root.querySelector("#me-help").addEventListener("click", () => App.helpbot && App.helpbot.open());

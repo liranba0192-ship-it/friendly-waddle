@@ -90,7 +90,7 @@ App.sync = (function () {
 
   async function signUp(em, pw) {
     const cl = await getClient(); if (!cl) throw new Error("הזן קודם כתובת ומפתח Supabase");
-    const { data, error } = await cl.auth.signUp({ email: em, password: pw });
+    const { data, error } = await cl.auth.signUp({ email: em, password: pw, options: { data: { consented_at: new Date().toISOString() } } });
     if (error) throw error;
     if (data.user && data.session) { S.set("sync.email", em); await afterLogin(true); }
     return data;
@@ -136,5 +136,24 @@ App.sync = (function () {
     } catch {}
   }
 
-  return { getState, configured, email, saveConfig, signUp, signIn, signOut, syncNow, init };
+  // מנוי: {ok:false} אם השאילתה נכשלה (אופליין / טבלה לא קיימת), אחרת {ok:true, row|null}
+  async function subscription() {
+    try {
+      const cl = await getClient(); if (!cl) return { ok: false };
+      const u = await currentUser(cl); if (!u) return { ok: false };
+      const { data, error } = await cl.from("subscriptions").select("status,paid_until").eq("user_id", u.id).maybeSingle();
+      if (error) return { ok: false };
+      return { ok: true, row: data || null };
+    } catch { return { ok: false }; }
+  }
+  async function isAdmin() {
+    try {
+      const cl = await getClient(); if (!cl) return false;
+      const u = await currentUser(cl); if (!u) return false;
+      const { data, error } = await cl.from("admins").select("user_id").eq("user_id", u.id).maybeSingle();
+      return !error && !!data;
+    } catch { return false; }
+  }
+
+  return { getState, configured, email, saveConfig, signUp, signIn, signOut, syncNow, init, subscription, isAdmin, getClient };
 })();
