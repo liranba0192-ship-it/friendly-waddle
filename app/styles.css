@@ -994,3 +994,8 @@ body.subview .content { padding-bottom: calc(var(--safe-bottom) + 40px); }
 .pay-ref { direction: ltr; unicode-bidi: embed; word-break: break-all; color: var(--text); }
 .sub-note { font-size: 13px; color: var(--muted-2); }
 .sub-note.warn { color: var(--accent-text); font-weight: 600; }
+
+/* ---- הסכמה לתקנון בהרשמה ---- */
+.consent { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; line-height: 1.5; color: var(--muted-2); }
+.consent input { width: 24px; height: 24px; flex: none; margin: 2px 0 0; accent-color: var(--accent); }
+.consent a { color: var(--accent-text); }
