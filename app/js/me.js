@@ -55,6 +55,12 @@ App.me = (function () {
         <section class="card list-group">
           <button class="list-row" id="me-help"><div class="itile">${I("chat")}</div>
             <span class="grow"><span style="font-weight:600">בוט עזרה</span><span class="lbl">שאלות נפוצות על האפליקציה</span></span><span class="chev">${I("chev")}</span></button>
+          <a class="list-row" href="legal/terms.html" target="_blank" rel="noopener"><div class="itile">${I("lock")}</div>
+            <span class="grow"><span style="font-weight:600">תקנון ותנאי מנוי</span><span class="lbl">מחיר, ביטול והחזר</span></span><span class="chev">${I("chev")}</span></a>
+          <a class="list-row" href="legal/privacy.html" target="_blank" rel="noopener"><div class="itile">${I("lock")}</div>
+            <span class="grow"><span style="font-weight:600">מדיניות פרטיות</span><span class="lbl">איזה מידע נשמר ואיך מוחקים</span></span><span class="chev">${I("chev")}</span></a>
+          ${email ? `<a class="list-row" href="mailto:halbonintz@gmail.com?subject=${encodeURIComponent("בקשת מחיקת חשבון")}&body=${encodeURIComponent("אני מבקש למחוק את החשבון והנתונים שלי. החשבון: " + email)}"><div class="itile">${I("trash")}</div>
+            <span class="grow"><span style="font-weight:600">מחיקת חשבון ונתונים</span><span class="lbl">שליחת בקשה במייל</span></span><span class="chev">${I("chev")}</span></a>` : ""}
           ${email ? `<button class="list-row danger" id="me-logout"><div class="itile" style="color:var(--danger)">${I("logout")}</div>
             <span class="grow"><span style="font-weight:600">התנתקות</span><span class="lbl">${U.esc(email)}</span></span></button>` : ""}
         </section>

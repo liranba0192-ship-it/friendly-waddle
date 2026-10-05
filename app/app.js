@@ -180,6 +180,8 @@ window.App = window.App || {};
         <label class="fl"><span class="lbl">סיסמה</span>
           <span class="search-field">${I("lock")}<input id="au-pass" type="password" autocomplete="current-password" placeholder="לפחות 6 תווים">
             <button type="button" class="ibtn ghost sm" id="au-eye" aria-label="הצג סיסמה" aria-pressed="false">${I("eye", 20)}</button></span></label>
+        <label class="consent"><input type="checkbox" id="au-consent">
+          <span>קראתי והסכמתי ל<a href="legal/terms.html" target="_blank" rel="noopener">תקנון ותנאי המנוי</a> ול<a href="legal/privacy.html" target="_blank" rel="noopener">מדיניות הפרטיות</a>, כולל עיבוד נתוני הבריאות שאזין (תזונה, משקל ואימונים) לצורך מתן השירות. <span class="lbl">(נדרש להרשמה)</span></span></label>
         <button id="au-login" type="submit" class="btn btn-p full">התחברות</button>
         <p class="auth-msg" id="au-msg" role="alert"></p>
         <div class="auth-foot"><span class="lbl" style="font-size:15px">אין לך חשבון?</span><button type="button" id="au-signup" class="btn btn-t">הרשמה</button></div>
@@ -220,6 +222,7 @@ window.App = window.App || {};
 
     el.querySelector("#au-signup").addEventListener("click", async () => {
       if (!el.querySelector("#au-ident").value.trim() || !pass()) { msg("נא למלא אימייל/טלפון וסיסמה"); return; }
+      if (!el.querySelector("#au-consent").checked) { msg("כדי להירשם יש לאשר את התקנון ומדיניות הפרטיות"); el.querySelector("#au-consent").focus(); return; }
       msg("נרשם…");
       try {
         await App.sync.signUp(ident(), pass());
