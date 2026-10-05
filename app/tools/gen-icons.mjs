@@ -141,9 +141,9 @@ function draw(size, { maskable = false } = {}) {
 }
 
 const targets = [
-  { name: "icon-192.png", size: 192, maskable: true },
-  { name: "icon-512.png", size: 512, maskable: true },
-  { name: "apple-touch-icon.png", size: 180, maskable: false },
+  { name: "icon-v2-192.png", size: 192, maskable: true },
+  { name: "icon-v2-512.png", size: 512, maskable: true },
+  { name: "apple-touch-icon-v2.png", size: 180, maskable: false },
 ];
 for (const t of targets) {
   const png = draw(t.size, { maskable: t.maskable });
