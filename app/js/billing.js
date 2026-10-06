@@ -30,13 +30,14 @@ App.billing = (function () {
     return sub ? Math.ceil((new Date(sub.paid_until).getTime() - Date.now()) / DAY) : null;
   }
 
-  function paywall(el, acc, onRetry) {
-    const c = cfg(), email = App.sync.email() || "";
+  // מסך תשלום. המשתמש כבר מנותק, ולכן אין "בדיקה מחדש" אלא התחברות מחדש אחרי תשלום ואישור.
+  function paywall(el, acc) {
+    const c = cfg(), email = acc.email || "";
     const blocked = acc.reason === "blocked";
-    const title = blocked ? "החשבון הושהה" : acc.reason === "trial" ? "תקופת הניסיון הסתיימה" : "המנוי הסתיים";
-    const sub = blocked ? "פנה אל המנהל כדי להחזיר את הגישה." : `כדי להמשיך להשתמש באפליקציה: ${c.priceNis || 50} ש״ח לשנה.`;
+    const title = blocked ? "החשבון הושהה" : acc.reason === "trial" ? "הניסיון הסתיים" : "המנוי הסתיים";
+    const sub = blocked ? "פנה אל המנהל כדי להחזיר את הגישה." : `כדי להמשיך להשתמש באפליקציה צריך לשלם ${c.priceNis || 50} ש״ח לשנה.`;
     const wa = c.whatsapp
-      ? `https://wa.me/${encodeURIComponent(c.whatsapp)}?text=${encodeURIComponent("היי, שילמתי על המנוי לחלבונינץ. החשבון: " + email)}`
+      ? `https://wa.me/${encodeURIComponent(c.whatsapp)}?text=${encodeURIComponent((blocked ? "היי, החשבון שלי בחלבונינץ הושהה. החשבון: " : "היי, שילמתי על המנוי לחלבונינץ. החשבון: ") + email)}`
       : "";
     el.innerHTML = `
       <div class="pay-box" role="alert">
@@ -45,22 +46,39 @@ App.billing = (function () {
         ${blocked ? "" : `<p class="auth-hint">בהערת התשלום כתוב את החשבון שלך:<br><b class="pay-ref">${U.esc(email)}</b></p>
           ${c.bitUrl ? `<a class="btn btn-p full" href="${U.esc(c.bitUrl)}" target="_blank" rel="noopener">${I("bolt", 18)} תשלום בביט</a>` : ""}
           ${c.payboxUrl ? `<a class="btn btn-s full" href="${U.esc(c.payboxUrl)}" target="_blank" rel="noopener">תשלום בפייבוקס</a>` : ""}`}
-        ${wa ? `<a class="btn btn-s full" href="${wa}" target="_blank" rel="noopener">${I("chat", 18)} ${blocked ? "פנייה בוואטסאפ" : "כבר שילמתי — עדכון בוואטסאפ"}</a>` : ""}
+        ${wa ? `<a class="btn ${blocked || c.bitUrl || c.payboxUrl ? "btn-s" : "btn-p"} full" href="${wa}" target="_blank" rel="noopener">${I("chat", 18)} ${blocked ? "פנייה בוואטסאפ" : "כבר שילמתי — עדכון בוואטסאפ"}</a>` : ""}
         ${!c.bitUrl && !c.payboxUrl && !wa ? `<p class="auth-hint">פנה אל המנהל לתשלום.</p>` : ""}
-        <button id="pw-retry" class="btn btn-s full" type="button">בדיקה מחדש</button>
-        <button id="pw-out" class="btn btn-t full" type="button">התנתקות</button>
-        <p class="auth-msg" id="pw-msg" role="status"></p>
+        <p class="auth-hint">אחרי שהתשלום אושר, התחבר מחדש. הנתונים שלך שמורים.</p>
+        <button id="pw-relogin" class="btn btn-s full" type="button">התחברות מחדש</button>
       </div>`;
-    el.querySelector("#pw-retry").addEventListener("click", async () => {
-      const m = el.querySelector("#pw-msg"); m.textContent = "בודק…";
-      const a = await check();
-      if (a.ok) onRetry(); else m.textContent = "עדיין לא התעדכן. אחרי תשלום המנהל מאשר ידנית.";
-    });
-    el.querySelector("#pw-out").addEventListener("click", async () => {
-      if (App.sync) await App.sync.signOut().catch(() => {});
-      location.reload();
-    });
+    el.querySelector("#pw-relogin").addEventListener("click", () => location.reload());
   }
 
-  return { check, paywall, daysLeft, fmt, cached, cfg };
+  // התראה על הרשמה חדשה לבעל העסק (FormSubmit, בלי שרת). נשלחת פעם אחת, ומנסים שוב בפתיחה הבאה אם נכשלה.
+  const NOTIFY_KEY = "sync.notify";
+  function queueSignupNotice(email) { if (email) S.set(NOTIFY_KEY, email); }
+  async function flushSignupNotice() {
+    const email = S.get(NOTIFY_KEY, null), to = cfg().notifyEmail;
+    if (!email || !to) return;
+    S.set(NOTIFY_KEY, null); // לפני השליחה — כדי שלא יישלח פעמיים
+    try {
+      const adminUrl = new URL("admin.html", location.href).href;
+      const r = await fetch("https://formsubmit.co/ajax/" + encodeURIComponent(to), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          _subject: "הרשמה חדשה לחלבונינץ — צריך לאשר",
+          _captcha: "false",
+          _template: "table",
+          חשבון: email,
+          הצטרף: new Date().toLocaleString("he-IL"),
+          ניסיון: `${cfg().trialDays || 7} ימים`,
+          "לאשר או לחסום": adminUrl,
+        }),
+      });
+      if (!r.ok) throw new Error(String(r.status));
+    } catch { S.set(NOTIFY_KEY, email); }
+  }
+
+  return { check, paywall, daysLeft, fmt, cached, cfg, queueSignupNotice, flushSignupNotice };
 })();
