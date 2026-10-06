@@ -1,14 +1,16 @@
 "use strict";
 /* הגדרות מנוי ופרטי עסק. מלא את הערכים הריקים לפני שמפעילים תשלום.
-   billing.enforce=false — אף אחד לא ננעל (ברירת המחדל). משנים ל-true כשהכל מוכן. */
+   billing.enforce=true — משתמש שהניסיון או המנוי שלו נגמרו מנותק ורואה מסך תשלום.
+   אפשר לכבות זמנית עם false. משתמשים קיימים מסומנים "active" ב-SQL ולכן לא מושפעים. */
 window.APP_CONFIG = {
   billing: {
-    enforce: false,
+    enforce: true,
     priceNis: 50,
-    trialDays: 14,          // נקבע גם ב-supabase/subscriptions.sql
+    trialDays: 7,           // נקבע גם ב-supabase/trial7.sql
     offlineGraceDays: 7,    // כמה ימים אחרי הפקיעה עובדים בלי אינטרנט
     bitUrl: "",             // קישור תשלום בביט
     payboxUrl: "",          // קישור תשלום בפייבוקס
+    notifyEmail: "halbonintz@gmail.com", // לשם נשלחת התראה על כל הרשמה חדשה (FormSubmit)
     whatsapp: "972545445895",           // מספר בפורמט בינלאומי בלי +, למשל 972501234567
   },
   business: {

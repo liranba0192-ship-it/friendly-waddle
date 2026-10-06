@@ -134,17 +134,42 @@ window.App = window.App || {};
     return trimmed;
   }
 
+  // רשת ביטחון: במקום מסך ריק מציגים הודעה עם אפשרות לנסות שוב או להתנתק
+  function fatal(err) {
+    console.error(err);
+    const ov = document.getElementById("auth-overlay"), body = document.getElementById("auth-body");
+    if (!ov || !body) return;
+    ov.hidden = false;
+    body.innerHTML = `<div class="pay-box" role="alert"><h2 class="t2">משהו השתבש בטעינה</h2>
+      <p class="auth-hint">הנתונים שלך שמורים. נסה לטעון שוב, ואם זה חוזר, התנתק והתחבר מחדש.</p>
+      <button id="ft-retry" class="btn btn-p full" type="button">נסה שוב</button>
+      <button id="ft-out" class="btn btn-s full" type="button">התנתקות</button></div>`;
+    body.querySelector("#ft-retry").addEventListener("click", () => location.reload());
+    body.querySelector("#ft-out").addEventListener("click", async () => {
+      try { if (App.sync) await App.sync.signOut(); } catch {}
+      location.reload();
+    });
+  }
+  window.addEventListener("unhandledrejection", (e) => {
+    const ov = document.getElementById("auth-overlay");
+    if (ov && ov.hidden && !document.querySelector(".content").innerText.trim()) fatal(e.reason);
+  });
+
   async function startApp() {
     let acc = { ok: true };
     try { acc = await App.billing.check(); } catch {}
     if (!acc.ok) {
+      // ניסיון או מנוי שנגמרו: מנתקים ומציגים מסך תשלום. הנתונים נשארים במכשיר ובענן.
+      const email = App.sync.email();
+      try { await App.sync.signOut(); } catch {}
       document.getElementById("auth-overlay").hidden = false;
-      App.billing.paywall(document.getElementById("auth-body"), acc, startApp);
+      App.billing.paywall(document.getElementById("auth-body"), { ...acc, email });
       return;
     }
     document.getElementById("auth-overlay").hidden = true;
     const start = (location.hash || "").replace("#", "") || localStorage.getItem("mb.lastTab") || "home";
     switchTab(start);
+    App.billing.flushSignupNotice();
   }
 
   function renderAuthForm() {
@@ -216,7 +241,7 @@ window.App = window.App || {};
       msg("מתחבר…");
       try {
         await App.sync.signIn(ident(), pass());
-        startApp();
+        await startApp();
       } catch (e) { msg("שגיאה: " + (e.message || String(e))); }
     });
 
@@ -226,7 +251,7 @@ window.App = window.App || {};
       msg("נרשם…");
       try {
         await App.sync.signUp(ident(), pass());
-        if (App.sync.email()) startApp();
+        if (App.sync.email()) { App.billing.queueSignupNotice(App.sync.email()); await startApp(); }
         else msg("נשלח אימייל אישור. לאחר האישור התחבר כרגיל.");
       } catch (e) { msg("שגיאה: " + (e.message || String(e))); }
     });
@@ -254,9 +279,9 @@ window.App = window.App || {};
       try { await App.sync.init(); } catch {}
       authed = !!App.sync.email();
     }
-    if (authed) startApp();
+    if (authed) await startApp();
     else renderAuthForm();
   }
 
-  document.addEventListener("DOMContentLoaded", init);
+  document.addEventListener("DOMContentLoaded", () => init().catch(fatal));
 })();

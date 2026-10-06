@@ -7,6 +7,8 @@
    insert into public.admins (user_id) select id from auth.users where email = 'המייל-שלך';
    ```
    (אם נרשמת עם טלפון, המייל הוא `0501234567@halbonintz.app`.)
+2א. **שבוע ניסיון:** הרץ גם את `trial7.sql` — משתמש חדש מקבל 7 ימים, ואחריהם מנותק ורואה מסך תשלום. כל הרשמה חדשה שולחת לך מייל (FormSubmit) עם קישור למסך הניהול; שם לחץ "אשר ושולם" אחרי שראית את ההעברה.
+2ב. ב-Supabase: Authentication ← Providers ← Email ← כבה "Confirm email" (האישור שלך מחליף אותו, והרשמה בטלפון לא יכולה לאשר אימייל).
 3. פתח `…/app/admin.html` והתחבר — תראה את כל החברים.
 4. **קישורי תשלום:** מלא `bitUrl` / `payboxUrl` ב-`app/js/config.js`. (הוואטסאפ והפרטים כבר מלאים.)
 5. **כשמוכנים להתחיל לגבות:**

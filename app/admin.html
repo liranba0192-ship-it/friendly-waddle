@@ -88,7 +88,8 @@
       const c = { active: 0, trial: 0, expired: 0, blocked: 0 };
       rows.forEach((r) => c[state(r)]++);
       const F = [["all", "הכל"], ["active", "פעילים"], ["trial", "ניסיון"], ["expired", "פגו"], ["blocked", "חסומים"], ["soon", "פוקעים ב-30 יום"]];
-      const list = visible();
+      let list = visible();
+      if (filter === "all" && !q) list = list.filter((r) => state(r) !== "trial"); // בניסיון מוצגים בנפרד, בראש הדף
       root.innerHTML = `
         <div class="adm-head"><h1 class="t1">ניהול חברים</h1><a class="btn btn-s" href="index.html" style="text-decoration:none">חזרה לאפליקציה</a></div>
         <div class="adm-stats">
@@ -101,22 +102,33 @@
         <label class="field" style="margin:0">חיפוש<input id="adm-q" type="search" value="${U.esc(q)}" placeholder="אימייל או הערה" style="direction:ltr;text-align:right"></label>
         <div class="adm-filters" role="group" aria-label="סינון">${F.map(([k, t]) => `<button type="button" data-f="${k}" aria-pressed="${filter === k}">${t}</button>`).join("")}</div>
         <p class="adm-msg${flash.err ? " err" : ""}" id="adm-msg" role="status">${U.esc(flash.t)}</p>
-        ${list.length ? list.map(rowHTML).join("") : `<p class="lbl">אין חברים בסינון הזה.</p>`}`;
+        ${pendingHTML(list)}
+        ${list.length ? list.map((r) => rowHTML(r, false)).join("") : `<p class="lbl">אין חברים בסינון הזה.</p>`}`;
       root.querySelector("#adm-q").addEventListener("input", (e) => { q = e.target.value.trim().toLowerCase(); const pos = e.target.selectionStart; view(); const n = root.querySelector("#adm-q"); n.focus(); n.setSelectionRange(pos, pos); });
       root.querySelectorAll("[data-f]").forEach((b) => b.addEventListener("click", () => { filter = b.dataset.f; view(); }));
       root.querySelectorAll("[data-act]").forEach((b) => b.addEventListener("click", () => act(b.dataset.id, b.dataset.act)));
       root.querySelectorAll(".adm-note").forEach((n) => n.addEventListener("change", () => saveNote(n.dataset.id, n.value)));
     }
 
-    function rowHTML(r) {
+    // חברים בניסיון שעוד לא אושרו — מוצגים למעלה (רק בלי חיפוש וסינון)
+    function pendingHTML(list) {
+      if (filter !== "all" || q) return "";
+      const pend = rows.filter((r) => state(r) === "trial");
+      if (!pend.length) return "";
+      return `<h2 class="t2" id="adm-pend">ממתינים לאישור (${pend.length})</h2>
+        <p class="lbl">נרשמו בשבוע האחרון ועדיין בניסיון. אחרי התשלום לחץ "אשר ושולם". בלי אישור הם ינותקו כשהניסיון נגמר.</p>
+        ${pend.map((r) => rowHTML(r, true)).join("")}<h2 class="t2">כל החברים</h2>`;
+    }
+
+    function rowHTML(r, pending) {
       const s = state(r), id = U.esc(r.user_id);
       return `<section class="card adm-row" aria-label="${U.esc(r.email || "")}">
         <div class="adm-top"><span class="adm-mail">${U.esc(r.email || "(ללא אימייל)")}</span><span class="adm-tag ${s}">${LABEL[s]}</span></div>
         <span class="lbl">בתוקף עד ${fmt(r.paid_until)} · הצטרף ${fmt(r.created_at)}${r.consented_at ? " · אישר תקנון" : ""}</span>
         <input class="adm-note" data-id="${id}" value="${U.esc(r.note || "")}" placeholder="הערה (למשל: שילם בביט 12.10)" aria-label="הערה עבור ${U.esc(r.email || "")}">
         <div class="adm-actions">
-          <button class="btn btn-p" data-act="year" data-id="${id}">שולם: +שנה</button>
-          <button class="btn btn-s" data-act="trial" data-id="${id}">+14 יום</button>
+          <button class="btn btn-p" data-act="${pending ? "approve" : "year"}" data-id="${id}">${pending ? "אשר ושולם (שנה)" : "שולם: +שנה"}</button>
+          <button class="btn btn-s" data-act="trial" data-id="${id}">+7 ימים</button>
           ${r.status === "blocked"
             ? `<button class="btn btn-s" data-act="unblock" data-id="${id}">בטל חסימה</button>`
             : `<button class="btn btn-s" data-act="block" data-id="${id}">חסום</button>`}
@@ -127,7 +139,8 @@
     async function act(id, a) {
       const r = rows.find((x) => x.user_id === id); if (!r) return;
       let err = null;
-      if (a === "year" || a === "trial") ({ error: err } = await cl.rpc("admin_extend", { target: id, days: a === "year" ? 365 : 14 }));
+      if (a === "approve") ({ error: err } = await cl.rpc("admin_approve", { target: id }));
+      else if (a === "year" || a === "trial") ({ error: err } = await cl.rpc("admin_extend", { target: id, days: a === "year" ? 365 : 7 }));
       else if (a === "block") ({ error: err } = await cl.from("subscriptions").update({ status: "blocked" }).eq("user_id", id));
       else if (a === "unblock") ({ error: err } = await cl.from("subscriptions").update({ status: "active" }).eq("user_id", id));
       else if (a === "del") {

@@ -90,7 +90,7 @@ App.sync = (function () {
 
   async function signUp(em, pw) {
     const cl = await getClient(); if (!cl) throw new Error("הזן קודם כתובת ומפתח Supabase");
-    const { data, error } = await cl.auth.signUp({ email: em, password: pw, options: { data: { consented_at: new Date().toISOString() } } });
+    const { data, error } = await cl.auth.signUp({ email: em, password: pw, options: { data: { consented_at: new Date().toISOString() }, emailRedirectTo: location.origin + location.pathname } });
     if (error) throw error;
     if (data.user && data.session) { S.set("sync.email", em); await afterLogin(true); }
     return data;
