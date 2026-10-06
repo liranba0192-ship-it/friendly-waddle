@@ -28,3 +28,8 @@ end;
 $$;
 revoke all on function public.admin_approve(uuid) from public, anon;
 grant execute on function public.admin_approve(uuid) to authenticated;
+
+-- מנהלים רואים את רשימת המנהלים (כדי שמסך הניהול יסמן "מנהל")
+drop policy if exists "admin reads self" on public.admins;
+create policy "admin reads self" on public.admins for select
+  using (user_id = auth.uid() or public.is_admin());
