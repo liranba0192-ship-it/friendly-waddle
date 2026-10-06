@@ -18,6 +18,8 @@
     .adm-filters button[aria-pressed="true"] { background: var(--accent); color: #000; border-color: transparent; font-weight: 700; }
     .adm-row { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
     .adm-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .adm-name { font-weight: 700; font-size: 17px; }
+    .adm-name.none { font-weight: 400; color: var(--muted-2, var(--muted)); font-size: 14px; }
     .adm-mail { direction: ltr; unicode-bidi: embed; font-weight: 600; word-break: break-all; }
     .adm-tag { padding: 3px 10px; border-radius: 999px; font-size: 13px; font-weight: 700; border: 1px solid var(--border-2, var(--border)); white-space: nowrap; }
     .adm-tag.active { color: var(--text); border-color: var(--success, #3ddc84); } .adm-tag.trial { color: var(--accent-text); }
@@ -81,7 +83,7 @@
       const soon = Date.now() + 30 * DAY;
       return rows.filter((r) => {
         const s = state(r);
-        if (q && !(r.email || "").toLowerCase().includes(q) && !(r.note || "").toLowerCase().includes(q)) return false;
+        if (q && !(r.email || "").toLowerCase().includes(q) && !(r.note || "").toLowerCase().includes(q) && !(r.full_name || "").toLowerCase().includes(q)) return false;
         if (filter === "admin") return admins.has(r.user_id);
         if (filter === "soon") return s !== "blocked" && new Date(r.paid_until).getTime() <= soon;
         return filter === "all" || filter === s;
@@ -103,7 +105,7 @@
           <div class="card adm-stat"><span class="lbl">חסומים</span><b>${c.blocked}</b></div>
           <div class="card adm-stat"><span class="lbl">הכנסה שנתית משוערת</span><b>${c.active * price} ש״ח</b></div>
         </div>
-        <label class="field" style="margin:0">חיפוש<input id="adm-q" type="search" value="${U.esc(q)}" placeholder="אימייל או הערה" style="direction:ltr;text-align:right"></label>
+        <label class="field" style="margin:0">חיפוש<input id="adm-q" type="search" value="${U.esc(q)}" placeholder="שם, אימייל או הערה" style="direction:ltr;text-align:right"></label>
         <div class="adm-filters" role="group" aria-label="סינון">${F.map(([k, t]) => `<button type="button" data-f="${k}" aria-pressed="${filter === k}">${t}</button>`).join("")}</div>
         <p class="adm-msg${flash.err ? " err" : ""}" id="adm-msg" role="status">${U.esc(flash.t)}</p>
         ${pendingHTML(list)}
@@ -127,7 +129,7 @@
     function rowHTML(r, pending) {
       const s = state(r), id = U.esc(r.user_id);
       return `<section class="card adm-row" aria-label="${U.esc(r.email || "")}">
-        <div class="adm-top"><span class="adm-mail">${U.esc(r.email || "(ללא אימייל)")}</span><span style="display:flex;gap:6px">${admins.has(r.user_id) ? `<span class="adm-tag admin">מנהל</span>` : ""}<span class="adm-tag ${s}">${LABEL[s]}</span></span></div>
+        <div class="adm-top"><span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span class="adm-name${r.full_name ? "" : " none"}">${U.esc(r.full_name || "(שם לא הוזן)")}</span><span class="adm-mail">${U.esc(r.email || "(ללא אימייל)")}</span></span><span style="display:flex;gap:6px">${admins.has(r.user_id) ? `<span class="adm-tag admin">מנהל</span>` : ""}<span class="adm-tag ${s}">${LABEL[s]}</span></span></div>
         <span class="lbl">בתוקף עד ${fmt(r.paid_until)} · הצטרף ${fmt(r.created_at)}${r.consented_at ? " · אישר תקנון" : ""}</span>
         <input class="adm-note" data-id="${id}" value="${U.esc(r.note || "")}" placeholder="הערה (למשל: שילם בביט 12.10)" aria-label="הערה עבור ${U.esc(r.email || "")}">
         <div class="adm-actions">

@@ -88,9 +88,9 @@ App.sync = (function () {
     S.set = function (k, v) { orig(k, v); if (!String(k).startsWith("sync.")) schedulePush(); };
   })();
 
-  async function signUp(em, pw) {
+  async function signUp(em, pw, fullName) {
     const cl = await getClient(); if (!cl) throw new Error("הזן קודם כתובת ומפתח Supabase");
-    const { data, error } = await cl.auth.signUp({ email: em, password: pw, options: { data: { consented_at: new Date().toISOString() }, emailRedirectTo: location.origin + location.pathname } });
+    const { data, error } = await cl.auth.signUp({ email: em, password: pw, options: { data: { consented_at: new Date().toISOString(), full_name: fullName || "" }, emailRedirectTo: location.origin + location.pathname } });
     if (error) throw error;
     if (data.user && data.session) { S.set("sync.email", em); await afterLogin(true); }
     return data;
@@ -141,7 +141,7 @@ App.sync = (function () {
     try {
       const cl = await getClient(); if (!cl) return { ok: false };
       const u = await currentUser(cl); if (!u) return { ok: false };
-      const { data, error } = await cl.from("subscriptions").select("status,paid_until").eq("user_id", u.id).maybeSingle();
+      const { data, error } = await cl.from("subscriptions").select("*").eq("user_id", u.id).maybeSingle();
       if (error) return { ok: false };
       return { ok: true, row: data || null };
     } catch { return { ok: false }; }
@@ -155,5 +155,12 @@ App.sync = (function () {
     } catch { return false; }
   }
 
-  return { getState, configured, email, saveConfig, signUp, signIn, signOut, syncNow, init, subscription, isAdmin, getClient };
+  // שם מלא של המשתמש (נשמר בשורת המנוי, שהמנהל רואה)
+  async function setFullName(name) {
+    const cl = await getClient(); if (!cl) throw new Error("no client");
+    const { error } = await cl.rpc("set_my_full_name", { name });
+    if (error) throw error;
+  }
+
+  return { getState, setFullName, configured, email, saveConfig, signUp, signIn, signOut, syncNow, init, subscription, isAdmin, getClient };
 })();
