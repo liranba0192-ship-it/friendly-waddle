@@ -139,8 +139,9 @@
     async function act(id, a) {
       const r = rows.find((x) => x.user_id === id); if (!r) return;
       let err = null;
-      if (a === "approve") ({ error: err } = await cl.rpc("admin_approve", { target: id }));
-      else if (a === "year" || a === "trial") ({ error: err } = await cl.rpc("admin_extend", { target: id, days: a === "year" ? 365 : 7 }));
+      // "שולם" (אשר או +שנה): שנה שלמה מהרגע הזה. "+7 ימים" מאריך את הניסיון מהתאריך הקיים.
+      if (a === "approve" || a === "year") ({ error: err } = await cl.rpc("admin_approve", { target: id }));
+      else if (a === "trial") ({ error: err } = await cl.rpc("admin_extend", { target: id, days: 7 }));
       else if (a === "block") ({ error: err } = await cl.from("subscriptions").update({ status: "blocked" }).eq("user_id", id));
       else if (a === "unblock") ({ error: err } = await cl.from("subscriptions").update({ status: "active" }).eq("user_id", id));
       else if (a === "del") {
