@@ -16,13 +16,13 @@ begin
 end;
 $$;
 
--- אישור משתמש כשילם: מנוי פעיל לשנה מהיום (או מסוף התקופה הנוכחית, מה שמאוחר יותר)
+-- אישור משתמש כשילם: מנוי פעיל לשנה שלמה מהרגע שלוחצים (לא מתאריך הסיום הקודם)
 create or replace function public.admin_approve(target uuid) returns void
 language plpgsql security definer set search_path = public as $$
 begin
   if not public.is_admin() then raise exception 'forbidden'; end if;
   update public.subscriptions
-     set status = 'active', paid_until = greatest(now(), paid_until) + interval '365 days'
+     set status = 'active', paid_until = now() + interval '365 days'
    where user_id = target;
 end;
 $$;
