@@ -16,12 +16,12 @@ App.billing = (function () {
     const r = await App.sync.subscription();
     if (r.ok && r.row) S.set("sync.sub", r.row);
     const sub = r.ok ? r.row : cached();
-    if (!cfg().enforce || !sub) return { ok: true, sub };
+    if (!cfg().enforce || !sub) return { ok: true, sub, fresh: r.ok };
     const until = new Date(sub.paid_until).getTime();
     const grace = r.ok ? 0 : (cfg().offlineGraceDays || 7) * DAY;
     if (sub.status === "blocked") return { ok: false, reason: "blocked", sub };
     if (until + grace < Date.now()) return { ok: false, reason: sub.status === "trial" ? "trial" : "expired", sub };
-    return { ok: true, sub };
+    return { ok: true, sub, fresh: r.ok };
   }
 
   // ימים שנשארו (שלם, יכול להיות שלילי); null אם אין נתון
@@ -44,10 +44,9 @@ App.billing = (function () {
         <h2 class="t2">${title}</h2>
         <p class="auth-hint">${sub}</p>
         ${blocked ? "" : `<p class="auth-hint">בהערת התשלום כתוב את החשבון שלך:<br><b class="pay-ref">${U.esc(email)}</b></p>
-          ${c.bitUrl ? `<a class="btn btn-p full" href="${U.esc(c.bitUrl)}" target="_blank" rel="noopener">${I("bolt", 18)} תשלום בביט</a>` : ""}
-          ${c.payboxUrl ? `<a class="btn btn-s full" href="${U.esc(c.payboxUrl)}" target="_blank" rel="noopener">תשלום בפייבוקס</a>` : ""}`}
-        ${wa ? `<a class="btn ${blocked || c.bitUrl || c.payboxUrl ? "btn-s" : "btn-p"} full" href="${wa}" target="_blank" rel="noopener">${I("chat", 18)} ${blocked ? "פנייה בוואטסאפ" : "כבר שילמתי — עדכון בוואטסאפ"}</a>` : ""}
-        ${!c.bitUrl && !c.payboxUrl && !wa ? `<p class="auth-hint">פנה אל המנהל לתשלום.</p>` : ""}
+          ${c.bitUrl ? `<a class="btn btn-p full" href="${U.esc(c.bitUrl)}" target="_blank" rel="noopener">${I("bolt", 18)} תשלום בביט</a>` : ""}`}
+        ${wa ? `<a class="btn ${blocked || c.bitUrl ? "btn-s" : "btn-p"} full" href="${wa}" target="_blank" rel="noopener">${I("chat", 18)} ${blocked ? "פנייה בוואטסאפ" : "כבר שילמתי — עדכון בוואטסאפ"}</a>` : ""}
+        ${!c.bitUrl && !wa ? `<p class="auth-hint">פנה אל המנהל לתשלום.</p>` : ""}
         <p class="auth-hint">אחרי שהתשלום אושר, התחבר מחדש. הנתונים שלך שמורים.</p>
         <button id="pw-relogin" class="btn btn-s full" type="button">התחברות מחדש</button>
       </div>`;
@@ -56,10 +55,11 @@ App.billing = (function () {
 
   // התראה על הרשמה חדשה לבעל העסק (FormSubmit, בלי שרת). נשלחת פעם אחת, ומנסים שוב בפתיחה הבאה אם נכשלה.
   const NOTIFY_KEY = "sync.notify";
-  function queueSignupNotice(email) { if (email) S.set(NOTIFY_KEY, email); }
+  function queueSignupNotice(email, name) { if (email) S.set(NOTIFY_KEY, { email, name: name || "" }); }
   async function flushSignupNotice() {
-    const email = S.get(NOTIFY_KEY, null), to = cfg().notifyEmail;
-    if (!email || !to) return;
+    const q = S.get(NOTIFY_KEY, null), to = cfg().notifyEmail;
+    if (!q || !to) return;
+    const email = typeof q === "string" ? q : q.email, name = typeof q === "string" ? "" : q.name || "";
     S.set(NOTIFY_KEY, null); // לפני השליחה — כדי שלא יישלח פעמיים
     try {
       const adminUrl = new URL("admin.html", location.href).href;
@@ -70,6 +70,7 @@ App.billing = (function () {
           _subject: "הרשמה חדשה לחלבונינץ — צריך לאשר",
           _captcha: "false",
           _template: "table",
+          שם: name || "(לא הוזן)",
           חשבון: email,
           הצטרף: new Date().toLocaleString("he-IL"),
           ניסיון: `${cfg().trialDays || 7} ימים`,
@@ -77,8 +78,41 @@ App.billing = (function () {
         }),
       });
       if (!r.ok) throw new Error(String(r.status));
-    } catch { S.set(NOTIFY_KEY, email); }
+    } catch { S.set(NOTIFY_KEY, { email, name }); }
   }
 
-  return { check, paywall, daysLeft, fmt, cached, cfg, queueSignupNotice, flushSignupNotice };
+  // שם מלא: לפחות שתי מילים
+  const validName = (n) => { const w = String(n || "").trim().split(/\s+/).filter((x) => x.length >= 2); return w.length >= 2 && String(n).trim().length <= 60; };
+
+  // משתמש שעוד אין לו שם מלא (למשל חשבון ישן) נדרש להזין אותו לפני הכניסה
+  function needsName(acc) {
+    const sub = acc && acc.sub;
+    return !!(acc && acc.fresh && sub && Object.prototype.hasOwnProperty.call(sub, "full_name") && !String(sub.full_name || "").trim());
+  }
+  function askName(el, onDone) {
+    el.innerHTML = `
+      <form class="auth-form" id="nm-form" novalidate>
+        <h2 class="t2" style="text-align:center">איך קוראים לך?</h2>
+        <p class="auth-hint">נא להזין שם מלא (שם פרטי ושם משפחה), כדי שאדע מי אתה.</p>
+        <label class="fl"><span class="lbl">שם מלא</span>
+          <span class="search-field"><input id="nm-name" autocomplete="name" maxlength="60" placeholder="למשל: ישראל ישראלי"></span></label>
+        <button type="submit" class="btn btn-p full">המשך</button>
+        <p class="auth-msg" id="nm-msg" role="alert"></p>
+      </form>`;
+    const msg = (t) => { el.querySelector("#nm-msg").textContent = t; };
+    el.querySelector("#nm-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = el.querySelector("#nm-name").value.trim();
+      if (!validName(name)) return msg("נא להזין שם מלא (שם פרטי ושם משפחה)");
+      msg("שומר…");
+      try {
+        await App.sync.setFullName(name);
+        const sub = cached(); if (sub) S.set("sync.sub", { ...sub, full_name: name });
+        onDone();
+      } catch { msg("השמירה נכשלה. בדוק חיבור ונסה שוב."); }
+    });
+    setTimeout(() => el.querySelector("#nm-name").focus(), 50);
+  }
+
+  return { check, paywall, validName, needsName, askName, daysLeft, fmt, cached, cfg, queueSignupNotice, flushSignupNotice };
 })();

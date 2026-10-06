@@ -166,6 +166,11 @@ window.App = window.App || {};
       App.billing.paywall(document.getElementById("auth-body"), { ...acc, email });
       return;
     }
+    if (App.billing.needsName(acc)) {
+      document.getElementById("auth-overlay").hidden = false;
+      App.billing.askName(document.getElementById("auth-body"), startApp);
+      return;
+    }
     document.getElementById("auth-overlay").hidden = true;
     const start = (location.hash || "").replace("#", "") || localStorage.getItem("mb.lastTab") || "home";
     switchTab(start);
@@ -202,6 +207,8 @@ window.App = window.App || {};
         </div>
         <label class="fl"><span class="lbl" id="au-idlbl"></span>
           <span class="search-field"><span id="au-idico"></span><input id="au-ident" autocomplete="username" style="direction:ltr;text-align:right"></span></label>
+        <label class="fl"><span class="lbl">שם מלא <span style="opacity:.8">(בהרשמה)</span></span>
+          <span class="search-field">${I("user")}<input id="au-name" autocomplete="name" maxlength="60" placeholder="שם פרטי ושם משפחה"></span></label>
         <label class="fl"><span class="lbl">סיסמה</span>
           <span class="search-field">${I("lock")}<input id="au-pass" type="password" autocomplete="current-password" placeholder="לפחות 6 תווים">
             <button type="button" class="ibtn ghost sm" id="au-eye" aria-label="הצג סיסמה" aria-pressed="false">${I("eye", 20)}</button></span></label>
@@ -247,11 +254,17 @@ window.App = window.App || {};
 
     el.querySelector("#au-signup").addEventListener("click", async () => {
       if (!el.querySelector("#au-ident").value.trim() || !pass()) { msg("נא למלא אימייל/טלפון וסיסמה"); return; }
+      if (!App.billing.validName(el.querySelector("#au-name").value)) { msg("כדי להירשם נא להזין שם מלא (שם פרטי ושם משפחה)"); el.querySelector("#au-name").focus(); return; }
       if (!el.querySelector("#au-consent").checked) { msg("כדי להירשם יש לאשר את התקנון ומדיניות הפרטיות"); el.querySelector("#au-consent").focus(); return; }
       msg("נרשם…");
       try {
-        await App.sync.signUp(ident(), pass());
-        if (App.sync.email()) { App.billing.queueSignupNotice(App.sync.email()); await startApp(); }
+        const fullName = el.querySelector("#au-name").value.trim().replace(/\s+/g, " ");
+        await App.sync.signUp(ident(), pass(), fullName);
+        if (App.sync.email()) {
+          try { await App.sync.setFullName(fullName); } catch {}
+          App.billing.queueSignupNotice(App.sync.email(), fullName);
+          await startApp();
+        }
         else msg("נשלח אימייל אישור. לאחר האישור התחבר כרגיל.");
       } catch (e) { msg("שגיאה: " + (e.message || String(e))); }
     });

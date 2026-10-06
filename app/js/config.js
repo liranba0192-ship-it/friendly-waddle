@@ -9,7 +9,6 @@ window.APP_CONFIG = {
     trialDays: 7,           // נקבע גם ב-supabase/trial7.sql
     offlineGraceDays: 7,    // כמה ימים אחרי הפקיעה עובדים בלי אינטרנט
     bitUrl: "https://www.bitpay.co.il/app/me/74B95769-7537-49D2-9A15-27630BEC7448", // קישור תשלום בביט
-    payboxUrl: "",          // קישור תשלום בפייבוקס
     notifyEmail: "halbonintz@gmail.com", // לשם נשלחת התראה על כל הרשמה חדשה (FormSubmit)
     whatsapp: "972545445895",           // מספר בפורמט בינלאומי בלי +, למשל 972501234567
   },
