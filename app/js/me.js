@@ -31,6 +31,8 @@ App.me = (function () {
     }
     if (App.sync && App.sync.isAdmin) App.sync.isAdmin().then((yes) => {
       if (!yes || !root.contains(box)) return;
+      const head = root.querySelector(".me-head .perk");
+      if (head) head.insertAdjacentHTML("afterend", `<span class="perk">${I("user", 16)}מנהל</span>`);
       box.insertAdjacentHTML("beforeend", `<a class="card list-row" href="admin.html" style="margin-top:12px;text-decoration:none;color:inherit"><div class="itile">${I("user")}</div>
         <span class="grow"><span style="font-weight:600">ניהול חברים</span><span class="lbl">מנויים, תשלומים וחסימות</span></span><span class="chev">${I("chev")}</span></a>`);
     });
