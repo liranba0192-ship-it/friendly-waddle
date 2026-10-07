@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="robots" content="noindex" />
+  <title>ניהול חברים</title>
+  <link rel="icon" href="icons/icon-v2-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .adm { max-width: 720px; margin: 0 auto; padding: calc(var(--safe-top, 0px) + 20px) 16px 48px; display: flex; flex-direction: column; gap: 14px; }
+    .adm-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .adm-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; }
+    .adm-stat { padding: 12px 14px; display: flex; flex-direction: column; gap: 2px; }
+    .adm-stat b { font: 700 24px var(--font-display, inherit); }
+    .adm-filters { display: flex; flex-wrap: wrap; gap: 8px; }
+    .adm-filters button { min-height: 44px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--border-2, var(--border)); background: var(--surface-2, var(--surface)); color: var(--text); font: inherit; cursor: pointer; }
+    .adm-filters button[aria-pressed="true"] { background: var(--accent); color: #000; border-color: transparent; font-weight: 700; }
+    .adm-row { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+    .adm-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .adm-name { font-weight: 700; font-size: 17px; }
+    .adm-name.none { font-weight: 400; color: var(--muted-2, var(--muted)); font-size: 14px; }
+    .adm-mail { direction: ltr; unicode-bidi: embed; font-weight: 600; word-break: break-all; }
+    .adm-tag { padding: 3px 10px; border-radius: 999px; font-size: 13px; font-weight: 700; border: 1px solid var(--border-2, var(--border)); white-space: nowrap; }
+    .adm-tag.active { color: var(--text); border-color: var(--success, #3ddc84); } .adm-tag.trial { color: var(--accent-text); }
+    .adm-tag.admin { color: #000; background: var(--accent); border-color: transparent; }
+    .adm-tag.expired, .adm-tag.blocked { color: var(--danger, #ef4444); }
+    .adm-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .adm-actions .btn { min-height: 44px; height: auto; padding: 0 14px; font-size: 14px; }
+    .adm-note { width: 100%; min-height: 44px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--border-2, var(--border)); background: var(--surface-2, var(--surface)); color: var(--text); font: inherit; }
+    .adm-msg { min-height: 20px; font-size: 14px; }
+    .adm-msg.err { color: var(--danger, #ef4444); }
+  </style>
+</head>
+<body>
+  <main class="adm" id="adm"><p class="lbl">טוען…</p></main>
+
+  <script src="js/store.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/sync.js"></script>
+  <script src="js/config.js"></script>
+  <script>
+  "use strict";
+  (function () {
+    const U = App.util, root = document.getElementById("adm");
+    const price = ((window.APP_CONFIG || {}).billing || {}).priceNis || 50;
+    let cl = null, rows = [], admins = new Set(), filter = "all", q = "", flash = { t: "", err: false };
+    const DAY = 864e5;
+    try { const t = localStorage.getItem("mb.theme"); if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t); } catch {}
+
+    const fmt = (iso) => { const d = new Date(iso); return String(d.getDate()).padStart(2, "0") + "." + String(d.getMonth() + 1).padStart(2, "0") + "." + d.getFullYear(); };
+    const state = (r) => r.status === "blocked" ? "blocked" : new Date(r.paid_until).getTime() <= Date.now() ? "expired" : r.status;
+    const LABEL = { active: "פעיל", trial: "ניסיון", expired: "פג", blocked: "חסום" };
+
+    function say(t, err) { flash = { t, err: !!err }; const m = root.querySelector("#adm-msg"); if (m) { m.textContent = t; m.className = "adm-msg" + (err ? " err" : ""); } }
+
+    function loginView(msg) {
+      root.innerHTML = `
+        <h1 class="t1">ניהול חברים</h1>
+        <form id="lg" class="card" style="padding:16px;display:flex;flex-direction:column;gap:10px" novalidate>
+          <label class="field">אימייל<input id="lg-e" type="email" autocomplete="username" style="direction:ltr;text-align:right"></label>
+          <label class="field">סיסמה<input id="lg-p" type="password" autocomplete="current-password"></label>
+          <button class="btn btn-p full" type="submit">כניסה</button>
+          <p class="adm-msg err" role="alert">${U.esc(msg || "")}</p>
+        </form>`;
+      root.querySelector("#lg").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const { error } = await cl.auth.signInWithPassword({ email: root.querySelector("#lg-e").value.trim(), password: root.querySelector("#lg-p").value });
+        if (error) return loginView("אימייל או סיסמה שגויים");
+        boot();
+      });
+    }
+
+    async function load() {
+      const { data, error } = await cl.from("subscriptions").select("*").order("created_at", { ascending: false });
+      if (error) throw error;
+      rows = data || [];
+      const a = await cl.from("admins").select("user_id");
+      admins = new Set(!a.error && Array.isArray(a.data) ? a.data.map((x) => x.user_id) : []);
+    }
+
+    function visible() {
+      const soon = Date.now() + 30 * DAY;
+      return rows.filter((r) => {
+        const s = state(r);
+        if (q && !(r.email || "").toLowerCase().includes(q) && !(r.note || "").toLowerCase().includes(q) && !(r.full_name || "").toLowerCase().includes(q)) return false;
+        if (filter === "admin") return admins.has(r.user_id);
+        if (filter === "soon") return s !== "blocked" && new Date(r.paid_until).getTime() <= soon;
+        return filter === "all" || filter === s;
+      });
+    }
+
+    function view() {
+      const c = { active: 0, trial: 0, expired: 0, blocked: 0 };
+      rows.forEach((r) => c[state(r)]++);
+      const F = [["all", "הכל"], ["active", "פעילים"], ["trial", "ניסיון"], ["expired", "פגו"], ["blocked", "חסומים"], ["admin", "מנהלים"], ["soon", "פוקעים ב-30 יום"]];
+      let list = visible();
+      if (filter === "all" && !q) list = list.filter((r) => state(r) !== "trial"); // בניסיון מוצגים בנפרד, בראש הדף
+      root.innerHTML = `
+        <div class="adm-head"><h1 class="t1">ניהול חברים</h1><a class="btn btn-s" href="index.html" style="text-decoration:none">חזרה לאפליקציה</a></div>
+        <div class="adm-stats">
+          <div class="card adm-stat"><span class="lbl">פעילים</span><b>${c.active}</b></div>
+          <div class="card adm-stat"><span class="lbl">בניסיון</span><b>${c.trial}</b></div>
+          <div class="card adm-stat"><span class="lbl">פגו</span><b>${c.expired}</b></div>
+          <div class="card adm-stat"><span class="lbl">חסומים</span><b>${c.blocked}</b></div>
+          <div class="card adm-stat"><span class="lbl">הכנסה שנתית משוערת</span><b>${c.active * price} ש״ח</b></div>
+        </div>
+        <label class="field" style="margin:0">חיפוש<input id="adm-q" type="search" value="${U.esc(q)}" placeholder="שם, אימייל או הערה" style="direction:ltr;text-align:right"></label>
+        <div class="adm-filters" role="group" aria-label="סינון">${F.map(([k, t]) => `<button type="button" data-f="${k}" aria-pressed="${filter === k}">${t}</button>`).join("")}</div>
+        <p class="adm-msg${flash.err ? " err" : ""}" id="adm-msg" role="status">${U.esc(flash.t)}</p>
+        ${pendingHTML(list)}
+        ${list.length ? list.map((r) => rowHTML(r, false)).join("") : `<p class="lbl">אין חברים בסינון הזה.</p>`}`;
+      root.querySelector("#adm-q").addEventListener("input", (e) => { q = e.target.value.trim().toLowerCase(); const pos = e.target.selectionStart; view(); const n = root.querySelector("#adm-q"); n.focus(); n.setSelectionRange(pos, pos); });
+      root.querySelectorAll("[data-f]").forEach((b) => b.addEventListener("click", () => { filter = b.dataset.f; view(); }));
+      root.querySelectorAll("[data-act]").forEach((b) => b.addEventListener("click", () => act(b.dataset.id, b.dataset.act)));
+      root.querySelectorAll(".adm-note").forEach((n) => n.addEventListener("change", () => saveNote(n.dataset.id, n.value)));
+    }
+
+    // חברים בניסיון שעוד לא אושרו — מוצגים למעלה (רק בלי חיפוש וסינון)
+    function pendingHTML(list) {
+      if (filter !== "all" || q) return "";
+      const pend = rows.filter((r) => state(r) === "trial");
+      if (!pend.length) return "";
+      return `<h2 class="t2" id="adm-pend">ממתינים לאישור (${pend.length})</h2>
+        <p class="lbl">נרשמו בשבוע האחרון ועדיין בניסיון. אחרי התשלום לחץ "אשר ושולם". בלי אישור הם ינותקו כשהניסיון נגמר.</p>
+        ${pend.map((r) => rowHTML(r, true)).join("")}<h2 class="t2">כל החברים</h2>`;
+    }
+
+    function rowHTML(r, pending) {
+      const s = state(r), id = U.esc(r.user_id);
+      return `<section class="card adm-row" aria-label="${U.esc(r.email || "")}">
+        <div class="adm-top"><span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span class="adm-name${r.full_name ? "" : " none"}">${U.esc(r.full_name || "(שם לא הוזן)")}</span><span class="adm-mail">${U.esc(r.email || "(ללא אימייל)")}</span></span><span style="display:flex;gap:6px">${admins.has(r.user_id) ? `<span class="adm-tag admin">מנהל</span>` : ""}<span class="adm-tag ${s}">${LABEL[s]}</span></span></div>
+        <span class="lbl">בתוקף עד ${fmt(r.paid_until)} · הצטרף ${fmt(r.created_at)}${r.consented_at ? " · אישר תקנון" : ""}</span>
+        <input class="adm-note" data-id="${id}" value="${U.esc(r.note || "")}" placeholder="הערה (למשל: שילם בביט 12.10)" aria-label="הערה עבור ${U.esc(r.email || "")}">
+        <div class="adm-actions">
+          <button class="btn btn-p" data-act="${pending ? "approve" : "year"}" data-id="${id}">${pending ? "אשר ושולם (שנה)" : "שולם: +שנה"}</button>
+          <button class="btn btn-s" data-act="trial" data-id="${id}">+7 ימים</button>
+          ${admins.has(r.user_id) ? "" : (r.status === "blocked"
+            ? `<button class="btn btn-s" data-act="unblock" data-id="${id}">בטל חסימה</button>`
+            : `<button class="btn btn-s" data-act="block" data-id="${id}">חסום</button>`) + `<button class="btn btn-s" data-act="del" data-id="${id}" style="color:var(--danger,#ef4444)">מחק</button>`}
+        </div></section>`;
+    }
+
+    async function act(id, a) {
+      const r = rows.find((x) => x.user_id === id); if (!r) return;
+      let err = null;
+      // "שולם" (אשר או +שנה): שנה שלמה מהרגע הזה. "+7 ימים" מאריך את הניסיון מהתאריך הקיים.
+      if (a === "approve" || a === "year") ({ error: err } = await cl.rpc("admin_approve", { target: id }));
+      else if (a === "trial") ({ error: err } = await cl.rpc("admin_extend", { target: id, days: 7 }));
+      else if (a === "block") ({ error: err } = await cl.from("subscriptions").update({ status: "blocked" }).eq("user_id", id));
+      else if (a === "unblock") ({ error: err } = await cl.from("subscriptions").update({ status: "active" }).eq("user_id", id));
+      else if (a === "del") {
+        if (!confirm(`למחוק את ${r.email || "המשתמש"} ואת כל הנתונים שלו? אי אפשר לשחזר.`)) return;
+        ({ error: err } = await cl.rpc("admin_delete_user", { target: id }));
+      }
+      if (err) return say("הפעולה נכשלה: " + (err.message || err), true);
+      flash = { t: "נשמר", err: false };
+      await load(); view();
+    }
+
+    async function saveNote(id, v) {
+      const { error } = await cl.from("subscriptions").update({ note: v.trim() || null }).eq("user_id", id);
+      if (error) return say("שמירת ההערה נכשלה", true);
+      const r = rows.find((x) => x.user_id === id); if (r) r.note = v.trim() || null;
+      say("ההערה נשמרה");
+    }
+
+    async function boot() {
+      try {
+        cl = cl || await App.sync.getClient();
+        if (!cl) return (root.innerHTML = `<p class="lbl">החיבור לענן לא מוגדר.</p>`);
+        const { data } = await cl.auth.getSession();
+        if (!data || !data.session) return loginView();
+        if (!(await App.sync.isAdmin())) {
+          root.innerHTML = `<h1 class="t1">אין הרשאה</h1><p class="lbl">החשבון הזה אינו מנהל.</p>
+            <button id="lo" class="btn btn-s" type="button">התנתקות</button>`;
+          root.querySelector("#lo").addEventListener("click", async () => { await cl.auth.signOut(); loginView(); });
+          return;
+        }
+        await load(); view();
+      } catch (e) { root.innerHTML = `<p class="adm-msg err" role="alert">שגיאה בטעינה: ${U.esc(e.message || String(e))}</p>`; }
+    }
+    boot();
+  })();
+  </script>
+</body>
+</html>

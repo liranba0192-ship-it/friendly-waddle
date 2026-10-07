@@ -1,0 +1,210 @@
+"use strict";
+window.App = window.App || {};
+
+/* בוט עזרה מובנה — עונה על שאלות לגבי השימוש באפליקציה (ללא שרת/AI, עובד אופליין). */
+App.helpbot = (function () {
+  let overlay, msgsEl, inputEl, opened = false;
+
+  // בסיס ידע: לכל ערך מילות-מפתח, כותרת ותשובה.
+  const KB = [
+    { k: ["חנות", "הנחה", "לקנות", "תוספים", "קנייה", "הזמנה", "קופון"], t: "חנות והנחת מנוי",
+      a: "בטאב <b>חנות</b> רואים את מוצרי חלבונינץ; לחיצה על מוצר פותחת את אתר החנות להזמנה. כשקונים מתוך האפליקציה מקבלים <b>5% הנחה</b> — היא מופעלת אוטומטית בעגלה ובקופה. ההנחה נשמרת כל עוד נכנסים לאתר דרך האפליקציה." },
+    { k: ["אוכל", "מאכל", "להוסיף אוכל", "יומן", "תזונה", "לאכול", "קלוריות להוסיף"], t: "הוספת מאכל",
+      a: "בטאב <b>תזונה 🥗</b>: חפש מאכל בתיבת החיפוש (או לחץ 📷 לסריקת ברקוד), בחר אותו, קבע כמות (גרם/יחידה) ולחץ «הוסף ליומן». אפשר גם להוסיף מאכל משלך בכפתור «הוסף מאכל משלי»." },
+    { k: ["ברקוד", "סריקה", "סורק", "מצלמה", "מוצר"], t: "סריקת ברקוד",
+      a: "בטאב <b>תזונה</b> לחץ <b>📷 סרוק</b>, כוון את הברקוד של המוצר למסגרת — האפליקציה מושכת אוטומטית את הערכים מ-Open Food Facts. בפעם הראשונה אשר הרשאת מצלמה ב-Safari." },
+    { k: ["יעד", "יעדים", "מחשבון", "כמה קלוריות", "לרדת", "לעלות", "קצב", "tdee"], t: "יעדי קלוריות",
+      a: "המחשבון נמצא ב<b>תזונה ← משקל</b>: הזן גובה/גיל/מין/פעילות וכמה ק\"ג לרדת/לעלות בשבוע, לחץ «חשב יעד» ואז «החל». היעדים (קלוריות+חלבון+פחמימות+שומן) יופיעו בטאב תזונה." },
+    { k: ["מים", "שתייה", "לשתות", "water"], t: "מעקב מים",
+      a: "בטאב <b>בית</b> ובטאב <b>תזונה</b> יש כרטיס מים — לחץ +250 / −250 כדי לעדכן כמה שתית מתוך היעד היומי." },
+    { k: ["אימון", "סט", "סטים", "לתעד", "משקל", "חזרות", "תרגיל"], t: "תיעוד אימון",
+      a: "בטאב <b>אימון 💪</b> בחר תרגיל (מחולק לפי קבוצת שריר), הזן משקל×חזרות לכל סט ולחץ «שמור אימון». תראה גם את <b>האימון הקודם</b> שלך כדי לדעת מה לשבור." },
+    { k: ["חלוקה", "פוש", "פול", "push", "pull", "legs", "ספליט", "split", "ברו"], t: "חלוקות אימון",
+      a: "בטאב אימון יש צ'יפים לבחירת חלוקה ליום: הכל / דחיפה (Push) / משיכה (Pull) / רגליים / ידיים / פלג עליון / תחתון / גוף מלא / ברו ספליט. הבחירה מסננת את קבוצות השריר המתאימות." },
+    { k: ["מנוחה", "יום מנוחה", "הליכה", "התאוששות", "rest"], t: "ימי מנוחה",
+      a: "בטאב אימון לחץ «🛌 סמן כיום מנוחה». ביום מנוחה תקבל המלצה ל-30 דק' הליכה קלה, ותוכל לסמן שביצעת." },
+    { k: ["מטרה", "חיטוב", "מסה", "ניטרלי", "עצימות", "כמה חזרות"], t: "מטרת אימון (עצימות)",
+      a: "בראש טאב אימון בחר מטרה: 🔥 חיטוב (12–15 חזרות, מנוחה קצרה), 💪 מסה (8–12, מנוחה ארוכה), ⚖️ ניטרלי. זה קובע את יעד החזרות והצעת ההתקדמות." },
+    { k: ["שקילה", "משקל", "גרף", "bmi", "תובנות", "מגמה"], t: "שקילה ומעקב",
+      a: "ב<b>תזונה ← משקל</b> (או מכרטיס המשקל בבית) הזן משקל ולחץ «שמור» (אפשר כמה ביום). תראה גרף התקדמות, ממוצע שבועי, מגמה, BMI, נותרו ליעד וצפי הגעה ליעד." },
+    { k: ["בוקר", "תדריך", "ידע", "לימוד", "שגרה", "routine", "כל בוקר"], t: "תדריך הבוקר",
+      a: "התדריך היומי מופיע בטאב <b>בית</b> (כרטיס «התדריך של היום»), והארכיון נפתח מאותו כרטיס. כדי שייווצר חדש כל בוקר אוטומטית צריך <b>שגרה (Routine)</b> פעילה ב-claude.ai/code/routines, מחוברת ל-repo friendly-waddle." },
+    { k: ["גיבוי", "שחזור", "לשמור", "נתונים", "אבד", "backup"], t: "גיבוי ושחזור",
+      a: "כשמחוברים, הנתונים מסונכרנים לחשבון. בנוסף אפשר לגבות לקובץ: <b>אני ← גיבוי ושחזור</b> — «גבה עכשיו» שומר קובץ, ו«שחזר» מחזיר אותו." },
+    { k: ["ערכה", "צבע", "כהה", "בהיר", "theme", "עיצוב"], t: "ערכת נושא",
+      a: "ב<b>אני ← תצוגה</b> אפשר לבחור כהה (ברירת מחדל), בהיר או לפי המכשיר." },
+    { k: ["עדכון", "מתעדכן", "גרסה", "לרענן", "לא רואה"], t: "עדכונים",
+      a: "האפליקציה מתעדכנת אוטומטית. אם לא רואים שינוי — סגור ופתח אותה מחדש פעם-פעמיים (היא מנקה מטמון ישן)." },
+    { k: ["מי אתה", "בוט", "עזרה", "מה זה", "חלבונינץ"], t: "על האפליקציה",
+      a: "אני בוט העזרה של <b>חלבונינץ</b> 🥑💪 — אפליקציית כושר ותזונה. שאל אותי איך לעשות משהו, או בחר נושא מהכפתורים." },
+  ];
+
+  const QUICK = ["מה ללמוד היום?", "הוספת מאכל", "סריקת ברקוד", "יעדי קלוריות", "תיעוד אימון", "ימי מנוחה", "תדריך הבוקר", "חנות והנחה", "גיבוי"];
+  const TODAY_LEARN_TRIGGER = "מה ללמוד היום?";
+
+  function build() {
+    if (overlay) return; // הגנה מפני אתחול כפול
+    overlay = document.createElement("div");
+    overlay.className = "help-overlay";
+    overlay.hidden = true;
+    overlay.innerHTML = `
+      <div class="help-panel" role="dialog" aria-modal="true" aria-labelledby="help-title">
+        <div class="sheet-grip" aria-hidden="true"><i></i></div>
+        <div class="help-head2">
+          <div class="itile hot" style="width:44px;height:44px;border-radius:14px">${App.icon("chat")}</div>
+          <div style="flex-grow:1;display:flex;flex-direction:column"><h2 class="t2" id="help-title">איך אפשר לעזור?</h2><span class="lbl">שאלות נפוצות על האפליקציה</span></div>
+          <button id="help-close" class="ibtn" aria-label="סגירה">${App.icon("x")}</button>
+        </div>
+        <div id="help-msgs" class="help-msgs" aria-live="polite"></div>
+        <div class="help-input-row">
+          <label class="search-field"><input id="help-input" type="text" placeholder="שאל שאלה…" autocomplete="off" aria-label="שאל שאלה"></label>
+          <button id="help-send" class="ibtn hot" style="width:52px;height:52px;border-radius:14px" aria-label="שליחה">${App.icon("back")}</button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+
+    const fab = document.createElement("button");
+    fab.id = "help-fab"; fab.className = "help-fab"; fab.innerHTML = App.icon("chat");
+    fab.setAttribute("aria-label", "עזרה");
+    document.body.appendChild(fab);
+
+    msgsEl = overlay.querySelector("#help-msgs");
+    inputEl = overlay.querySelector("#help-input");
+    fab.addEventListener("click", open);
+    overlay.querySelector("#help-close").addEventListener("click", close);
+    overlay.addEventListener("click", (e) => { if (e.target === overlay) close(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !overlay.hidden) close(); });
+    overlay.querySelector("#help-send").addEventListener("click", send);
+    inputEl.addEventListener("keydown", (e) => { if (e.key === "Enter") send(); });
+  }
+
+  function open() {
+    overlay.hidden = false;
+    if (!opened) {
+      opened = true;
+      addBot("היי, אני העוזר של <b>חלבונינץ</b>. אפשר לכתוב שאלה או לבחור נושא:");
+      addChips();
+    }
+    setTimeout(() => inputEl.focus(), 100);
+  }
+  function close() { overlay.hidden = true; }
+
+  function addMsg(html, who) {
+    const d = document.createElement("div");
+    d.className = "help-msg " + who;
+    d.innerHTML = html;
+    msgsEl.appendChild(d);
+    msgsEl.scrollTop = msgsEl.scrollHeight;
+  }
+  const addBot = (h) => addMsg(h, "bot");
+  const addUser = (h) => addMsg(App.util.esc(h), "user");
+
+  function addChips() {
+    const wrap = document.createElement("div");
+    wrap.className = "help-chips";
+    wrap.innerHTML = QUICK.map((q) => `<button class="help-chip">${q}</button>`).join("");
+    wrap.querySelectorAll(".help-chip").forEach((b) =>
+      b.addEventListener("click", () => { ask(b.textContent); })
+    );
+    msgsEl.appendChild(wrap);
+    msgsEl.scrollTop = msgsEl.scrollHeight;
+  }
+
+  function answerFor(text) {
+    const q = text.toLowerCase();
+    let best = null, bestScore = 0;
+    for (const e of KB) {
+      let score = 0;
+      for (const kw of e.k) if (q.includes(kw.toLowerCase())) score += kw.length > 3 ? 2 : 1;
+      if (e.t && q.includes(e.t.toLowerCase())) score += 3;
+      if (score > bestScore) { bestScore = score; best = e; }
+    }
+    return bestScore > 0 ? best : null;
+  }
+
+  function ask(text) {
+    addUser(text);
+    if (text.trim() === TODAY_LEARN_TRIGGER || /מה ללמוד היום|נוטבוק/.test(text)) {
+      setTimeout(giveTodayLearningPack, 180);
+      return;
+    }
+    const e = answerFor(text);
+    setTimeout(() => {
+      if (e) addBot(`<b>${e.t}</b><br>${e.a}`);
+      else {
+        addBot("לא בטוח שהבנתי 🤔 נסה לבחור אחד מהנושאים:");
+        addChips();
+      }
+    }, 180);
+  }
+
+  // אוסף את תדריך הבוקר + נושא הידע הכללי של היום למחרוזת אחת, מעתיק ללוח
+  // ופותח את NotebookLM — כדי שכל מה שיש ללמוד היום ייכנס לשיעור אחד.
+  async function giveTodayLearningPack() {
+    addBot("רגע, אוסף את כל מה שיש ללמוד היום… ⏳");
+    const parts = [];
+    try {
+      const idx = await fetch(`../briefings/index.json?ts=${Date.now()}`, { cache: "no-cache" }).then((r) => r.json());
+      const items = (idx.briefings || []).slice().sort((a, b) => b.date.localeCompare(a.date));
+      if (items.length) {
+        const latest = items[0];
+        const md = await fetch(`../briefings/${latest.file}?ts=${Date.now()}`, { cache: "no-cache" }).then((r) => r.text());
+        parts.push(`# 🌅 תדריך בוקר — ${latest.date}\n\n${md}`);
+      }
+    } catch {}
+    try {
+      const gk = await fetch(`data/general-knowledge.json?ts=${Date.now()}`, { cache: "no-cache" }).then((r) => r.json());
+      const lessons = gk.lessons || [];
+      if (lessons.length) {
+        const last = lessons[lessons.length - 1];
+        parts.push(`# 🧠 ידע כללי — ${last.title}\n\n${last.md}`);
+      }
+    } catch {}
+    // שיעור פיננסי הבא (הראשון שלא סומן כהושלם) — כמו "▶️ המשך מכאן" בטאב פיננסים
+    try {
+      const fin = await fetch(`data/finance.json?ts=${Date.now()}`, { cache: "no-cache" }).then((r) => r.json());
+      const finLessons = fin.lessons || [];
+      if (finLessons.length) {
+        const learnState = App.store.get("learn", {});
+        const done = learnState.doneLessons || [];
+        const l = finLessons.find((x) => !done.includes(x.id)) || finLessons[0];
+        parts.push(`# 💰 פיננסים — ${l.title}\n\n${l.md}`);
+      }
+    } catch {}
+    // שיעור AI הבא (הראשון שלא סומן כהושלם) — כמו "▶️ המשך מכאן" בטאב AI
+    try {
+      const ai = await fetch(`data/ai-guide.json?ts=${Date.now()}`, { cache: "no-cache" }).then((r) => r.json());
+      const aiLessons = ai.lessons || [];
+      if (aiLessons.length) {
+        const learnState = App.store.get("learn", {});
+        const done = learnState.aiDone || [];
+        const l = aiLessons.find((x) => !done.includes(x.id)) || aiLessons[0];
+        parts.push(`# 🤖 AI — ${l.title}\n\n${l.md}`);
+      }
+    } catch {}
+
+    if (!parts.length) {
+      addBot("עדיין אין תוכן ללמידה היום 😕 נסה שוב אחרי שהשגרות היומיות ירוצו.");
+      return;
+    }
+
+    const combined = parts.join("\n\n---\n\n");
+    let copied = false;
+    try { await navigator.clipboard.writeText(combined); copied = true; } catch {}
+    window.open("https://notebooklm.google.com/", "_blank", "noopener");
+
+    addBot(copied
+      ? `הכנתי הכל ✅ — ${parts.length} נושאים של היום (תדריך בוקר, ידע כללי, פיננסים, AI — מה שזמין) הועתקו ללוח כטקסט אחד, ו-NotebookLM נפתח בכרטיסייה חדשה.<br><br>שם: <b>+ Add source → Paste text</b> → הדבק (Cmd/Ctrl+V) → Insert — ותוכל לצרוך הכל בשיעור אחד (Audio Overview/סיכום/מפת חשיבה).`
+      : `NotebookLM נפתח, אבל לא הצלחתי להעתיק אוטומטית ללוח. נסה מכל עמוד בנפרד (יש כפתור 📓 בתדריך, בידע כללי, ובכל שיעור).`);
+  }
+
+  function send() {
+    const v = inputEl.value.trim();
+    if (!v) return;
+    inputEl.value = "";
+    ask(v);
+  }
+
+  document.addEventListener("DOMContentLoaded", build);
+  return { open };
+})();
