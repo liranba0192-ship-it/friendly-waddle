@@ -29,6 +29,7 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+from urllib.parse import urlparse
 
 VIDEO_EXTS = {".mp4", ".mkv", ".mov", ".webm", ".avi", ".flv", ".m4v", ".wmv", ".mpg", ".mpeg", ".ts"}
 AUDIO_EXTS = {".wav", ".mp3", ".m4a", ".aac", ".ogg", ".flac", ".opus", ".wma"}
@@ -69,63 +70,74 @@ def is_url(s):
 # order recovers many cases without any user action.
 YT_PLAYER_CLIENTS = ["android", "ios", "tv", "web"]
 
+LOGIN_MARKERS = ("sign in to confirm", "not a bot", "login required", "log in",
+                 "cookies", "private video", "rate-limit", "age-restricted")
+
+
+def is_youtube(url):
+    host = urlparse(url).hostname or ""
+    return host == "youtu.be" or host == "youtube.com" or host.endswith(".youtube.com")
+
+
+def downloaded_media(workdir):
+    return [p for p in workdir.glob("download.*")
+            if p.suffix.lower() in VIDEO_EXTS | AUDIO_EXTS and p.stat().st_size > 0]
+
 
 def fetch_url(url, workdir, cookies=None):
-    """Download a URL to a local file using yt-dlp. Raises with guidance on failure."""
+    """Download any yt-dlp-supported URL (YouTube, TikTok, Instagram, Facebook, X,
+    Vimeo, Reddit, direct .mp4 links, ...) to a local file. Raises with guidance."""
     try:
         import yt_dlp  # noqa: F401
     except ImportError:
         raise RuntimeError("yt-dlp not installed. Run: pip install yt-dlp")
-    out_tmpl = str(workdir / "download.%(ext)s")
     base_cmd = [
         sys.executable, "-m", "yt_dlp",
-        "-f", "mp4/best",
-        "-o", out_tmpl,
+        # prefer one file with audio+video; fall back to merging separate streams
+        # (Vimeo/Facebook/X often only offer those), which needs a full ffmpeg on PATH
+        "-f", "b[ext=mp4]/b/bv*+ba",
+        "--merge-output-format", "mp4",
+        "-o", str(workdir / "download.%(ext)s"),
         "--no-playlist",
-        # grab subtitles if the platform offers them — saves us the model entirely
-        "--write-subs", "--write-auto-subs", "--sub-langs", "en.*,he.*,all",
+        # subtitles save the transcription model entirely when a platform has them
+        "--write-subs", "--write-auto-subs", "--sub-langs", "en.*,he.*,.*-orig",
         "--convert-subs", "srt",
     ]
     if cookies:
         base_cmd += ["--cookies", str(cookies)]
 
-    attempts = []
-    last_stderr = ""
-    is_bot_check = False
-    for client in YT_PLAYER_CLIENTS:
+    variants = ([["--extractor-args", f"youtube:player_client={c}"] for c in YT_PLAYER_CLIENTS]
+                if is_youtube(url) else [[]])
+    stderr = ""
+    for extra in variants:
         for f in workdir.glob("download.*"):
             f.unlink()  # clear a partial download from a previous attempt
-        cmd = base_cmd + ["--extractor-args", f"youtube:player_client={client}", url]
-        res = run(cmd, capture_output=True, text=True)
-        attempts.append(client)
-        if res.returncode == 0:
-            break
-        last_stderr = res.stderr or ""
-        if "sign in to confirm" in last_stderr.lower() or "not a bot" in last_stderr.lower():
-            is_bot_check = True
-        # non-YouTube URLs won't benefit from retrying player clients — one try is enough
-        if "youtube" not in url and "youtu.be" not in url:
-            break
-    if res.returncode != 0:
-        tail = last_stderr.strip().splitlines()[-5:]
-        if is_bot_check:
-            hint = (
-                "YouTube is showing a bot-check to this sandbox's IP (common for cloud "
-                f"IPs), even after trying player clients {attempts}. Fix: export cookies "
-                "from a signed-in browser session (e.g. the 'Get cookies.txt' extension) "
-                "and pass --cookies <file>. Reliable fallback: ask the user to upload the "
-                "video file directly instead."
-            )
-        else:
-            hint = (
-                "Download failed. Either the network policy still blocks this host, or "
-                "the URL/platform isn't supported. Ask the user to UPLOAD the file instead."
-            )
-        raise RuntimeError(hint + "\n--- yt-dlp said ---\n" + "\n".join(tail))
-    files = [p for p in workdir.iterdir() if p.suffix.lower() in VIDEO_EXTS | AUDIO_EXTS]
-    if not files:
-        raise RuntimeError("Download produced no media file.")
-    return max(files, key=lambda p: p.stat().st_size)
+        res = run(base_cmd + extra + [url], capture_output=True, text=True)
+        stderr = res.stderr or ""
+        files = downloaded_media(workdir)
+        # a failed optional subtitle fetch exits non-zero even though the video arrived
+        if files:
+            return max(files, key=lambda p: p.stat().st_size)
+        if "tunnel connection failed: 403" in stderr.lower():
+            break  # network policy denial — retrying with other clients can't help
+
+    tail = "\n".join(stderr.strip().splitlines()[-5:])
+    low = stderr.lower()
+    host = urlparse(url).hostname or url
+    if "tunnel connection failed: 403" in low:
+        hint = (f"The environment's network policy blocks {host}. Its domains must be added "
+                "to the environment's Allowed domains (see SKILL.md), or the user can upload "
+                "the video file instead.")
+    elif "unsupported url" in low:
+        hint = (f"yt-dlp has no extractor for {host}. Ask the user to upload the file, or "
+                "for a direct link to the media file itself.")
+    elif any(m in low for m in LOGIN_MARKERS):
+        hint = (f"{host} requires a login or is bot-checking this cloud IP. Pass --cookies "
+                "with a cookies.txt exported from a browser signed in to that site (e.g. the "
+                "'Get cookies.txt' extension), or ask the user to upload the file.")
+    else:
+        hint = f"Download from {host} failed. Ask the user to upload the file instead."
+    raise RuntimeError(hint + "\n--- yt-dlp said ---\n" + tail)
 
 
 def probe_duration(ffprobe, media):

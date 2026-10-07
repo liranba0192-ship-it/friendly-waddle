@@ -2,7 +2,8 @@
 name: watch-video
 description: >
   Give Claude "eyes" for video. Use whenever the user shares a video — an uploaded
-  video/audio file, a direct media URL, or a YouTube/TikTok/Instagram/Reels link — and
+  video/audio file, a direct media URL, or a link from any video platform (YouTube,
+  TikTok, Instagram/Reels, Facebook, X/Twitter, Vimeo, Reddit, and more) — and
   wants Claude to watch it, summarize it, answer questions about it, transcribe it, pull
   key moments, or otherwise understand its contents. Triggers on requests like
   "summarize this video", "what happens in this clip", "watch this", "transcribe this",
@@ -30,9 +31,11 @@ workflow to the user.
 
 ### 1. Get the media to a local path
 - **Uploaded file** (recommended, always works): use the file the user provided.
-- **URL**: pass it directly; the script uses `yt-dlp`. NOTE: many sandboxes block
-  YouTube/TikTok by default — if download fails, ask the user to upload the file instead,
-  or see [Network access](#network-access-for-url-downloads--transcription) below.
+- **URL from any platform** (YouTube, TikTok, Instagram, Facebook, X, Vimeo, Reddit,
+  direct `.mp4` links, …): pass it directly; the script uses `yt-dlp`. Video sites are
+  blocked by default network access — if the error says a host is blocked, ask the user
+  to upload the file instead, or see
+  [Network access](#network-access-for-url-downloads--transcription) below.
 
 ### 2. Run the processor
 ```bash
@@ -43,9 +46,9 @@ Useful flags:
 - `--max-frames 60` — raise the frame cap for longer/denser videos.
 - `--model small` — larger, more accurate transcription model (default `base`).
 - `--no-transcribe` — frames only (fast; good for purely visual clips).
-- `--cookies <file>` — a cookies.txt for yt-dlp. Needed if YouTube shows a bot-check to
-  this session's IP (see below); ask the user to export one from a signed-in browser
-  (e.g. the "Get cookies.txt" extension) if a download keeps failing that way.
+- `--cookies <file>` — a cookies.txt for yt-dlp. Needed when a platform wants a login
+  or bot-checks this session's IP (see below); ask the user to export one from a browser
+  signed in to that site (e.g. the "Get cookies.txt" extension).
 
 The script prints a **manifest JSON** listing every artifact. Key fields:
 `frames` (list of image paths), `frame_timestamps_sec` (parallel list of approx timestamps),
@@ -85,24 +88,72 @@ pip install -q yt-dlp faster-whisper
   `huggingface.co`, or pre-seed a model into the faster-whisper cache.
 
 ## Network access for URL downloads + transcription
-By default, Claude Code cloud environments run at **Trusted** network access — package
-registries only. That blocks both YouTube-style downloads and the transcription model
-download. Both need the environment's network access set to **Custom** with these
-domains allowed (`claude.ai/code` → environment selector → edit environment →
-**Network access**):
+URL downloads use yt-dlp, which supports 1000+ sites — YouTube, TikTok, Instagram,
+Facebook, X/Twitter, Vimeo, Reddit, Dailymotion, Twitch clips, direct `.mp4` links and more.
+The code is the same for every site; what decides whether a site works is the
+environment's network access. The default **Trusted** level allows package registries
+only, so every video site and the transcription model host are blocked.
+
+Two ways to open it (`claude.ai/code` → cloud environment menu → **Edit** → **Network access**):
+- **Full** — any domain. Every platform works, including ones not listed below. Simplest,
+  least restrictive.
+- **Limited** (shown as **Custom** in older app versions) — only the domains you list,
+  one per line. Keep **"Also include default list of common package managers"** ticked —
+  otherwise PyPI/apt get blocked and the setup script's installs fail. Paste the blocks
+  for the platforms you want:
 ```
+# transcription model (needed for speech-to-text on any platform)
+huggingface.co
+*.huggingface.co
+*.hf.co
+
+# YouTube
 youtube.com
 *.youtube.com
 youtu.be
 *.googlevideo.com
-i.ytimg.com
+*.ytimg.com
 *.ggpht.com
-huggingface.co
-*.huggingface.co
-*.hf.co
+
+# TikTok
+tiktok.com
+*.tiktok.com
+*.tiktokcdn.com
+*.tiktokcdn-us.com
+*.tiktokv.com
+*.ibytedtos.com
+*.byteoversea.com
+
+# Instagram + Facebook (share a CDN)
+instagram.com
+*.instagram.com
+*.cdninstagram.com
+facebook.com
+*.facebook.com
+fb.watch
+*.fbcdn.net
+
+# X / Twitter
+x.com
+twitter.com
+*.twitter.com
+*.twimg.com
+
+# Vimeo
+vimeo.com
+*.vimeo.com
+*.vimeocdn.com
+*.akamaized.net
+
+# Reddit
+reddit.com
+*.reddit.com
+*.redd.it
 ```
-Check **"Also include default list of common package managers"** — otherwise PyPI/apt
-get blocked too and `pip install` / `apt-get install` in the setup script fail.
+Lines starting with `#` are comments for this doc — leave them out if the field rejects them.
+For a direct media link (`https://example.com/clip.mp4`), allow that link's host.
+If a download fails with "network policy blocks <host>", add that host and start a new
+session.
 
 A setup script that installs everything once and pre-downloads the model (so every
 session after the first starts ready, via the environment's disk cache) is:
@@ -116,10 +167,12 @@ exit 0
 (Every line ends in `|| true` and the script exits 0 — a setup script that exits
 non-zero blocks the session from starting.)
 
-Even with the network open, YouTube sometimes shows a bot-check to cloud/datacenter
-IPs ("Sign in to confirm you're not a bot"). `fetch_url()` already retries a few
-internal player clients to work around this; if it still fails, use `--cookies`
-(see above) or fall back to asking the user to upload the file.
+Even with the network open, some platforms refuse cloud/datacenter IPs or require a
+login: YouTube's "Sign in to confirm you're not a bot", and Instagram/Facebook/TikTok
+for many posts. `fetch_url()` retries a few YouTube player clients automatically; for
+any platform, `--cookies` with a cookies.txt exported from a browser signed in to that
+site fixes most of these. The error message names the cause (blocked host, login
+needed, unsupported site). The fallback that always works: the user uploads the file.
 
 ## Scope notes
 - Audio-only files (mp3/wav/…) skip frames and go straight to transcript.
