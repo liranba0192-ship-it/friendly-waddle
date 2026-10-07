@@ -134,7 +134,7 @@ def fetch_url(url, workdir, cookies=None):
     elif any(m in low for m in LOGIN_MARKERS):
         hint = (f"{host} requires a login or is bot-checking this cloud IP. Pass --cookies "
                 "with a cookies.txt exported from a browser signed in to that site (e.g. the "
-                "'Get cookies.txt' extension), or ask the user to upload the file.")
+                "'Get cookies.txt LOCALLY' extension), or ask the user to upload the file.")
     else:
         hint = f"Download from {host} failed. Ask the user to upload the file instead."
     raise RuntimeError(hint + "\n--- yt-dlp said ---\n" + tail)

@@ -47,8 +47,8 @@ Useful flags:
 - `--model small` — larger, more accurate transcription model (default `base`).
 - `--no-transcribe` — frames only (fast; good for purely visual clips).
 - `--cookies <file>` — a cookies.txt for yt-dlp. Needed when a platform wants a login
-  or bot-checks this session's IP (see below); ask the user to export one from a browser
-  signed in to that site (e.g. the "Get cookies.txt" extension).
+  or bot-checks this session's IP (see below). See
+  [Exporting cookies](#exporting-cookies-safely) for how the user gets one.
 
 The script prints a **manifest JSON** listing every artifact. Key fields:
 `frames` (list of image paths), `frame_timestamps_sec` (parallel list of approx timestamps),
@@ -173,6 +173,25 @@ for many posts. `fetch_url()` retries a few YouTube player clients automatically
 any platform, `--cookies` with a cookies.txt exported from a browser signed in to that
 site fixes most of these. The error message names the cause (blocked host, login
 needed, unsupported site). The fallback that always works: the user uploads the file.
+
+## Exporting cookies safely
+Walk the user through this when a download needs `--cookies`:
+1. Install **"Get cookies.txt LOCALLY"** (Chrome/Edge) or **"cookies.txt"** (Firefox).
+   Not the older **"Get cookies.txt"** (without LOCALLY) — it was pulled from the Chrome
+   Web Store in 2023 for sending users' cookies to a remote server.
+2. Sign in to the site, open the video's page, click the extension → **Export** for the
+   current site only (never "all cookies").
+3. **YouTube only:** it rotates cookies on open tabs, so a normal export goes stale fast.
+   Export from a private/incognito window instead: sign in, open
+   `youtube.com/robots.txt` in that same tab, export, then close the window without
+   signing out.
+4. The user uploads `cookies.txt` into the chat.
+
+Handling the file: a cookies.txt is a live login — anyone holding it is signed in as
+the user. Keep it outside the repo (e.g. the session scratchpad), never commit it, and
+suggest the user sign out of that site in their browser when done, which invalidates it.
+A secondary account is safer, since platforms sometimes flag accounts used for
+automated downloads.
 
 ## Scope notes
 - Audio-only files (mp3/wav/…) skip frames and go straight to transcript.
