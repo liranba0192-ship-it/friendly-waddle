@@ -23,6 +23,24 @@ App.learn = (function () {
   function mark(id, val) {
     const d = raw(); d.marks = d.marks || {}; d.marks[String(id)] = val; save(d);
   }
+  // התקדמות "היום": נפרדת מהסימונים המצטברים (מילון / חזרה / בוחן), כדי שכשהמנות חוזרות
+  // אחרי מחזור שלם הן לא ייראו "כבר הושלמו" בגלל סימונים ישנים.
+  function dayMarks() {
+    const d = raw(), t = U.todayISO();
+    if (d.day && d.day.date === t) return d.day.marks || {};
+    if (d.lastBatchDate === t) return d.marks || {};   // תאימות: מנה שהושלמה היום לפני העדכון
+    return {};
+  }
+  function ensureDay(d) {
+    const t = U.todayISO();
+    d.marks = d.marks || {};
+    if (!d.day || d.day.date !== t) d.day = { date: t, marks: d.lastBatchDate === t ? { ...d.marks } : {} };
+    return d.day.marks;
+  }
+  function markDaily(id, val) {
+    const d = raw(), dm = ensureDay(d);
+    dm[String(id)] = val; d.marks[String(id)] = val; save(d);
+  }
   function reviewPool() {
     const m = raw().marks || {};
     return Object.keys(m).filter((k) => m[k] === "miss").map((k) => +k);
@@ -68,12 +86,17 @@ App.learn = (function () {
     // איפוס חד-פעמי: מעכשיו הסדר היומי אקראי-קבוע והאפוק זז להיום — מנקים סימונים
     // ישנים כדי שהמחזור החדש יתחיל נקי (לא נוגע ב-doneLessons/aiDone/weekQuiz).
     const d = raw();
+    const veteran = !!d.vocabResetV2 && Object.keys(d.marks || {}).length >= 30;  // משתמש ותיק שכבר התקדם
+    let dirty = false;
     if (!d.vocabResetV2) {
       d.marks = {};
       d.lastBatchDate = null;
       d.vocabResetV2 = true;
-      save(d);
+      dirty = true;
     }
+    // תאריך התחלה אישי: משתמש חדש מתחיל ממנה 1 ביום שנכנס; ותיק ממשיך מאותה נקודה כמו קודם.
+    if (!d.startDate) { d.startDate = veteran ? VOCAB_EPOCH : U.todayISO(); dirty = true; }
+    if (dirty) save(d);
     loaded = true;
   }
 
@@ -85,9 +108,10 @@ App.learn = (function () {
     const [ty, tm, td] = todayIso.split("-").map(Number);
     return Math.floor((Date.UTC(ty, tm - 1, td) - Date.UTC(ey, em - 1, ed)) / 86400000);
   }
+  const startDate = () => raw().startDate || VOCAB_EPOCH;
   function batchIndexFor(iso) {
     const totalBatches = Math.max(1, Math.ceil(words.length / BATCH));
-    const days = Math.max(0, daysSince(VOCAB_EPOCH, iso));
+    const days = Math.max(0, daysSince(startDate(), iso));
     return days % totalBatches;
   }
   function todaysBatchIndex() { return batchIndexFor(U.todayISO()); }
@@ -98,7 +122,7 @@ App.learn = (function () {
   // כל המילים שכבר הוצגו עד היום (סבב שלם → כל הרשימה; אחרת המנות 0..היום ברצף)
   function learnedWordsSoFar() {
     const totalBatches = Math.max(1, Math.ceil(words.length / BATCH));
-    const days = Math.max(0, daysSince(VOCAB_EPOCH, U.todayISO()));
+    const days = Math.max(0, daysSince(startDate(), U.todayISO()));
     if (days >= totalBatches - 1) return words.slice();
     return words.slice(0, Math.min((days + 1) * BATCH, words.length));
   }
@@ -153,7 +177,7 @@ App.learn = (function () {
   function enHomeHTML() {
     const d = raw();
     const list = curBatchWords();
-    const marks = d.marks || {};
+    const marks = dayMarks();
     const pool = reviewPool();
     const marked = list.filter((w) => marks[String(w.id)]).length;
     const got = list.filter((w) => marks[String(w.id)] === "got").length;
@@ -218,12 +242,12 @@ App.learn = (function () {
   function wireEnHome() {
     const list = curBatchWords();
     const markAndCheck = (id, act) => {
-      mark(id, act);
-      const marks = raw().marks || {};
+      markDaily(id, act);
+      const marks = dayMarks();
       if (list.every((w) => marks[String(w.id)])) { const d = raw(); d.lastBatchDate = U.todayISO(); save(d); }
     };
     const nextUnmarked = () => {
-      const marks = raw().marks || {};
+      const marks = dayMarks();
       for (let k = 1; k <= list.length; k++) { const j = (enIdx + k) % list.length; if (!marks[String(list[j].id)]) return j; }
       return Math.min(enIdx + 1, list.length - 1);
     };
@@ -241,8 +265,11 @@ App.learn = (function () {
     root.querySelectorAll("[data-wi]").forEach((b) => b.addEventListener("click", () => { enIdx = +b.dataset.wi; enReveal = false; renderHome(); }));
     const fin = root.querySelector("#en-finish-batch");
     if (fin) fin.addEventListener("click", () => {
-      const d = raw(); d.marks = d.marks || {};
-      list.forEach((w) => { if (!d.marks[String(w.id)]) d.marks[String(w.id)] = "got"; });
+      const d = raw(), dm = ensureDay(d);
+      list.forEach((w) => {
+        const id = String(w.id);
+        if (!dm[id]) { dm[id] = "got"; if (!d.marks[id]) d.marks[id] = "got"; }
+      });
       d.lastBatchDate = U.todayISO(); save(d); renderHome();
     });
     const pr = root.querySelector("#en-practice");
@@ -800,7 +827,7 @@ App.learn = (function () {
   async function todayProgress() {
     await ensure();
     const list = curBatchWords();
-    const marks = raw().marks || {};
+    const marks = dayMarks();
     const done = list.filter((w) => marks[String(w.id)]).length;
     const next = list.find((w) => !marks[String(w.id)]);
     return { done, total: list.length || 10, next: next ? next.en : "" };
