@@ -8,6 +8,8 @@ Given a local video/audio file OR a URL, this produces a working directory with:
   - transcript.json     : transcript with per-segment timestamps
   - subs.srt            : embedded subtitle track, if the file has one (no model needed)
   - audio.wav           : extracted 16kHz mono audio (input to transcription)
+  - page.md             : for URLs, the page itself — title, uploader, counts,
+                          description, chapters, tags, top comments
   - manifest.json       : index of everything above + metadata
 
 It prints the manifest as JSON to stdout so the caller knows what was produced.
@@ -84,9 +86,11 @@ def downloaded_media(workdir):
             if p.suffix.lower() in VIDEO_EXTS | AUDIO_EXTS and p.stat().st_size > 0]
 
 
-def fetch_url(url, workdir, cookies=None):
-    """Download any yt-dlp-supported URL (YouTube, TikTok, Instagram, Facebook, X,
-    Vimeo, Reddit, direct .mp4 links, ...) to a local file. Raises with guidance."""
+def fetch_url(url, workdir, cookies=None, page_only=False, comments=0):
+    """Open any yt-dlp-supported URL (YouTube, TikTok, Instagram, Facebook, X, Vimeo,
+    Reddit, direct .mp4 links, ...): save the page's info (download.info.json) and
+    subtitles, and unless page_only, the media file. Returns the media path (None when
+    page_only). Raises with guidance."""
     try:
         import yt_dlp  # noqa: F401
     except ImportError:
@@ -99,14 +103,22 @@ def fetch_url(url, workdir, cookies=None):
         "--merge-output-format", "mp4",
         "-o", str(workdir / "download.%(ext)s"),
         "--no-playlist",
+        # the page itself: title, uploader, description, chapters, counts, comments
+        "--write-info-json",
         # subtitles save the transcription model entirely when a platform has them
         "--write-subs", "--write-auto-subs", "--sub-langs", "en.*,he.*,.*-orig",
         "--convert-subs", "srt",
     ]
+    if page_only:
+        base_cmd.append("--skip-download")
+    if comments > 0:
+        base_cmd.append("--write-comments")
     if cookies:
         base_cmd += ["--cookies", str(cookies)]
 
-    variants = ([["--extractor-args", f"youtube:player_client={c}"] for c in YT_PLAYER_CLIENTS]
+    yt_extra = f";max_comments={comments},all,0" if comments > 0 else ""
+    variants = ([["--extractor-args", f"youtube:player_client={c}{yt_extra}"]
+                 for c in YT_PLAYER_CLIENTS]
                 if is_youtube(url) else [[]])
     stderr = ""
     for extra in variants:
@@ -114,8 +126,10 @@ def fetch_url(url, workdir, cookies=None):
             f.unlink()  # clear a partial download from a previous attempt
         res = run(base_cmd + extra + [url], capture_output=True, text=True)
         stderr = res.stderr or ""
+        # a failed optional subtitle fetch exits non-zero even though the rest arrived
+        if page_only and (workdir / "download.info.json").exists():
+            return None
         files = downloaded_media(workdir)
-        # a failed optional subtitle fetch exits non-zero even though the video arrived
         if files:
             return max(files, key=lambda p: p.stat().st_size)
         if "tunnel connection failed: 403" in stderr.lower():
@@ -138,6 +152,69 @@ def fetch_url(url, workdir, cookies=None):
     else:
         hint = f"Download from {host} failed. Ask the user to upload the file instead."
     raise RuntimeError(hint + "\n--- yt-dlp said ---\n" + tail)
+
+
+def fmt_ts(sec):
+    sec = int(sec or 0)
+    h, rem = divmod(sec, 3600)
+    m, s = divmod(rem, 60)
+    return f"{h}:{m:02d}:{s:02d}" if h else f"{m}:{s:02d}"
+
+
+def write_page_info(dl_dir, outdir, max_comments):
+    """Turn yt-dlp's download.info.json into page.md (what Claude reads) and a short
+    summary for the manifest. Returns None when the page info wasn't saved."""
+    info_path = dl_dir / "download.info.json"
+    if not info_path.exists():
+        return None
+    info = json.loads(info_path.read_text(encoding="utf-8"))
+
+    date = info.get("upload_date") or ""
+    if len(date) == 8:
+        date = f"{date[:4]}-{date[4:6]}-{date[6:]}"
+    chapters = [{"start": c.get("start_time"), "title": c.get("title")}
+                for c in info.get("chapters") or []]
+    comments = sorted(info.get("comments") or [],
+                      key=lambda c: c.get("like_count") or 0, reverse=True)[:max_comments]
+
+    summary = {
+        "title": info.get("title"),
+        "uploader": info.get("uploader") or info.get("channel") or info.get("creator"),
+        "platform": info.get("extractor_key"),
+        "url": info.get("webpage_url") or info.get("original_url"),
+        "upload_date": date or None,
+        "duration_sec": info.get("duration"),
+        "view_count": info.get("view_count"),
+        "like_count": info.get("like_count"),
+        "comment_count": info.get("comment_count"),
+        "n_chapters": len(chapters),
+        "n_comments_saved": len(comments),
+    }
+
+    md = [f"# {summary['title'] or '(untitled)'}", ""]
+    for label, key in (("Uploader", "uploader"), ("Platform", "platform"), ("URL", "url"),
+                       ("Uploaded", "upload_date"), ("Views", "view_count"),
+                       ("Likes", "like_count"), ("Comments", "comment_count")):
+        if summary[key] is not None:
+            md.append(f"- **{label}:** {summary[key]}")
+    if summary["duration_sec"]:
+        md.append(f"- **Duration:** {fmt_ts(summary['duration_sec'])}")
+    tags = info.get("tags") or []
+    if tags:
+        md.append(f"- **Tags:** {', '.join(tags[:20])}")
+    if chapters:
+        md += ["", "## Chapters"] + [f"- {fmt_ts(c['start'])} {c['title']}" for c in chapters]
+    desc = (info.get("description") or "").strip()
+    if desc:
+        md += ["", "## Description", desc[:8000]]
+    if comments:
+        md += ["", f"## Top {len(comments)} comments (by likes)"]
+        md += [f"- **{c.get('author') or '?'}** ({c.get('like_count') or 0} likes): "
+               f"{(c.get('text') or '').strip()}" for c in comments]
+
+    page_md = outdir / "page.md"
+    page_md.write_text("\n".join(md) + "\n", encoding="utf-8")
+    return summary, page_md
 
 
 def probe_duration(ffprobe, media):
@@ -281,6 +358,11 @@ def main():
                          "shows a bot-check to this sandbox's IP")
     ap.add_argument("--check", action="store_true",
                     help="Preflight only: report what's usable and exit (no input needed)")
+    ap.add_argument("--page-only", action="store_true",
+                    help="For a URL: read the page (title, description, chapters, "
+                         "subtitles, comments) without downloading the video")
+    ap.add_argument("--comments", type=int, default=0,
+                    help="For a URL: also save the top N comments (by likes)")
     args = ap.parse_args()
 
     if args.check:
@@ -297,10 +379,29 @@ def main():
     outdir.mkdir(parents=True, exist_ok=True)
     dl_dir = outdir / "dl"; dl_dir.mkdir(exist_ok=True)
 
-    # 1. Resolve media to a local file
+    # 1. Open the link (page info + subtitles, and the media unless --page-only)
+    page = None
     if is_url(args.input):
         log(f"Fetching URL: {args.input}")
-        media = fetch_url(args.input, dl_dir, cookies=args.cookies)
+        media = fetch_url(args.input, dl_dir, cookies=args.cookies,
+                          page_only=args.page_only, comments=args.comments)
+        page = write_page_info(dl_dir, outdir, args.comments)
+        if args.page_only:
+            subs = next(iter(dl_dir.glob("*.srt")), None)
+            if subs:
+                shutil.copy(subs, outdir / "subs.srt")
+            manifest = {
+                "input": str(args.input),
+                "outdir": str(outdir),
+                "mode": "page_only",
+                "page": page[0] if page else None,
+                "page_file": str(page[1]) if page else None,
+                "subtitles": str(outdir / "subs.srt") if subs else None,
+            }
+            (outdir / "manifest.json").write_text(
+                json.dumps(manifest, ensure_ascii=False, indent=2))
+            print(json.dumps(manifest, ensure_ascii=False, indent=2))
+            return
     else:
         media = Path(args.input).expanduser().resolve()
         if not media.exists():
@@ -330,6 +431,8 @@ def main():
         "frame_interval_sec": round(interval, 2),
         "is_audio_only": is_audio_only,
         "ffmpeg": ffmpeg,
+        "page": page[0] if page else None,
+        "page_file": str(page[1]) if page else None,
     }
 
     # 4. Frames (skip for audio-only)

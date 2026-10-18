@@ -32,10 +32,14 @@ workflow to the user.
 ### 1. Get the media to a local path
 - **Uploaded file** (recommended, always works): use the file the user provided.
 - **URL from any platform** (YouTube, TikTok, Instagram, Facebook, X, Vimeo, Reddit,
-  direct `.mp4` links, …): pass it directly; the script uses `yt-dlp`. Video sites are
+  direct `.mp4` links, …): pass it directly; the script uses `yt-dlp`. It opens the link
+  and saves the page itself (title, uploader, date, views/likes, description, chapters,
+  tags, optionally comments) to `page.md`, plus subtitles and the video. Video sites are
   blocked by default network access — if the error says a host is blocked, ask the user
   to upload the file instead, or see
   [Network access](#network-access-for-url-downloads--transcription) below.
+- **A link that isn't a video** (article, product page, a post without media): the script
+  reports "no extractor" / "unsupported URL". Read the page with WebFetch instead.
 
 ### 2. Run the processor
 ```bash
@@ -49,12 +53,23 @@ Useful flags:
 - `--cookies <file>` — a cookies.txt for yt-dlp. Needed when a platform wants a login
   or bot-checks this session's IP (see below). See
   [Exporting cookies](#exporting-cookies-safely) for how the user gets one.
+- `--page-only` — open the link and read the page + subtitles **without downloading the
+  video**. Seconds instead of minutes. Use it when the user asks what a link is, about
+  its description/chapters/comments, or for a quick summary of a long video that has
+  subtitles; escalate to a full run if the answer needs what's on screen.
+- `--comments 20` — also save the top N comments by likes (into `page.md`). Use when
+  the user asks about reactions, questions people raised, or reception.
 
 The script prints a **manifest JSON** listing every artifact. Key fields:
 `frames` (list of image paths), `frame_timestamps_sec` (parallel list of approx timestamps),
-`transcript`, `subtitles`, `transcript_status`, `duration_sec`.
+`transcript`, `subtitles`, `transcript_status`, `duration_sec`, and for URLs `page`
+(title, uploader, counts) and `page_file` (path to `page.md`).
 
 ### 3. Perceive the content
+- **Read the page first** (URLs): Read `page_file`. The title, description and
+  **chapters** frame everything else — chapters give named, timestamped sections to
+  hang a summary on; the description often lists products, links or steps that are
+  only shown briefly on screen.
 - **Read the frames**: use the Read tool on the paths in `frames`. Read them in order —
   index `i` corresponds to `frame_timestamps_sec[i]` seconds into the video. For long
   videos, read a representative spread first, then zoom into the region the user asks about.
@@ -65,7 +80,8 @@ The script prints a **manifest JSON** listing every artifact. Key fields:
 ### 4. Answer the user
 Produce exactly what they asked for — a bullet summary, an answer to a specific question,
 a full transcript, or a timestamped list of key moments. Cite timestamps (e.g. "at ~0:45")
-so the user can jump to the moment. Reason from BOTH the frames and the transcript.
+so the user can jump to the moment. Reason from the frames, the transcript and the page.
+Say what each claim came from when it matters — the description says X, the video shows Y.
 
 ## Important: transcription may be unavailable
 Speech-to-text needs a model that downloads from the network. If the sandbox blocks the
